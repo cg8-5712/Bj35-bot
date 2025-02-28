@@ -1,25 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-作者: https://github.com/cg8-5712
-日期: 2025-02-19
-版权 (c) 2025 董志成 G2-13
-保留所有权利。
+Author: https://github.com/cg8-5712
+Date: 2025-02-19
+Copyright (c) 2025 Dong Zhicheng G2-13
+All rights reserved.
 
-本文件是Bj35-Robot-Project项目的一部分。
+This file is part of the Bj35-Robot-Project.
 
-本软件遵循GNU Affero通用公共许可证第3版(AGPL-3.0)。
-除非遵守该许可证，否则不得使用本文件。
-您可以在以下位置获取许可证副本：
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-    https://www.gnu.org/licenses/agpl-3.0.html
+    http://www.apache.org/licenses/LICENSE-2.0
 
-本软件按"原样"提供，不提供任何形式的担保或条件，
-无论是明示的还是暗示的。请参阅许可证了解具体的权限和限制。
-
-如果您修改并使用本软件通过网络提供服务，则必须向该服务的用户
-提供您修改版本的源代码。
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 """
+
 
 import hashlib
 import hmac
@@ -28,62 +29,75 @@ import time
 import uuid
 import aiohttp
 import asyncio
-from urllib.parse import urlencode
 
-
-# 生成签名的函数
+# Function to generate signature asynchronously
 async def generate_signature_async(params, access_key_secret):
-    # 按字典顺序排序请求参数
+    # Sort request parameters in dictionary order
     sorted_params = sorted(params.items())
 
-    # 构造规范化请求字符串
-    canonical_string = urlencode(sorted_params)
+    print(f"Sorted request parameters: {sorted_params}")
 
-    # 构造HMAC签名
+    # Construct canonical request string
+    canonical_string = "&".join([f"{key}={value}" for key, value in sorted_params])
+    print(f"Canonical request string: {canonical_string}")
+
+    # Construct HMAC signature
     message = canonical_string.encode('utf-8')
     key = (access_key_secret + "&").encode('utf-8')
     signature = hmac.new(key, message, hashlib.sha1).digest()
+    print(f"message: {message}")
+    print(f"HMAC signature: {base64.b64encode(signature).decode('utf-8')}")
 
-    # 对签名进行Base64编码
+    # Base64 encode the signature
     return base64.b64encode(signature).decode('utf-8')
 
 
-# 获取accessToken的方法
+# Method to get accessToken
 async def get_access_token_async(access_key_id, access_key_secret):
-    # 当前时间戳
+    # Current timestamp
     timestamp = time.strftime('%Y-%m-%dT%H:%M:%S+08:00', time.gmtime())
 
-    # 唯一的signatureNonce
+    print(f"Current timestamp: {timestamp}")
+
+    # Unique signatureNonce
     signature_nonce = str(uuid.uuid4())
 
     print(signature_nonce)
 
-    # 请求参数
+    # Request parameters
     params = {
+        # "signature": "",
+        "signatureNonce": signature_nonce,
         "accessKeyId": access_key_id,
         "timestamp": timestamp,
-        "signatureNonce": signature_nonce,
     }
 
-    # 生成签名
+    # Generate signature
     signature = await generate_signature_async(params, access_key_secret)
 
-    # 将签名添加到请求参数中
+    # Add signature to request parameters
     params["signature"] = signature
 
-    # 发送请求获取accessToken
+    params = {
+        "signature": signature,
+        "signatureNonce": signature_nonce,
+        "accessKeyId": access_key_id,
+        "timestamp": timestamp,
+    }
+
+    print(f"Request parameters: {params}")
+
+    # Send request to get accessToken
     url = "https://open-api.yunjiai.cn/v3/auth/accessToken"
 
-    # 解析响应
+    # Parse response
     async with aiohttp.ClientSession() as session:
-        async with session.post(url, data=params) as response:
+        async with session.post(url, json=params) as response:
             response_data = await response.json()
-            if response_data["code"] == 0:
-                return response_data["data"]["accessToken"]
-            raise Exception(f"错误: {response_data['message']}")
+            print(response_data)
+            raise Exception(f"Error: {response_data['message']}")
 
 
-# 示例用法
 access_key_id = "6DkfdbFN1lrz1I1c"
 access_key_secret = "keH70VXm8Es1o3krnSsblpJu646FfciD"
 
@@ -92,7 +106,6 @@ def get_access_token(access_key_id, access_key_secret):
 
 try:
     access_token = get_access_token(access_key_id, access_key_secret)
-    print(f"获取的accessToken: {access_token}")
+    print(f"Obtained accessToken: {access_token}")
 except Exception as e:
-    print(f"获取accessToken失败: {e}")
-
+    print(f"Failed to obtain accessToken: {e}")
