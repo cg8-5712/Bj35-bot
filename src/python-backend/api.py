@@ -32,5 +32,4 @@ if __name__ == '__main__':
     device_bot1_cabin = Config().deviceId
     print(device_bot1_cabin)
     res = asyncio.run(get_device_status(device_bot1_cabin))
-    # res = asyncio.run(get_device_list())
     print(res)
