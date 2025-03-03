@@ -69,5 +69,13 @@ class Config:
         device id
         :return: list
         """
-        divice_id = os.getenv("device_bot1_cabin")  # 获取设备id字符串
+        divice_id = os.getenv("device_bot1_cabin")
         return divice_id
+
+    @property
+    def inside_token(self):
+        """
+        device name
+        :return: str
+        """
+        return os.getenv("inside_token")
