@@ -15,3 +15,4 @@
 - 董致澄：api相关（函数封装）
 - 姚涵予：websocket
 - 孙厚泽、王仕鑫：html
+- [卞雨涵](https://github.com/AptS-1547)：远端技术支持

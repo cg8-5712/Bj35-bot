@@ -13,14 +13,24 @@
 - 访问令牌管理
 
 ## 技术栈
-- 前端：HTML/CSS/JavaScript
+- 前端：Vite + Vue3
 - 后端：Python Flask
 - 数据库：SQLite
 
 ## 快速开始
-1. 安装依赖：`pip install -r requirements.txt`
-2. 启动服务：`python src/python-backend/api.py`
-3. 访问 `http://localhost:8080/api/v1`
+
+### 前端
+
+1. 安装依赖：`yarn install`
+2. 启动服务：`yarn dev`
+3. 访问 `http://localhost:5173`
+
+### 后端
+
+1. 创建虚拟环境并激活：`python -m venv .venv && source .venv/bin/activate`
+2. 安装依赖：`pip install -r requirements.txt`
+3. 启动服务：`python src/python-backend/api/app.py`
+4. 访问 `http://localhost:8080/api/v1`
 
 ## 相关文档
 - [开发文档](docs/开发文档.md)

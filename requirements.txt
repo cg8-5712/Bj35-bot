@@ -1,0 +1,6 @@
+flask
+flask[async]
+flask_cors
+dotenv
+aiohttp
+PyJWT
