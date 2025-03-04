@@ -63,7 +63,7 @@ async def get_running_task(storeId):
 #         async with session.get(f'https://open-api.yunjiai.cn/v3/rcs/task/running-task/list', json={'storeId': storeId}) as response:
 #             return json.loads(await response.text())
 
-async def make_task_flow():
+async def make_task_flow(target):
     headers = create_headers()
     data = {
   # "outTaskId": "53c593e7-766d-4646-8b58-0b795ded0ed6",
@@ -72,7 +72,7 @@ async def make_task_flow():
   "params": {
     "dockCabinId": "1309143264909201408",
     # "chassisId": "3949399854845849594854",
-    "target": "charge_point_1F_40300716",
+    "target": target,
     "overtime": 30,
     "overtimeEvent": "down",
     "startVoice": "",
@@ -83,7 +83,7 @@ async def make_task_flow():
         async with session.post(f'https://open-api.yunjiai.cn/v3/rcs/task/flow/execute', json=data) as response:
             return json.loads(await response.text())
 
-async def make_task_flow_move_and_lift():
+async def make_task_flow_move_and_lift(target):
     headers = create_headers()
     data = {
   # "outTaskId": "53c593e7-766d-4646-8b58-0b795ded0ed6",
@@ -92,7 +92,7 @@ async def make_task_flow_move_and_lift():
   "params": {
     "dockCabinId": "1309143264909201408",
     # "chassisId": "3949399854845849594854",
-    "target": "Y103",
+    "target": target,
     "overtime": 30,
     "overtimeEvent": "down",
     "startVoice": "",
