@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-export async function login(username, password, rememberMe) {
+export async function login_post(username, password, rememberMe) {
   try {
     const response = await axios.post(`${import.meta.env.VITE_APP_API_URL}/login`, {
         username,
@@ -15,4 +15,8 @@ export async function login(username, password, rememberMe) {
   } catch (error) {
     throw new Error(error.response.data.message || 'Login failed')
   }
+}
+
+export async function status (){
+    return 0;
 }
