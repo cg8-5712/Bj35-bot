@@ -1,7 +1,5 @@
 <template>
-    <div>    
-      <MessageInfo ref="messageInfo" />
-    
+    <div>
       <div class="flex min-h-full flex-1 flex-col justify-center py-12 sm:px-6 lg:px-8 mx-auto p-6">
 
         <div class="sm:mx-auto sm:w-full sm:max-w-md">
@@ -56,7 +54,7 @@
   import { useRouter } from 'vue-router'
 
   import AuthService from '@/services/AuthService'
-  import MessageInfo from '@/components/MessageInfo.vue'
+  import notificationService from '@/services/NotificationService'
 
   const router = useRouter()
 
@@ -71,18 +69,18 @@
   async function handleLogin() {
     try {
 
-      messageInfo.value.setMessage('登录中……', 'info')
+      notificationService.notify('登录中……', 'info')
       await AuthService.login(username.value, password.value, rememberMe.value)
 
       if (AuthService.isAuthenticated()) {
-        messageInfo.value.setMessage('登录成功', 'success')
+        notificationService.notify('登录成功', 'success')
         router.push('/')
       } else {
-        messageInfo.value.setMessage('登录失败', 'error')
+        notificationService.notify('登录失败', 'error')
       }
     } catch (error) {
       console.error('Failed to login:', error.message)
-      messageInfo.value.setMessage('系统错误：' + error.message, 'error')
+      notificationService.notify('系统错误：' + error.message, 'error')
     }
   }
 </script>

@@ -109,7 +109,13 @@
                 <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
                   <MenuItems class="absolute right-0 z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white py-2 ring-1 shadow-lg ring-gray-900/5 focus:outline-hidden">
                     <MenuItem v-for="item in userNavigation" :key="item.name" v-slot="{ active }">
-                      <a :href="item.href" :class="[active ? 'bg-gray-50 outline-hidden' : '', 'block px-3 py-1 text-sm/6 text-gray-900']">{{ item.name }}</a>
+                      <a 
+                        :href="item.href" 
+                        :class="[active ? 'bg-gray-50 outline-hidden' : '', 'block px-3 py-1 text-sm/6 text-gray-900']"
+                        @click.prevent="item.action ? item.action() : null"
+                      >
+                        {{ item.name }}
+                      </a>
                     </MenuItem>
                   </MenuItems>
                 </transition>
@@ -129,6 +135,9 @@
   
   <script setup>
   import { ref } from 'vue'
+  import { useRouter } from 'vue-router'
+  import AuthService from '@/services/AuthService'
+  
   import {
     Dialog,
     DialogPanel,
@@ -143,14 +152,20 @@
     Bars3Icon,
     BellIcon,
     ChartBarSquareIcon,
-    ChartPieIcon,
     Cog6ToothIcon,
     DocumentArrowUpIcon,
     HomeIcon,
     XMarkIcon,
   } from '@heroicons/vue/24/outline'
-  import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
+  import { ChevronDownIcon } from '@heroicons/vue/20/solid'
   
+  const router = useRouter()
+
+  function logout() {
+    AuthService.logout()
+    router.push('/login')
+  }
+
   const navigation = [
     { name: '主页', href: '#', icon: HomeIcon, current: true },
     { name: '发布任务', href: '#', icon: DocumentArrowUpIcon, current: false },
@@ -158,7 +173,7 @@
   ]
   const userNavigation = [
     { name: '个人资料', href: '#' },
-    { name: '退出登录', href: '#' },
+    { name: '退出登录', href: '#', action: logout },
   ]
   
   const sidebarOpen = ref(false)
