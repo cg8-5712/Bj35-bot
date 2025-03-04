@@ -13,15 +13,17 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 URI_PREFIX = "/api/v1"
 
 import config, api
+cfg = config.Config()
 
 app = Flask(__name__)
 gunicorn_logger = logging.getLogger('gunicorn.error')
 app.logger.handlers = gunicorn_logger.handlers
 app.logger.setLevel(gunicorn_logger.level)
+app.config['JWT_SECRET_KEY'] = cfg.SECRET_KEY
 
 jwt_manager = JWTManager(app)
 CORS(app)
-cfg = config.Config()
+
 
 
 # def token_required(f):
