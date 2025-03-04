@@ -1,5 +1,4 @@
 # API Usage Documentation
-
 ## 1. Overview
 This API is built using Flask and provides endpoints to access device information and statuses. All requests require authentication via a valid Token. Without a valid token, access to the API will be denied.
 
