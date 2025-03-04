@@ -33,6 +33,11 @@ def signature(request, i):
     timestamp = request.args.get('timestamp', '')
     nonce = request.args.get('nonce', '')
     echo_str = request.args.get('echostr', '')
+    print("msg_signature: " + msg_signature)
+    print("timestamp: " + timestamp)
+    print("nonce: " + nonce)
+    print("echo_str: " + echo_str)
+
     ret, sEchoStr = qy_api[i].VerifyURL(msg_signature, timestamp, nonce, echo_str)
     if (ret != 0):
         print("ERR: VerifyURL ret: " + str(ret))
@@ -47,6 +52,10 @@ def signature2(request, i):
     timestamp = request.args.get('timestamp', '')
     nonce = request.args.get('nonce', '')
     data = request.data.decode('utf-8')
+    print("msg_signature: " + msg_signature)
+    print("timestamp: " + timestamp)
+    print("nonce: " + nonce)
+    print("data: " + data)
     ret, sMsg = qy_api[i].DecryptMsg(data, msg_signature, timestamp, nonce)
     if (ret != 0):
         print("ERR: DecryptMsg ret: " + str(ret))
