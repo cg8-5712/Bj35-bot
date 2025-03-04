@@ -33,8 +33,9 @@
 #### 步骤
 
 1. 安装依赖：`yarn install`
-2. 启动服务：`yarn dev`
-3. 访问 `http://localhost:5173`
+2. 复制 `.env.examples` 为 `.env.development`
+3. 启动服务：`yarn dev`
+4. 访问 `http://localhost:5173`
 
 ### 后端
 

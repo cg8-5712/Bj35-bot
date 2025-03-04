@@ -28,3 +28,6 @@ dist-ssr
 *.sw?
 
 *.iml
+
+.env.development
+.env.production
