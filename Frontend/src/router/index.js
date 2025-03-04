@@ -1,19 +1,23 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import status from '@/views/Status.vue'
-import dashboard from '@/views/Dashboard.vue'
-import NotFound from '@/views/NotFound.vue'
-import login from '@/views/login.vue'
+import AuthService from '@/services/AuthService'
 
 const routes = [
-  { path: '/', name: 'status', component: status },
-  { path: '/dashboard', name: 'dashboard', component: dashboard},
-  { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
-  { path: '/login', name: 'login', component: login }
+  { path: '/', name: 'Dashboard', component: () => import('@/views/dashboard.vue') },
+  { path: '/login', name: 'Login', component: () => import('@/views/Login.vue') },
+  { path: '/:pathMatch(.*)*', name: 'NotFound', component: () => import('@/views/NotFound.vue') }
 ]
 
 const router = createRouter({
   history: createWebHistory(),
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  if (to.name !== 'Login' && !AuthService.isAuthenticated()) {
+    next({ name: 'Login' })
+  } else {
+    next()
+  }
 })
 
 export default router

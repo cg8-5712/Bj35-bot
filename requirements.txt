@@ -1,6 +1,7 @@
 flask
 flask[async]
 flask_cors
+flask_jwt_extended
 dotenv
 aiohttp
 PyJWT
