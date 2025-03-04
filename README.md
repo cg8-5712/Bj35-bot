@@ -20,7 +20,7 @@
 ## 快速开始
 1. 安装依赖：`pip install -r requirements.txt`
 2. 启动服务：`python src/python-backend/api.py`
-3. 访问 `http://localhost:5000`
+3. 访问 `http://localhost:8080/api/v1`
 
 ## 相关文档
 - [开发文档](docs/开发文档.md)
