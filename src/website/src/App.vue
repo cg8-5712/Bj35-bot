@@ -1,9 +1,9 @@
 <script setup>
-import status from './components/status.vue'
+  import { RouterLink, RouterView } from 'vue-router'
 </script>
 
 <template>
-  <status />
+  <RouterView />
 </template>
 
 <style scoped>
