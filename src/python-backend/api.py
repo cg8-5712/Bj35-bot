@@ -1,7 +1,5 @@
 from urllib import response
 
-from tensorflow.python.framework.config import get_device_policy
-
 from config import Config
 import aiohttp
 import asyncio

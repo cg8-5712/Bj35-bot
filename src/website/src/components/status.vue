@@ -20,7 +20,8 @@ const position = ref({
 });
 const robotStatus = ref("");
 
-onMounted(async () => {
+// 封装获取状态的函数
+const fetchStatus = async () => {
   try {
     const data = await status();
     robotIdValue.value = data['data']['deviceInfo']['deviceId'];
@@ -30,6 +31,14 @@ onMounted(async () => {
   } catch (error) {
     console.error(error);
   }
+};
+
+// 在组件挂载时立即获取一次状态
+onMounted(async () => {
+  await fetchStatus();
+  
+  // 设置定时器定期更新状态
+  setInterval(fetchStatus, 10000);
 });
 </script>
 
