@@ -1,25 +1,23 @@
 // api.js
+
+import axios from 'axios';
+
 export async function status() {
     const id = '1309097125891674112';
-    const headers = new Headers();
-    headers.append('Accept', 'application/json');
-    headers.append('Content-Type', 'application/json');
-    headers.append('token', 'eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiSm9obiIsImFkbWluIjp0cnVlfQ.')
+    
+    const headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'token': 'eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiSm9obiIsImFkbWluIjp0cnVlfQ.',
+    }
+
     try {
-        const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/${id}`, {
-            method: 'GET',
+        const response = await axios.get(`${import.meta.env.VITE_APP_API_URL}/device_status/${id}`, {
             headers: headers
         });
-        if (!res.ok) {
-            throw new Error('NetworkError');
-        }
-
-        const res_data = await res.json();
-
-        return res_data;
-
+        return response.data;
     } catch (error) {
         console.error(error);
-        throw error;
+        return null;
     }
 }

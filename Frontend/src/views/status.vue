@@ -13,7 +13,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { status } from "@/api/api.js";
 
 import MessageInfo from "@/components/MessageInfo.vue"
@@ -27,26 +27,39 @@ const position = ref({
   z: 0
 });
 const robotStatus = ref("");
+const intervalId = ref(null);
 
-// 封装获取状态的函数
 const fetchStatus = async () => {
   try {
     const data = await status();
+
+    if ( data === null || data === undefined || data['data'] === undefined) {
+      messageInfo.value.setMessage('获取失败：网络错误', 'error')
+      return;
+    }
+
     robotIdValue.value = data['data']['deviceInfo']['deviceId'];
     batteryLevel.value = data['data']['deviceStatus']['powerPercent'];
     position.value = data['data']['deviceStatus']['position']['orientation'];
     robotStatus.value = data['data']['deviceStatus']['isIdle'] === true ? "Idle" : "Busy";
-    messageInfo.value.setMessage('获取成功', 'success')
+    messageInfo.value.closeNotification();
+
   } catch (error) {
-    console.error(error);
-    messageInfo.value.setMessage('系统错误', 'error')
+    messageInfo.value.setMessage('获取失败', 'error')
   }
 };
 
-// 在组件挂载时立即获取一次状态
 onMounted(async () => {
   await fetchStatus();
 
-  setInterval(fetchStatus, 10000);
+  intervalId.value = setInterval(fetchStatus, 10000);
 });
+
+onBeforeUnmount(() => {
+  if (intervalId.value) {
+    clearInterval(intervalId.value);
+    intervalId.value = null;
+  }
+});
+
 </script>

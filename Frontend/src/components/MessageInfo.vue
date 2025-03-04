@@ -55,6 +55,7 @@ defineExpose({
     message.value = newMessage
     type.value = newType
     show.value = true
-  }
+  },
+  closeNotification
 })
 </script>
