@@ -6,7 +6,7 @@ export async function status() {
     headers.append('Content-Type', 'application/json');
     headers.append('token', 'eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiSm9obiIsImFkbWluIjp0cnVlfQ.')
     try {
-        const res = await fetch(`http://127.0.0.1:8080/api/v1/device_status/${id}`, {
+        const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/${id}`, {
             method: 'GET',
             headers: headers
         });
