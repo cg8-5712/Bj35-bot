@@ -26,7 +26,7 @@ onMounted(async () => {
     robotIdValue.value = data['data']['deviceInfo']['deviceId'];
     batteryLevel.value = data['data']['deviceStatus']['powerPercent'];
     position.value = data['data']['deviceStatus']['position']['orientation'];
-    robotStatus.value = data['data']['deviceStatus']['isIdle'] === "True" ? "Idle" : "Busy";
+    robotStatus.value = data['data']['deviceStatus']['isIdle'] === true ? "Idle" : "Busy";
   } catch (error) {
     console.error(error);
   }
@@ -34,5 +34,5 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* 你的样式代码 */
+
 </style>
