@@ -34,23 +34,6 @@
                           </li>
                         </ul>
                       </li>
-                      <li>
-                        <div class="text-xs/6 font-semibold text-indigo-200">Your teams</div>
-                        <ul role="list" class="-mx-2 mt-2 space-y-1">
-                          <li v-for="team in teams" :key="team.name">
-                            <a :href="team.href" :class="[team.current ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']">
-                              <span class="flex size-6 shrink-0 items-center justify-center rounded-lg border border-indigo-400 bg-indigo-500 text-[0.625rem] font-medium text-white">{{ team.initial }}</span>
-                              <span class="truncate">{{ team.name }}</span>
-                            </a>
-                          </li>
-                        </ul>
-                      </li>
-                      <li class="mt-auto">
-                        <a href="#" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-indigo-200 hover:bg-indigo-700 hover:text-white">
-                          <Cog6ToothIcon class="size-6 shrink-0 text-indigo-200 group-hover:text-white" aria-hidden="true" />
-                          Settings
-                        </a>
-                      </li>
                     </ul>
                   </nav>
                 </div>
@@ -79,17 +62,6 @@
                   </li>
                 </ul>
               </li>
-              <li>
-                <div class="text-xs/6 font-semibold text-indigo-200">Your teams</div>
-                <ul role="list" class="-mx-2 mt-2 space-y-1">
-                  <li v-for="team in teams" :key="team.name">
-                    <a :href="team.href" :class="[team.current ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']">
-                      <span class="flex size-6 shrink-0 items-center justify-center rounded-lg border border-indigo-400 bg-indigo-500 text-[0.625rem] font-medium text-white">{{ team.initial }}</span>
-                      <span class="truncate">{{ team.name }}</span>
-                    </a>
-                  </li>
-                </ul>
-              </li>
               <li class="mt-auto">
                 <a href="#" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-indigo-200 hover:bg-indigo-700 hover:text-white">
                   <Cog6ToothIcon class="size-6 shrink-0 text-indigo-200 group-hover:text-white" aria-hidden="true" />
@@ -112,10 +84,9 @@
           <div class="h-6 w-px bg-gray-900/10 lg:hidden" aria-hidden="true" />
   
           <div class="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-            <form class="grid flex-1 grid-cols-1" action="#" method="GET">
-              <input type="search" name="search" aria-label="Search" class="col-start-1 row-start-1 block size-full bg-white pl-8 text-base text-gray-900 outline-hidden placeholder:text-gray-400 sm:text-sm/6" placeholder="Search" />
-              <MagnifyingGlassIcon class="pointer-events-none col-start-1 row-start-1 size-5 self-center text-gray-400" aria-hidden="true" />
-            </form>
+            <div class="grid flex-1 grid-cols-1 items-center">
+              <h1 class="text-lg/6 font-semibold text-gray-900">Dashboard</h1>
+            </div>
             <div class="flex items-center gap-x-4 lg:gap-x-6">
               <button type="button" class="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500">
                 <span class="sr-only">View notifications</span>
@@ -129,9 +100,9 @@
               <Menu as="div" class="relative">
                 <MenuButton class="-m-1.5 flex items-center p-1.5">
                   <span class="sr-only">Open user menu</span>
-                  <img class="size-8 rounded-full bg-gray-50" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" />
+                  <img class="size-8 rounded-full bg-gray-50" src="https://cn.cravatar.com/avatar/f42f9f288e5ba41aef369b4edd3c5f5c?d=retro&s=256" alt="" />
                   <span class="hidden lg:flex lg:items-center">
-                    <span class="ml-4 text-sm/6 font-semibold text-gray-900" aria-hidden="true">Tom Cook</span>
+                    <span class="ml-4 text-sm/6 font-semibold text-gray-900" aria-hidden="true">用户</span>
                     <ChevronDownIcon class="ml-2 size-5 text-gray-400" aria-hidden="true" />
                   </span>
                 </MenuButton>
@@ -171,33 +142,23 @@
   import {
     Bars3Icon,
     BellIcon,
-    CalendarIcon,
+    ChartBarSquareIcon,
     ChartPieIcon,
     Cog6ToothIcon,
-    DocumentDuplicateIcon,
-    FolderIcon,
+    DocumentArrowUpIcon,
     HomeIcon,
-    UsersIcon,
     XMarkIcon,
   } from '@heroicons/vue/24/outline'
   import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
   
   const navigation = [
-    { name: 'Dashboard', href: '#', icon: HomeIcon, current: true },
-    { name: 'Team', href: '#', icon: UsersIcon, current: false },
-    { name: 'Projects', href: '#', icon: FolderIcon, current: false },
-    { name: 'Calendar', href: '#', icon: CalendarIcon, current: false },
-    { name: 'Documents', href: '#', icon: DocumentDuplicateIcon, current: false },
-    { name: 'Reports', href: '#', icon: ChartPieIcon, current: false },
-  ]
-  const teams = [
-    { id: 1, name: 'Heroicons', href: '#', initial: 'H', current: false },
-    { id: 2, name: 'Tailwind Labs', href: '#', initial: 'T', current: false },
-    { id: 3, name: 'Workcation', href: '#', initial: 'W', current: false },
+    { name: '主页', href: '#', icon: HomeIcon, current: true },
+    { name: '发布任务', href: '#', icon: DocumentArrowUpIcon, current: false },
+    { name: '任务看板', href: '#', icon: ChartBarSquareIcon, current: false },
   ]
   const userNavigation = [
-    { name: 'Your profile', href: '#' },
-    { name: 'Sign out', href: '#' },
+    { name: '个人资料', href: '#' },
+    { name: '退出登录', href: '#' },
   ]
   
   const sidebarOpen = ref(false)
