@@ -29,12 +29,15 @@ const position = ref({
 const robotStatus = ref("");
 const intervalId = ref(null);
 
+const networkError = ref(false);
+
 const fetchStatus = async () => {
   try {
     const data = await status();
 
     if ( data === null || data === undefined || data['data'] === undefined) {
       messageInfo.value.setMessage('获取失败：网络错误', 'error')
+      networkError.value = true;
       return;
     }
 
@@ -42,9 +45,17 @@ const fetchStatus = async () => {
     batteryLevel.value = data['data']['deviceStatus']['powerPercent'];
     position.value = data['data']['deviceStatus']['position']['orientation'];
     robotStatus.value = data['data']['deviceStatus']['isIdle'] === true ? "Idle" : "Busy";
-    messageInfo.value.closeNotification();
+
+    if (networkError.value) {
+      messageInfo.value.setMessage('获取成功', 'success')
+      setTimeout(() => {
+        messageInfo.value.closeNotification();
+      }, 3000);
+    }
+    networkError.value = false;
 
   } catch (error) {
+    networkError.value = true;
     messageInfo.value.setMessage('获取失败', 'error')
   }
 };

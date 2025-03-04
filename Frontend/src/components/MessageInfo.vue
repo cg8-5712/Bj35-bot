@@ -8,7 +8,7 @@
               <div class="shrink-0">
                 <CheckCircleIcon v-if="type === 'success'" class="size-6 text-green-400" aria-hidden="true" />
                 <InformationCircleIcon v-else-if="type === 'info'" class="size-6 text-blue-400" aria-hidden="true" />
-                <XMarkIcon v-else class="size-6 text-red-400" aria-hidden="true" />
+                <XCircleIcon v-else class="size-6 text-red-400" aria-hidden="true" />
               </div>
               <div class="ml-3 w-0 flex-1 pt-0.5">
                 <p class="text-sm font-medium text-gray-900">{{ message }}</p>
@@ -29,7 +29,7 @@
 
 <script setup>
 import { ref, watch, defineExpose } from 'vue'
-import { CheckCircleIcon } from '@heroicons/vue/24/outline'
+import { CheckCircleIcon, XCircleIcon } from '@heroicons/vue/24/outline'
 import { XMarkIcon, InformationCircleIcon } from '@heroicons/vue/20/solid'
 
 const props = defineProps({
