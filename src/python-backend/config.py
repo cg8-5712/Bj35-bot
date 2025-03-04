@@ -79,3 +79,11 @@ class Config:
         :return: str
         """
         return os.getenv("inside_token")
+
+    @property
+    def store_Id(self):
+        """
+        store id
+        :return: str
+        """
+        return os.getenv("store_Id")
