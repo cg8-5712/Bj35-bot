@@ -76,7 +76,7 @@ if __name__ == "__main__":
     params = simulator.generate_verify_request()
 
     # 发送模拟请求到你的本地服务器（替换为你的回调 URL）
-    callback_url = "http://42.51.43.6:5000/hook_path"
+    callback_url = "http://42.51.43.6/hook_path"
     response = requests.get(callback_url, params=params)
 
     print("模拟请求参数:", params)
