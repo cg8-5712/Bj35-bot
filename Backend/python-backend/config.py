@@ -87,3 +87,11 @@ class Config:
         :return: str
         """
         return os.getenv("store_Id")
+
+    @property
+    def SECRET_KEY(self):
+        """
+        secret key
+        :return: str
+        """
+        return os.getenv("SECRET_KEY")
