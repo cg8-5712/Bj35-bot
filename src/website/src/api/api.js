@@ -23,4 +23,3 @@ export async function status() {
         throw error;
     }
 }
-
