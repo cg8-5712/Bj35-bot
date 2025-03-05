@@ -57,7 +57,7 @@ def login():
         return jsonify(code=0, access_token=access_token), 200
     else:
         app.logger.error(f"User {username} login failed")
-        return jsonify(code=1, message="Invalid username or password"), 401
+        return jsonify(code=1, message="Invalid username or password"), 200
 
 @app.route(URI_PREFIX + '/devicelist', methods=['GET'])
 #@jwt_required()

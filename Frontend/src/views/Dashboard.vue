@@ -28,7 +28,11 @@
                     <li>
                       <ul role="list" class="-mx-2 space-y-1">
                         <li v-for="item in navigation" :key="item.name">
-                          <a :href="item.href" :class="[item.current ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']">
+                          <a 
+                            href="#" 
+                            :class="[item.current ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']"
+                            @click.prevent="setActiveView(item); sidebarOpen = false"
+                          >
                             <component :is="item.icon" :class="[item.current ? 'text-white' : 'text-indigo-200 group-hover:text-white', 'size-6 shrink-0']" aria-hidden="true" />
                             {{ item.name }}
                           </a>
@@ -61,7 +65,11 @@
             <li>
               <ul role="list" class="-mx-2 space-y-1">
                 <li v-for="item in navigation" :key="item.name">
-                  <a :href="item.href" :class="[item.current ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']">
+                  <a 
+                    href="#" 
+                    :class="[item.current ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']"
+                    @click.prevent="setActiveView(item)"
+                  >
                     <component :is="item.icon" :class="[item.current ? 'text-white' : 'text-indigo-200 group-hover:text-white', 'size-6 shrink-0']" aria-hidden="true" />
                     {{ item.name }}
                   </a>
@@ -136,7 +144,15 @@
 
       <main class="py-10">
         <div class="px-4 sm:px-6 lg:px-8">
-          <!-- Your content -->
+          <LoadingSpinner v-if="loading" message="加载中..." />
+          <Suspense v-else>
+            <template #default>
+              <component :is="currentComponent" />
+            </template>
+            <template #fallback>
+              <LoadingSpinner message="正在渲染组件..." color="indigo" />
+            </template>
+          </Suspense>
         </div>
       </main>
     </div>
@@ -144,7 +160,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, shallowRef, onMounted, onBeforeUnmount, defineAsyncComponent } from 'vue'
 import { useRouter } from 'vue-router'
 import AuthService from '@/services/AuthService'
 
@@ -171,7 +187,54 @@ import { ChevronDownIcon } from '@heroicons/vue/20/solid'
 
 const router = useRouter()
 const sidebarOpen = ref(false)
-const isLargeScreen = ref(window.innerWidth >= 1024) // 1024px 是 Tailwind lg 断点
+const isLargeScreen = ref(window.innerWidth >= 1024)
+const loading = ref(true)
+
+const currentComponent = shallowRef(null)
+
+function logout() {
+  AuthService.logout()
+  router.push('/login')
+}
+
+const navigation = [
+  { name: '主页', href: '#', icon: HomeIcon, current: true, componentName: 'Overview'  },
+  { name: '发布任务', href: '#', icon: DocumentArrowUpIcon, current: false, componentName: 'TaskPublish'  },
+  { name: '任务看板', href: '#', icon: ChartBarSquareIcon, current: false, componentName: 'TaskBoard'  },
+]
+const userNavigation = [
+  { name: '个人资料', href: '#' },
+  { name: '退出登录', href: '#', action: logout },
+]
+
+const componentMap = {
+  Overview: () => import('../components/dashboard/Overview.vue'),
+  TaskPublish: () => import('../components/dashboard/TaskPublish.vue'),
+  TaskBoard: () => import('../components/dashboard/TaskBoard.vue'),
+}
+const activeView = ref(navigation[0])
+
+async function setActiveView(item) {
+  loading.value = true
+  
+  try {
+    // 更新导航项的当前状态
+    navigation.forEach(nav => {
+      nav.current = nav === item
+    })
+    
+    // 设置活动视图
+    activeView.value = item
+    
+    // 异步加载新组件
+    const AsyncComponent = defineAsyncComponent(componentMap[item.componentName])
+    currentComponent.value = AsyncComponent
+  } catch (error) {
+    console.error(`加载组件 ${item.componentName} 失败:`, error)
+  } finally {
+    loading.value = false
+  }
+}
 
 // 监听窗口大小变化
 function handleResize() {
@@ -183,31 +246,13 @@ function handleResize() {
 }
 
 // 在组件挂载时添加事件监听器
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener('resize', handleResize)
+  await setActiveView(navigation[0])
 })
 
 // 在组件卸载前移除事件监听器
 onBeforeUnmount(() => {
   window.removeEventListener('resize', handleResize)
 })
-
-function logout() {
-  AuthService.logout()
-  router.push('/login')
-}
-
-const navigation = [
-  { name: '主页', href: '#', icon: HomeIcon, current: true },
-  { name: '发布任务', href: '#', icon: DocumentArrowUpIcon, current: false },
-  { name: '任务看板', href: '#', icon: ChartBarSquareIcon, current: false },
-]
-const userNavigation = [
-  { name: '个人资料', href: '#' },
-  { name: '退出登录', href: '#', action: logout },
-]
 </script>
-
-<style>
-/* 可以添加额外CSS来优化过渡效果 */
-</style>

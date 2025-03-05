@@ -54,7 +54,7 @@
   import { useRouter } from 'vue-router'
 
   import AuthService from '@/services/AuthService'
-  import notificationService from '@/services/NotificationService'
+  import NotificationService from '@/services/NotificationService'
 
   const router = useRouter()
 
@@ -67,18 +67,18 @@
   async function handleLogin() {
     try {
 
-      notificationService.notify('登录中……', 'info')
+      NotificationService.notify('登录中……', 'info')
       await AuthService.login(username.value, password.value, rememberMe.value)
 
       if (AuthService.isAuthenticated()) {
-        notificationService.notify('登录成功', 'success')
+        NotificationService.notify('登录成功', 'success')
         router.push('/')
       } else {
-        notificationService.notify('登录失败，请检查您的用户名和密码', 'error')
+        NotificationService.notify('登录失败，请检查您的用户名和密码', 'error')
       }
     } catch (error) {
       console.error('Failed to login:', error.message)
-      notificationService.notify('系统错误：' + error.message, 'error')
+      NotificationService.notify('系统错误：' + error.message, 'error')
     }
   }
 </script>

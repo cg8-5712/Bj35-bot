@@ -1,9 +1,9 @@
 <script setup>
   import { RouterView } from 'vue-router'
-  import MessageInfo from '@/components/MessageInfo.vue'
+  import MessageInfo from '@/components/common/MessageInfo.vue'
 </script>
 
 <template>
-  <RouterView />
   <MessageInfo />
+  <RouterView />
 </template>
