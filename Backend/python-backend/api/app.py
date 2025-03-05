@@ -87,19 +87,19 @@ def login():
         return jsonify(code=1, message="Invalid username or password"), 401
 
 @app.route(URI_PREFIX + '/devicelist', methods=['GET'])
-@jwt_required()
-def get_device_list():
-    device_list = api.get_device_list()
+#@jwt_required()
+async def get_device_list():
+    device_list = await api.get_device_list()
     return jsonify(device_list)
 
 @app.route(URI_PREFIX + '/device_status/<int:device_id>', methods=['GET'])
-@jwt_required()
+#@jwt_required()
 async def get_device_status(device_id):
     device_status = await api.get_device_status(device_id)
     return jsonify(device_status)
 
 @app.route(URI_PREFIX + '/device_task/<int:device_id>')
-@jwt_required()
+#@jwt_required()
 async def get_device_task(device_id):
     data = {
         'start': "2025-01-01"
@@ -108,19 +108,19 @@ async def get_device_task(device_id):
     return jsonify(device_task)
 
 @app.route(URI_PREFIX + '/school-tasks', methods=['GET'])
-@jwt_required()
+#@jwt_required()
 async def get_school_tasks():
     school_tasks = await api.get_school_tasks()
     return jsonify(school_tasks)
 
 @app.route(URI_PREFIX + '/cabin-position/<int:task_id>', methods=['GET'])
-@jwt_required()
+#@jwt_required()
 async def get_cabin_position(task_id):
     cabin_position = await api.get_cabin_position(task_id)
     return jsonify(cabin_position)
 
 @app.route(URI_PREFIX + '/running-task', methods=['GET'])
-@jwt_required()
+#@jwt_required()
 async def get_running_task():
     running_task = await api.get_running_task()
     return jsonify(running_task)
