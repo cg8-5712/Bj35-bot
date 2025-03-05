@@ -51,9 +51,9 @@ async def get_cabin_position(device_id):
         async with session.get(f'https://open-api.yunjiai.cn/v3/robot/{device_id}/position') as response:
             return json.loads(await response.text())
 
-async def reset_cabin_position(device_id):
+async def reset_cabin_position(device_id, position):
     headers = create_headers()
-    data = {"marker": "charge_point_1F_40300716"}
+    data = {"marker": position}
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.put(f'https://open-api.yunjiai.cn/v3/robot/up/cabin/{device_id}/reset-position', json=data) as response:
             return json.loads(await response.text())
@@ -71,18 +71,15 @@ async def get_running_task():
 #         async with session.get(f'https://open-api.yunjiai.cn/v3/rcs/task/running-task/list', json={'storeId': storeId}) as response:
 #             return json.loads(await response.text())
 
-async def make_task_flow_move_target_with_wait_action(device_id, target):
+async def make_task_flow_move_target_and_lift_down(device_id, target):
     headers = create_headers()
     data = {
-          "templateId": "dock_cabin_and_move_target_with_wait_action",
+          "outTaskId": str(uuid.uuid4()),
+          "templateId": "dock_cabin_and_move_target_and_lift_down",
           "storeId": Config.store_Id(),
           "params": {
             "dockCabinId": device_id,
-            "target": target,
-            "overtime": 30,
-            "overtimeEvent": "down",
-            "startVoice": "",
-            "endVoice": ""
+            "target": target
   }
 }
     async with aiohttp.ClientSession(headers=headers) as session:
@@ -92,29 +89,29 @@ async def make_task_flow_move_target_with_wait_action(device_id, target):
 async def make_task_flow_docking_cabin_and_move_target(device_id,target):
     headers = create_headers()
     data = {
+              "outTaskId": str(uuid.uuid4()),
               "templateId": "docking_cabin_and_move_target",
               "storeId": Config.store_Id(),
               "params": {
                 "dockCabinId": device_id,
                 # "chassisId": "3949399854845849594854",
-                "target": "Y103"
+                "target": target
               }
             }
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.post(f'https://open-api.yunjiai.cn/v3/rcs/task/flow/execute', json=data) as response:
             return json.loads(await response.text())
 
-async def make_task_flow_move_and_lift_down(device_id,target):
+async def make_task_flow_move_and_lift_down(device_id,dockingMarker, target):
     headers = create_headers()
     data = {
-              # "outTaskId": "53c593e7-766d-4646-8b58-0b795ded0ed6",
+              "outTaskId": str(uuid.uuid4()),
               "templateId": "dock_cabin_to_move_and_lift_down",
               "storeId": Config.store_Id(),
               "params": {
                 "dockCabinId": device_id,
-                # "chassisId": "3949399854845849594854",
-                "dockingCabinMarker": "charge_point_1F_40300716",
-                "target": "Y103"
+                "dockingCabinMarker": dockingMarker,
+                "target": target
               }
 }
     async with aiohttp.ClientSession(headers=headers) as session:
@@ -150,4 +147,4 @@ if __name__ == '__main__':
     # res = asyncio.run(make_task_flow_docking_cabin_and_move_target(device_bot1_cabin, ""))
     # print(res)
     # print(asyncio.run(goto_charge(device_bot1_cabin)))
-    print(asyncio.run(make_task_flow_move_and_lift_down(device_bot1_cabin, "")))
+    # print(asyncio.run(make_task_flow_move_and_lift_down(device_bot1_cabin, "")))

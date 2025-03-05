@@ -1,116 +1,336 @@
-# API Usage Documentation
-## 1. Overview
-This API is built using Flask and provides endpoints to access device information and statuses. All requests require authentication via a valid Token. Without a valid token, access to the API will be denied.
+# API Documentation
 
-## 2. Authentication
-To authenticate your requests, include the Token in the HTTP request header as shown below:
+## Overview
+This API provides authentication and device management functionalities, allowing users to log in and interact with various devices through a set of endpoints.
 
-```http
-Token: <Your Authentication Token>
+## Base URL
 ```
-If the Token is missing, invalid, or expired, the API will return an HTTP 403 (Forbidden) error, indicating that the request is unauthorized.
-
-## 3. API Endpoints
-
-### 1. Get Access Token
-**URL:** `/api/v1/accessToken`  
-**Request Method:** `GET`  
-**Request Header:**
-```http
-Token: <Your Authentication Token>
+http://ip:8080/api/v1
 ```
-**Description:** This endpoint returns a new accessToken that can be used for further requests within the session.
 
-**Response Format:**
+## Authentication
+The API uses JSON Web Tokens (JWT) for authentication. To access protected routes, include the token in the `Authorization` header as follows:
+```
+Authorization: Bearer <access_token>
+```
+
+## Endpoints
+
+### Authentication
+#### Login
+**Endpoint:**
+```
+POST /api/v1/login
+```
+**Request Body:**
 ```json
 {
-  "accessToken": "<access_token>"
+    "username": "admin",
+    "password": "password",
+    "rememberMe": true
 }
 ```
-This `accessToken` should be included in the headers of subsequent API requests to access protected endpoints.
-
-### 2. Get Device Information
-**URL:** `/api/v1/deviceInfo`  
-**Request Method:** `GET`  
-**Request Header:**
-```http
-Token: <Your Authentication Token>
+**Response:**
+```json
+{
+    "code": 0,
+    "access_token": "your_jwt_token"
+}
 ```
-**Description:** This endpoint retrieves a list of devices registered in the system, including their device ID, name, and current status (e.g., online or offline).
 
-**Response Format:**
+### Device Management
+#### Get Device List
+**Endpoint:**
+```
+GET /api/v1/devicelist
+```
+**Authorization:** JWT Required
+**Response:**
 ```json
 [
-  {
-    "device_id": 1,
-    "name": "Device 1",
-    "status": "online"
-  },
-  {
-    "device_id": 2,
-    "name": "Device 2",
-    "status": "offline"
-  }
-]
-```
-The response provides an array of devices, where each device includes its `device_id`, `name`, and `status`.
-
-### 3. Get Device Status
-**URL:** `/api/v1/device_status/<device_id>`  
-**Request Method:** `GET`  
-**Request Header:**
-```http
-Token: <Your Authentication Token>
-```
-**Description:** This endpoint retrieves the status of a specific device identified by its `device_id`. It provides the current status and the last time the device was active.
-
-**URL Parameters:**
-- `device_id`: The ID of the device you want to query.
-
-**Response Format:**
-```json
-{
-  "device_id": 1,
-  "status": "online",
-  "last_active": "2025-03-04 12:00:00"
-}
-```
-The response includes the device's `device_id`, its `status` (e.g., online or offline), and the `last_active` timestamp, indicating the most recent activity.
-
-### 4. Get Device Task Information
-**URL:** `/api/v1/device_task/<device_id>`  
-**Request Method:** `GET`  
-**Request Header:**
-```http
-Token: <Your Authentication Token>
-```
-**Description:** This endpoint retrieves the task details for a specific device, including the task ID, status, and the time the task was started.
-
-**URL Parameters:**
-- `device_id`: The ID of the device whose task information you want to retrieve.
-
-**Response Format:**
-```json
-{
-  "device_id": 1,
-  "tasks": [
     {
-      "task_id": 101,
-      "status": "running",
-      "start_time": "2025-01-01"
+      "requestId": "********-****-****-****-************",
+      "code": 0,
+      "message": "操作成功",
+      "current": 1,
+      "pageSize": 50,
+      "total": 100,
+      "data": [
+        {
+          "deviceId": "713074929695854592",
+          "deviceName": "TEST100002",
+          "deviceSerialNumber": "TEST100002",
+          "deviceType": "RSASS",
+          "productId": "713826588470415360",
+          "productName": "Name"
     }
   ]
 }
+]
 ```
-The response includes a `tasks` array containing the details of each task assigned to the device. Each task contains:
-- `task_id`: Unique identifier for the task.
-- `status`: Current status of the task (e.g., running, completed).
-- `start_time`: Timestamp when the task started.
 
-## 4. Error Codes
-The API may return the following HTTP status codes:
+#### Get Device Status
+**Endpoint:**
+```
+GET /api/v1/device_status/{device_id}
+```
+**Authorization:** JWT Required
+**Response:**
+```json
+{
+  "code": 0,
+  "customerErrorMessage": null,
+  "data": {
+    "deviceInfo": {
+      "deviceId": "",
+      "deviceName": "",
+      "deviceSerialNumber": "",
+      "deviceType": "CABIN",
+      "productId": "",
+      "productName": "\u9001\u7269\u4e0a\u8231",
+      "storeId": ""
+    },
+    "deviceStatus": {
+      "accessories": null,
+      "action": {
+        "actionName": "",
+        "actionType": "",
+        "currentTarget": "",
+        "name": "",
+        "startTime": "",
+        "taskChannel": "unknown",
+        "taskId": "",
+        "type": ""
+      },
+      "actuatorStatus": "non_support",
+      "appVersion": "",
+      "chargeId": "（（（（（（（（（（（（",
+      "chargePileId": "4****",
+      "chassisLiftState": "non_support_chassis_lift_state",
+      "currentPositionMarker": "charge_point_3F_********",
+      "deviceId": "*************",
+      "distance": -1.0,
+      "floor": "3",
+      "isCharging": true,
+      "isEmergentStop": false,
+      "isExclusive": false,
+      "isIdle": true,
+      "isOffline": false,
+      "isSoftEstop": false,
+      "lockers": [
+        {
+          "id": "12",
+          "status": "CLOSE"
+        },
+        {
+          "id": "34",
+          "status": "CLOSE"
+        }
+      ],
+      "mapName": "zx",
+      "modules": [
+        {
+          "type": "chassis",
+          "version": "1.1.50S"
+        },
+        {
+          "type": "app",
+          "version": ""
+        },
+        {
+          "type": "executor",
+          "version": "v1.8.7.9"
+        }
+      ],
+      "orientation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.07
+      },
+      "planRoutes": [],
+      "position": {
+        "floor": "3",
+        "orientation": {
+          "w": 1.0,
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.07
+        },
+        "pos": {
+          "w": null,
+          "x": 45.46,
+          "y": 74.93,
+          "z": 0.0
+        }
+      },
+      "powerPercent": 100.0,
+      "relevanceId": "******************",
+      "relevanceKey": "*****************",
+      "updated": "1741185720017"
+    },
+    "missionKey": null,
+    "updated": 1741185720017
+  },
+  "message": "SUCCESS",
+  "requestId": null
+}
+```
 
-- **403 Forbidden:** The request was made with a missing or invalid Token. The Token must be provided in the request header and must be valid.
-- **404 Not Found:** The requested resource (e.g., a device or task) could not be found on the server.
-- **500 Internal Server Error:** An error occurred on the server while processing the request.
+#### Get Device Task
+**Endpoint:**
+```
+GET /api/v1/device_task/{device_id}
+```
+**Authorization:** JWT Required
+**Response:**
+(There may be some things going wrong.)
+```json
+{
+  "code": 0,
+  "current": 1,
+  "customerErrorMessage": null,
+  "data": [],
+  "message": "SUCCESS",
+  "pageSize": 50,
+  "requestId": null,
+  "total": 0
+}
+```
+
+#### Get Cabin Position
+**Endpoint:**
+```
+GET /api/v1/cabin_position/{device_id}
+```
+**Authorization:** JWT Required
+**Response:**
+```json
+{
+  "code": 200,
+  "customerErrorMessage": null,
+  "data": {
+    "deviceId": "",
+    "deviceName": "",
+    "position": "charge_point_3F_4****96"
+  },
+  "message": null,
+  "requestId": null
+}
+```
+#### Reset Cabin Position
+**Endpoint:**
+```
+POST /api/v1/reset_cabin_position/{device_id}
+```
+**Authorization:** JWT Required
+**Response:**
+```json
+{
+  "code": 0,
+  "message": "SUCCESS"
+}
+```
+
+### Task Management
+
+#### Get School Task List
+**Endpoint:**
+```
+GET /api/v1/school-tasks
+```
+**Authorization:** JWT Required
+**Response:**
+```json
+{
+  "code": 0,
+  "message": "SUCCESS",
+  "data": [
+    {
+      "taskId": "13492984781983409943",
+      "createdAt": 1660492245810,
+      "updatedAt": 1660492295810,
+      "status": "SUCCESS",
+      "taskType": "SENT_UP",
+      "attach": "",
+      "storeId": "******",
+      "outTaskId": "13492984781983409943",
+      "target": "101",
+      "extra": {
+        "phone": "13212341234",
+        "goods": [
+          {
+            "goodsId": "***********",
+            "outGoodsId": "out_goods_id_001",
+            "goodsName": "******",
+            "quantity": 1
+          }
+        ]
+      }
+    }
+  ],
+  "pageSize": 20,
+  "current": 1
+}
+```
+
+#### Move Lift and Down
+**Endpoint:**
+```
+POST /api/v1/task/move-lift/{device_id}/{target}
+```
+**Authorization:** JWT Required
+**Response:**
+```json
+{
+  "code": 0,
+  "message": "SUCCESS",
+  "data": {
+    "taskId": "2022919382839243943834",
+    "createdAt": "2025-03-05T11:45:14Z"
+  }
+}
+```
+
+#### Docking cabin and Move
+**Endpoint:**
+```
+POST /api/v1/task/dock-move/{device_id}/{dockingMarker}/{target}
+```
+**Authorization:** JWT Required
+**Response:**
+```json
+{
+  "code": 0,
+  "message": "SUCCESS",
+  "data": {
+    "taskId": "2022919382839243943834",
+    "createdAt": "2025-03-05T15:47:00Z"
+  }
+}
+```
+
+### Charging Management
+#### Go to Charge
+**Endpoint:**
+```
+POST /api/v1/goto-charge/{device_id}
+```
+**Authorization:** JWT Required (NEED TO BE REPAIRED)
+**Response:**
+```json
+{
+  "code": 0,
+  "message": "SUCCESS"
+}
+```
+
+## Error Handling
+- `401 Unauthorized`: Invalid or missing JWT token.
+- `422 Unprocessable Entity`: Missing required parameters.
+- `500 Internal Server Error`: Unexpected server-side issues.
+
+## Notes
+- Replace `your_domain.com` with your actual API server domain.
+- Ensure JWT tokens are refreshed before expiration if using `rememberMe=false`.
 
