@@ -1,25 +1,36 @@
 import { ref, reactive } from 'vue'
 
-// 创建响应式状态
 const state = reactive({
   message: '',
   type: 'info',
   show: false
 })
 
-// 添加方法
+let hideTimeout = null
+
 const notify = (message, type = 'info') => {
+
+  if (hideTimeout !== null) {
+    clearTimeout(hideTimeout)
+    hideTimeout = null
+  }
+
   state.message = message
   state.type = type
   state.show = true
 
-  // 自动隐藏（可选）
-  setTimeout(() => {
+  hideTimeout = setTimeout(() => {
     state.show = false
+    hideTimeout = null
   }, 3000)
 }
 
 const close = () => {
+  if (hideTimeout !== null) {
+    clearTimeout(hideTimeout)
+    hideTimeout = null
+  }
+
   state.show = false
 }
 

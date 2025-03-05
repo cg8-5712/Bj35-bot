@@ -62,8 +62,6 @@
   const password = ref('')
   const rememberMe = ref(Boolean)
 
-  const messageInfo = ref(null)
-
   rememberMe.value = true
 
   async function handleLogin() {
@@ -76,7 +74,7 @@
         notificationService.notify('登录成功', 'success')
         router.push('/')
       } else {
-        notificationService.notify('登录失败', 'error')
+        notificationService.notify('登录失败，请检查您的用户名和密码', 'error')
       }
     } catch (error) {
       console.error('Failed to login:', error.message)
