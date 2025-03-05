@@ -1,13 +1,15 @@
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
+import notificationService from './NotificationService';
 
 class AuthService {
-  login(username, password) {
+  login(username, password, rememberMe) {
 
     return axios
       .post(`${import.meta.env.VITE_APP_API_URL}/login`, {
         username,
-        password
+        password,
+        rememberMe
       })
       .then(response => {
         if (response.data.access_token) {
@@ -37,6 +39,7 @@ class AuthService {
       const currentTime = Date.now() / 1000;
       if (decoded.exp < currentTime) {
         // 令牌已过期
+        notificationService.notify('Session expired, please login again', 'error');
         this.logout();
         return false;
       }

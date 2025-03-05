@@ -71,12 +71,6 @@ def login():
         return jsonify(code=1, message="Invalid username or password"), 401
 
 
-
-@app.route(URI_PREFIX + '/accessToken')
-@jwt_required()
-async def get_access_token():
-    return jsonify({'accessToken': cfg.accessToken})
-
 @app.route(URI_PREFIX + '/deviceInfo')
 @jwt_required()
 async def get_device_info():
