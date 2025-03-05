@@ -5,7 +5,7 @@ from functools import wraps
 from flask import request
 import datetime
 import logging
-import jwt
+# import jwt
 import sys
 import os
 
@@ -13,18 +13,16 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 URI_PREFIX = "/api/v1"
 
 import config, api
-cfg = config.Config()
+cfg = config
 
 app = Flask(__name__)
 gunicorn_logger = logging.getLogger('gunicorn.error')
 app.logger.handlers = gunicorn_logger.handlers
 app.logger.setLevel(gunicorn_logger.level)
-app.config['JWT_SECRET_KEY'] = cfg.SECRET_KEY
+app.config['JWT_SECRET_KEY'] = "cfg.SECRET_KEY"
 
 jwt_manager = JWTManager(app)
 CORS(app)
-
-
 
 # def token_required(f):
 #     @wraps(f)
@@ -51,6 +49,21 @@ def get_user(username, password):
     else:
         return False
 
+@app.route('/')
+def index():
+    return """
+    <html>
+    <head>
+        <title>API Server</title>
+    </head>
+    <body>
+        <h1>Welcome to API Server</h1>
+        <p>For more information, please visit <a href="https://github.com/cg8-5712/Bj35-bot/blob/main/Backend/python-backend/api/readme.md">Readme.md</a></p>
+    </body>
+    </html>
+    """
+
+
 @app.route(URI_PREFIX + '/login', methods=['POST'])
 def login():
     username = request.json.get('username', None)
@@ -73,14 +86,13 @@ def login():
         app.logger.error(f"User {username} login failed")
         return jsonify(code=1, message="Invalid username or password"), 401
 
-
-@app.route(URI_PREFIX + '/deviceInfo')
+@app.route(URI_PREFIX + '/devicelist', methods=['GET'])
 @jwt_required()
-async def get_device_info():
-    device_info = await api.get_device_list()
-    return jsonify(device_info)
+def get_device_list():
+    device_list = api.get_device_list()
+    return jsonify(device_list)
 
-@app.route(URI_PREFIX + '/device_status/<int:device_id>')
+@app.route(URI_PREFIX + '/device_status/<int:device_id>', methods=['GET'])
 @jwt_required()
 async def get_device_status(device_id):
     device_status = await api.get_device_status(device_id)
@@ -94,6 +106,24 @@ async def get_device_task(device_id):
     }
     device_task = await api.get_device_task(device_id, data)
     return jsonify(device_task)
+
+@app.route(URI_PREFIX + '/school-tasks', methods=['GET'])
+@jwt_required()
+async def get_school_tasks():
+    school_tasks = await api.get_school_tasks()
+    return jsonify(school_tasks)
+
+@app.route(URI_PREFIX + '/cabin-position/<int:task_id>', methods=['GET'])
+@jwt_required()
+async def get_cabin_position(task_id):
+    cabin_position = await api.get_cabin_position(task_id)
+    return jsonify(cabin_position)
+
+@app.route(URI_PREFIX + '/running-task', methods=['GET'])
+@jwt_required()
+async def get_running_task():
+    running_task = await api.get_running_task()
+    return jsonify(running_task)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True)
