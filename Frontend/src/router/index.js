@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import AuthService from '@/services/AuthService'
-import notificationService from '@/services/NotificationService'
 
 const routes = [
   { path: '/', name: 'Dashboard', component: () => import('@/views/dashboard.vue') },

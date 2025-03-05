@@ -57,6 +57,9 @@ def login():
     password = request.json.get('password', None)
     rememberMe = request.json.get('rememberMe', False)
 
+    if not username or not password:
+        return jsonify(code=1, message="Missing username or password"), 422
+
     user = get_user(username, password)
 
     if user:
