@@ -89,9 +89,19 @@ class Config:
         return os.getenv("store_Id")
 
     @property
+    @classmethod
     def SECRET_KEY(self):
         """
         secret key
         :return: str
         """
         return os.getenv("SECRET_KEY")
+
+    @property
+    @classmethod
+    def target_get(target):
+        classes_list = {
+            "Y102": "Y102",
+            "Y103": "Y103",
+        }
+        return classes_list[target]
