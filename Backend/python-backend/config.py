@@ -32,7 +32,7 @@ from dotenv import load_dotenv
 load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../..', '.env'))
 
 class Config:
-    @property
+    @classmethod
     def accessToken(self):
         """
         access Token
@@ -43,7 +43,7 @@ class Config:
         return os.getenv("accessToken")  # 返回accessToken
 
 
-    @property
+    @classmethod
     def expiration(self):
         """
         expiration time
@@ -55,7 +55,7 @@ class Config:
         # 将时间字符串转换为时间戳
         return int(time.mktime(time.strptime(expiration_str, '%Y-%m-%dT%H:%M:%S+08:00')))
 
-    @property
+    @classmethod
     def accessKeyId(self):
         """
         access key id
@@ -63,7 +63,7 @@ class Config:
         """
         return str(os.getenv("accessKeyId"))  # 返回accessKeyId
 
-    @property
+    @classmethod
     def deviceId(self):
         """
         device id
@@ -72,7 +72,7 @@ class Config:
         divice_id = os.getenv("device_bot1_cabin")
         return divice_id
 
-    @property
+    @classmethod
     def inside_token(self):
         """
         device name
@@ -80,7 +80,7 @@ class Config:
         """
         return os.getenv("inside_token")
 
-    @property
+    @classmethod
     def store_Id(self):
         """
         store id
@@ -88,7 +88,6 @@ class Config:
         """
         return os.getenv("store_Id")
 
-    @property
     @classmethod
     def SECRET_KEY(self):
         """
@@ -97,7 +96,6 @@ class Config:
         """
         return os.getenv("SECRET_KEY")
 
-    @property
     @classmethod
     def target_get(target):
         classes_list = {
