@@ -259,7 +259,7 @@ function handleResize() {
 
 // 在组件挂载时添加事件监听器
 onMounted(async () => {
-  username.value = AuthService.getUsername();
+  username.value = AuthService.getUsername()
   window.addEventListener('resize', handleResize)
   await setActiveView(navigation[0])
 })
