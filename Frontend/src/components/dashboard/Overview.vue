@@ -96,7 +96,7 @@
 <script setup>
 import { TransitionGroup } from 'vue'
 
-import { ref, onMounted, reactive } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import ApiServices from '@/services/ApiServices'
 import NotificationService from '@/services/NotificationService'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
@@ -135,102 +135,30 @@ function getBatteryColorClass(power) {
 }
 
 // 获取设备列表
-async function fetchDevices() {
+async function fetchRobots() {
   try {
     loading.value = true
-    const response = await ApiServices.getAllDevices()
-    console.log(response)
-    
-    if (response.code === 0 && response.data) {
-      // 收集机柜设备ID和机器人设备ID
-      const cabinDevices = []
-      const robotDevices = []
-      
-      // 先分类设备
-      for (const device of response.data) {
-        if (device.deviceType === 'CABIN') {
-          cabinDevices.push(device)
-        } else {
-          robotDevices.push(device)
-        }
-      }
-      
-      // 创建机柜ID映射表
-      const cabinMap = new Map()
-      for (const cabin of cabinDevices) {
-        // 假设机柜ID和机器人ID的前7位相匹配
-        const prefix = cabin.deviceId.substring(0, 7)
-        cabinMap.set(prefix, cabin.deviceId)
-      }
-      
-      // 生成机器人状态列表
-      await generateRobotStatusList(robotDevices, cabinMap)
-    } else {
-      console.error('获取设备列表失败:', response.message)
-      NotificationService.notify('获取设备列表失败: ' + response.message, 'error')
-    }
+    const response = await ApiServices.getRobotList()
+    robots.value = response.data
   } catch (error) {
-    console.error('获取设备列表请求异常:', error)
-    NotificationService.notify('网络请求错误: ' + error.message, 'error')
+    console.error('获取机器人列表失败:', error)
+    NotificationService.notify('获取机器人列表失败: ' + error.message, 'error')
   } finally {
     loading.value = false
   }
 }
 
-// 生成机器人状态列表
-async function generateRobotStatusList(robotDevices, cabinMap) {
-  try {
-    // 获取非机柜设备的ID列表
-    const deviceIDs = robotDevices.map(device => device.deviceId)
-    
-    // 并行获取所有设备状态
-    const deviceStatuses = await Promise.all(
-      deviceIDs.map(id => ApiServices.getDeviceById(id))
-    )
-    
-    // 构建机器人列表
-    const robotList = deviceStatuses.map((response, index) => {
-      const id = deviceIDs[index]
-      
-      // 查找匹配的机柜ID
-      let cabinId = null
-      for (const [prefix, cabinetId] of cabinMap.entries()) {
-        if (id.startsWith(prefix)) {
-          cabinId = cabinetId
-          break
-        }
-      }
-      
-      // 确保安全地访问数据
-      const data = response?.data || {}
-      const deviceStatus = data?.deviceStatus || {}
-      
-      return {
-        id: id,
-        name: `Robot-${id.substring(0, 7)}`,
-        imageUrl: 'https://tailwindcss.com/plus-assets/img/logos/48x48/tuple.svg',
-        cabinId: cabinId, // 直接在这里添加机柜ID
-        status: { 
-          isOnline: deviceStatus.isOffline === false,
-          power: deviceStatus.powerPercent || 0,
-          message: data.message || '无信息',
-          status: deviceStatus.isIdle ? '空闲' : '执行任务中',
-          location: deviceStatus.currentPositionMarker || '未知位置'
-        }
-      }
-    })
-    
-    robots.value = robotList
-  } catch (error) {
-    console.error('获取设备状态失败:', error)
-    NotificationService.notify(`获取设备状态失败: ${error.message || '未知错误'}`, 'error')
-  }
+function startAutoRefresh() {
+  refreshTimer = setInterval(() => {
+    fetchRobots()
+  }, REFRESH_INTERVAL)
 }
 
 // 生命周期钩子
 onMounted(() => {
-  fetchDevices()
+  fetchRobots()
 })
+
 </script>
 
 <style scoped>

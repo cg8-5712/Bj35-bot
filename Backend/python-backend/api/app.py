@@ -19,6 +19,13 @@ CORS(app)
 app.config["JWT_SECRET_KEY"] = "your_secret_key"  # 更改为安全的密钥
 jwt = JWTManager(app)
 
+def robot_name_mapping(robot_id):
+    mapping = {
+        "1309143": "主教学楼一楼",
+        "1309097": "办公楼三楼",
+    }
+
+    return mapping.get(robot_id[:7], "未知名称")
 
 
 URI_PREFIX = '/api/v1'
@@ -59,11 +66,84 @@ def login():
         app.logger.error(f"User {username} login failed")
         return jsonify(code=1, message="Invalid username or password"), 200
 
-@app.route(URI_PREFIX + '/devicelist', methods=['GET'])
+@app.route(URI_PREFIX + '/robot_list', methods=['GET'])
 @jwt_required()
-async def fetch_device_list():
-    device_list = await api.get_device_list()
-    return jsonify(device_list)
+async def fetch_robot_list():
+    try:
+        # 获取所有设备
+        device_list_response = await api.get_device_list()
+        
+        if device_list_response.get('code') != 0:
+            return jsonify({'code': 1, 'message': device_list_response.get('message', 'Failed to get device list'), 'data': []})
+        
+        device_list = device_list_response.get('data', [])
+
+        # 分类设备
+        cabin_devices = []
+        robot_devices = []
+
+        for device in device_list:
+            if device.get('deviceType') == 'CABIN':
+                cabin_devices.append(device)
+            else:
+                robot_devices.append(device)
+
+        # 创建机柜ID映射表
+        cabin_map = {}
+        for cabin in cabin_devices:
+            cabin_id = cabin.get('deviceId')
+            if cabin_id:
+                # 假设机柜ID和机器人ID的前7位相匹配
+                prefix = cabin_id[:7] if len(cabin_id) >= 7 else cabin_id
+                cabin_map[prefix] = cabin_id
+
+        # 获取机器人状态并格式化数据
+        robot_list = []
+
+        for robot in robot_devices:
+            robot_id = robot.get('deviceId')
+            if not robot_id:
+                continue
+
+            # 获取机器人状态
+            device_status_response = await api.get_device_status(robot_id)
+            
+            # 查找匹配的机柜ID
+            cabin_id = None
+            for prefix, cabinet_id in cabin_map.items():
+                if robot_id.startswith(prefix):
+                    cabin_id = cabinet_id
+                    break
+
+            # 提取相关数据并格式化
+            data = device_status_response.get('data', {})
+            device_status = data.get('deviceStatus', {})
+
+            robot_data = {
+                'id': robot_id,
+                'name': robot_name_mapping(robot_id),
+                'imageUrl': 'https://tailwindcss.com/plus-assets/img/logos/48x48/tuple.svg',  # 可以放一个默认图标路径
+                'cabinId': cabin_id,
+                'status': {
+                    'isOnline': not device_status.get('isOffline', True),
+                    'power': device_status.get('powerPercent', 0),
+                    'message': data.get('message', '无信息'),
+                    'status': '空闲' if device_status.get('isIdle', False) else '执行任务中',
+                    'location': device_status.get('currentPositionMarker', '未知位置')
+                }
+            }
+
+            robot_list.append(robot_data)
+
+        return jsonify({
+            'code': 0, 
+            'message': 'Success', 
+            'data': robot_list
+        })
+
+    except Exception as e:
+        app.logger.error(f"Error fetching robot list: {str(e)}")
+        return jsonify({'code': 1, 'message': str(e), 'data': []})
 
 @app.route(URI_PREFIX + '/device_status/<int:device_id>', methods=['GET'])
 @jwt_required()

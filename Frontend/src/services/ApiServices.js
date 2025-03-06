@@ -90,9 +90,9 @@ class ApiServices extends ApiPrefix {
     super();
   }
     
-  async getAllDevices() {
+  async getRobotList() {
     try {
-      const data = await this.get('/devicelist');
+      const data = await this.get('/robot_list');
 
       if ( data.code !== 0 ) { throw new Error(data.message); }
 
