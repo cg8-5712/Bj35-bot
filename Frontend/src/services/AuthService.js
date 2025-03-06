@@ -1,14 +1,17 @@
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
+import CryptoJS from 'crypto-js';
 import NotificationService from './NotificationService';
 
 class AuthService {
   login(username, password, rememberMe) {
-
+    // 对密码进行SHA-256哈希处理
+    const hashedPassword = CryptoJS.SHA256(password).toString();
+  
     return axios
       .post(`${import.meta.env.VITE_APP_API_URL}/login`, {
         username,
-        password,
+        password: hashedPassword,
         rememberMe
       })
       .then(response => {
