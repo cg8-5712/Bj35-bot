@@ -82,6 +82,10 @@ class ApiPrefix {
   // 错误处理
   _handleError(error) {
     console.error('API请求错误:', error);
+    if (error.response.status === 401) {
+      AuthService.logout();
+      window.location.href = '/login';
+    }
   }
 }
 

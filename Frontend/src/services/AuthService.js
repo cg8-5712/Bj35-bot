@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
-import notificationService from './NotificationService';
+import NotificationService from './NotificationService';
 
 class AuthService {
   login(username, password, rememberMe) {
@@ -37,7 +37,7 @@ class AuthService {
       const decoded = jwtDecode(token);
       const currentTime = Date.now() / 1000;
       if (decoded.exp < currentTime) {
-        notificationService.notify('Session expired, please login again', 'error');
+        NotificationService.notify('Session expired, please login again', 'error');
         this.logout();
         return false;
       }
