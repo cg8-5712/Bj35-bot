@@ -29,7 +29,7 @@ import time
 from dotenv import load_dotenv
 
 # 加载.env文件，指定文件位置
-load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../..', '.env'))
+load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.env'))
 
 class Config:
     @classmethod

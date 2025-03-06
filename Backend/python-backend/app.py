@@ -2,13 +2,9 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 import datetime
-import sys
-import os
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-import api
-from config import Config
+from handler import api
+from handler.config import Config
 
 def get_user(username, password):
     # 这里应该是实际的用户验证逻辑
