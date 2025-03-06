@@ -36,8 +36,8 @@
               <div class="text-sm font-medium text-gray-900">{{ robot.name }}</div>
               <div class="text-xs text-gray-500 truncate" :title="robot.id">ID: {{ robot.id }}</div>
             </div>
-            <div :class="[statuses[robot.status.status], 'rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset']">
-              {{ robot.status.status }}
+            <div :class="[onlineMap[robot.status.isOnline], 'rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset']">
+              {{ robot.status.isOnline ? '在线' : '离线' }}
             </div>
           </div>
           <dl class="-my-3 divide-y divide-gray-100 px-6 py-4 text-sm/6">
@@ -100,6 +100,11 @@ import ApiServices from '@/services/ApiServices'
 import NotificationService from '@/services/NotificationService'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import RobotDetail from '@/components/dashboard/RobotDetail.vue'
+
+const onlineMap = {
+  true: 'text-green-700 bg-green-50 ring-green-600/20',
+  false: 'text-red-700 bg-red-50 ring-red-600/10'
+}
 
 // 状态样式映射
 const statuses = {
