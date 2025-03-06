@@ -12,6 +12,9 @@
     "@headlessui/vue": "^1.7.23",
     "@heroicons/vue": "^2.2.0",
     "@tailwindcss/vite": "^4.0.9",
+    "axios": "^1.8.1",
+    "js-cookie": "^3.0.5",
+    "jwt-decode": "^4.0.0",
     "tailwindcss": "^4.0.9",
     "vue": "^3.5.13",
     "vue-router": "4"
@@ -19,5 +22,6 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.1",
     "vite": "^6.2.0"
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

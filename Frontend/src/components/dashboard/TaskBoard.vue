@@ -1,5 +1,5 @@
 <!--
- * @fileoverview App.vue - 应用主组件
+ * @fileoverview TaskBoard.vue - 任务看板页面
  * @copyright Copyright (c) 2020-2025 The ESAP Project.
  * @author AptS:1547 <esaps@esaps.net>
  * @Link https://esaps.net/
@@ -8,12 +8,8 @@
  * 使用本代码需遵循 MIT 协议，以及 Tailwind Plus Personal 许可证
 -->
 
-<script setup>
-  import { RouterView } from 'vue-router'
-  import MessageInfo from '@/components/common/MessageInfo.vue'
-</script>
-
 <template>
-  <MessageInfo />
-  <RouterView />
+    <div>
+        <h1>Task Board</h1>
+    </div>
 </template>
