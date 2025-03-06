@@ -60,61 +60,61 @@ def login():
         return jsonify(code=1, message="Invalid username or password"), 200
 
 @app.route(URI_PREFIX + '/devicelist', methods=['GET'])
-#@jwt_required()
+@jwt_required()
 async def fetch_device_list():
     device_list = await api.get_device_list()
     return jsonify(device_list)
 
 @app.route(URI_PREFIX + '/device_status/<int:device_id>', methods=['GET'])
-#@jwt_required()
+@jwt_required()
 async def fetch_device_status(device_id):
     device_status = await api.get_device_status(device_id)
     return jsonify(device_status)
 
 @app.route(URI_PREFIX + '/device_task/<int:device_id>', methods=['GET'])
-#@jwt_required()
+@jwt_required()
 async def fetch_device_task(device_id):
     device_task = await api.get_device_task(device_id)
     return jsonify(device_task)
 
 @app.route(URI_PREFIX + '/school-tasks', methods=['GET'])
-#@jwt_required()
+@jwt_required()
 async def fetch_school_tasks():
     school_tasks = await api.get_school_tasks()
     return jsonify(school_tasks)
 
 @app.route(URI_PREFIX + '/cabin-position/<int:device_id>', methods=['GET'])
-#@jwt_required()
+@jwt_required()
 async def fetch_cabin_position(device_id):
     cabin_position = await api.get_cabin_position(device_id)
     return jsonify(cabin_position)
 
 @app.route(URI_PREFIX + '/reset-cabin-position/<int:device_id>/<position>', methods=['PUT'])
-#@jwt_required()
+@jwt_required()
 async def reset_cabin_position(device_id, position):
     result = await api.reset_cabin_position(device_id, position)
     return jsonify(result)
 
 @app.route(URI_PREFIX + '/running-task', methods=['GET'])
-#@jwt_required()
+@jwt_required()
 async def fetch_running_task():
     running_task = await api.get_running_task()
     return jsonify(running_task)
 
 @app.route(URI_PREFIX + '/task/move-lift-down/<int:device_id>/<docking_marker>/<target>', methods=['POST'])
-#@jwt_required()
+@jwt_required()
 async def task_move_and_lift(device_id, docking_marker, target):
     result = await api.make_task_flow_move_and_lift_down(device_id, docking_marker, target)
     return jsonify(result)
 
 @app.route(URI_PREFIX + '/task/docking-cabin-move/<int:device_id>/<target>', methods=['POST'])
-#@jwt_required()
+@jwt_required()
 async def task_dock_and_move(device_id, target):
     result = await api.make_task_flow_docking_cabin_and_move_target(device_id, target)
     return jsonify(result)
 
 @app.route(URI_PREFIX + '/goto-charge/<int:device_id>', methods=['POST'])
-#@jwt_required()
+@jwt_required()
 async def goto_charge(device_id):
     result = await api.goto_charge(device_id)
     return jsonify(result)
