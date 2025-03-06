@@ -16,8 +16,44 @@ def get_user(username, password):
 
 app = Flask(__name__)
 CORS(app)
-app.config["JWT_SECRET_KEY"] = "your_secret_key"  # 更改为安全的密钥
+app.config["JWT_SECRET_KEY"] = Config.jwt_secret_key()
 jwt = JWTManager(app)
+
+@jwt.expired_token_loader
+def expired_token_callback(jwt_header, jwt_payload):
+    return jsonify({
+        'code': 401,
+        'message': '令牌已过期，请重新登录'
+    }), 401
+
+@jwt.invalid_token_loader
+def invalid_token_callback(error_string):
+    return jsonify({
+        'code': 401,
+        'message': '无效的令牌'
+    }), 401
+
+@jwt.unauthorized_loader
+def missing_token_callback(error_string):
+    return jsonify({
+        'code': 401,
+        'message': '未提供令牌，请先登录'
+    }), 401
+
+@jwt.needs_fresh_token_loader
+def token_not_fresh_callback(jwt_header, jwt_payload):
+    return jsonify({
+        'code': 401,
+        'message': '需要新的令牌，请重新登录'
+    }), 401
+
+@jwt.revoked_token_loader
+def revoked_token_callback(jwt_header, jwt_payload):
+    return jsonify({
+        'code': 401,
+        'message': '令牌已被撤销'
+    }), 401
+
 
 def robot_name_mapping(robot_id):
     mapping = {
@@ -61,10 +97,10 @@ def login():
         else:
             access_token = create_access_token(identity=user, expires_delta=datetime.timedelta(days=1))
         app.logger.info(f"User {username} logged in successfully")
-        return jsonify(code=0, access_token=access_token), 200
+        return jsonify(code=0, access_token=access_token)
     else:
         app.logger.error(f"User {username} login failed")
-        return jsonify(code=1, message="Invalid username or password"), 200
+        return jsonify(code=1, message="Invalid username or password")
 
 @app.route(URI_PREFIX + '/robot_list', methods=['GET'])
 @jwt_required()

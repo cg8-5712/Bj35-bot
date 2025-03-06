@@ -94,7 +94,7 @@ async def make_task_flow_docking_cabin_and_move_target(device_id,target):
               "storeId": Config.store_Id(),
               "params": {
                 "dockCabinId": device_id,
-                # "chassisId": "3949399854845849594854",
+                "chassisId": "3949399854845849594854",
                 "target": target
               }
             }
