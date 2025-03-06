@@ -87,6 +87,11 @@
                     </div>
                     
                     <div class="mt-2 flex justify-between border-b py-2">
+                      <div class="text-sm font-medium text-gray-500">货仓ID</div>
+                      <div class="text-sm text-gray-900">{{ robot.cabinId || '未知' }}</div>
+                    </div>
+
+                    <div class="mt-2 flex justify-between border-b py-2">
                       <div class="text-sm font-medium text-gray-500">位置</div>
                       <div class="text-sm text-gray-900">{{ robot.status?.location || '未知位置' }}</div>
                     </div>
