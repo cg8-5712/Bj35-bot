@@ -35,19 +35,35 @@ class AuthService {
     
     try {
       const decoded = jwtDecode(token);
-      // 检查令牌是否过期
       const currentTime = Date.now() / 1000;
       if (decoded.exp < currentTime) {
-        // 令牌已过期
         notificationService.notify('Session expired, please login again', 'error');
         this.logout();
         return false;
       }
       return true;
     } catch (error) {
-      // 解码失败
       return false;
     }
+  }
+
+  getUserInfo() {
+    const token = this.getToken();
+    if (!token) return null;
+    
+    try {
+      // 解码JWT获取用户信息
+      const decoded = jwtDecode(token);
+      return decoded;
+    } catch (error) {
+      console.error('解码token失败:', error);
+      return null;
+    }
+  }
+
+  getUsername() {
+    const userInfo = this.getUserInfo();
+    return userInfo ? userInfo.sub : null;
   }
 }
 

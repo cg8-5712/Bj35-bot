@@ -93,9 +93,11 @@ class ApiServices extends ApiPrefix {
   async getAllDevices() {
     try {
       const data = await this.get('/devicelist');
+
+      if ( data.code !== 0 ) { throw new Error(data.message); }
+
       return data;
     } catch (error) {
-      console.error('获取设备列表失败:', error);
       throw error;
     }
   }
@@ -103,9 +105,11 @@ class ApiServices extends ApiPrefix {
   async getDeviceById(id) {
     try {
       const data = await this.get(`/device_status/${id}`);
+      
+      if ( data.code !== 0 ) { throw new Error(data.message); }
+
       return data;
     } catch (error) {
-      console.error('获取设备详情失败:', error);
       throw error;
     }
   }
