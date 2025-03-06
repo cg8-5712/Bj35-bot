@@ -1,3 +1,13 @@
+<!--
+ * @fileoverview MessageInfo.vue - 通用信息提示组件
+ * @copyright Copyright (c) 2020-2025 The ESAP Project.
+ * @author AptS:1547 <esaps@esaps.net>
+ * @Link https://esaps.net/
+ * @version 0.1.0
+ * @license
+ * 使用本代码需遵循 MIT 协议，以及 Tailwind Plus Personal 许可证
+-->
+
 <template>
   <div aria-live="assertive" class="pointer-events-none fixed inset-x-0 bottom-0 sm:bottom-auto sm:top-16 flex items-end px-4 py-6 sm:items-start sm:p-6 z-40">
     <div class="flex w-full flex-col items-center space-y-4 sm:items-end">

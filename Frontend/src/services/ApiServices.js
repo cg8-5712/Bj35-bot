@@ -85,22 +85,30 @@ class ApiPrefix {
   }
 }
 
-// 创建API服务实例
 class ApiServices extends ApiPrefix {
-    constructor() {
-        super(); // 调用父类的构造函数
-    }
+  constructor() {
+    super();
+  }
     
-    async getAllDevices() {
-        try {
-            // 直接使用继承自父类的方法
-            const data = await this.get('/devicelist');
-            return data;
-        } catch (error) {
-            console.error('获取设备列表失败:', error);
-            throw error;
-        }
+  async getAllDevices() {
+    try {
+      const data = await this.get('/devicelist');
+      return data;
+    } catch (error) {
+      console.error('获取设备列表失败:', error);
+      throw error;
     }
+  }
+
+  async getDeviceById(id) {
+    try {
+      const data = await this.get(`/device_status/${id}`);
+      return data;
+    } catch (error) {
+      console.error('获取设备详情失败:', error);
+      throw error;
+    }
+  }
 }
 
 export default new ApiServices();

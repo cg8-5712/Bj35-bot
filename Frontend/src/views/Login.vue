@@ -1,8 +1,16 @@
+<!--
+ * @fileoverview Login.vue - 登录页面
+ * @copyright Copyright (c) 2020-2025 The ESAP Project.
+ * @author AptS:1547 <esaps@esaps.net>
+ * @Link https://esaps.net/
+ * @version 0.1.0
+ * @license
+ * 使用本代码需遵循 MIT 协议，以及 Tailwind Plus Personal 许可证
+-->
+
 <template>
-  <!-- 添加一个全屏背景层 -->
   <div class="min-h-screen bg-gray-100 flex items-center justify-center">
     <div class="w-full sm:max-w-[480px] p-6">
-      <!-- 登录框部分 -->
       <div class="sm:mx-auto sm:w-full sm:max-w-md">
         <img class="mx-auto h-10 w-auto" src="@/assets/favicon.svg" alt="Login" />
         <h2 class="mt-6 text-center text-2xl/9 font-bold tracking-tight text-gray-900">登录您的账户</h2>
