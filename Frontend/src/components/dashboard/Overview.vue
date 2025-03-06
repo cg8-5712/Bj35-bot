@@ -10,11 +10,10 @@
 
 <template>
   <div>
-    <div class="border-b border-gray-200 pb-5 m-5">
-      <h3 class="text-2xl font-semibold text-gray-900">机器人状态列表</h3>
-      <p class="mt-2 max-w-4xl text-sm text-gray-500">点击查看机器人详细信息</p>
+    <div class="mb-5">
+      <h1 class="text-2xl font-semibold text-gray-900">机器人状态列表</h1>
+      <p class="mt-1 text-sm text-gray-500">点击查看机器人详细信息</p>
     </div>
-      
     <LoadingSpinner v-if="loading" message="加载中..." />
     <div v-else>
       <TransitionGroup 
@@ -36,8 +35,8 @@
               <div class="text-sm font-medium text-gray-900">{{ robot.name }}</div>
               <div class="text-xs text-gray-500 truncate" :title="robot.id">ID: {{ robot.id }}</div>
             </div>
-            <div :class="[onlineMap[robot.status.isOnline], 'rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset']">
-              {{ robot.status.isOnline ? '在线' : '离线' }}
+            <div class="flex-shrink-0 p-2 rounded-full" :class="robot.status.isOnline ? 'bg-green-50' : 'bg-red-50'">
+              <div class="w-3 h-3 rounded-full" :class="robot.status.isOnline ? 'bg-green-500' : 'bg-red-500'"></div>
             </div>
           </div>
           <dl class="-my-3 divide-y divide-gray-100 px-6 py-4 text-sm/6">
@@ -95,8 +94,6 @@
 </template>
 
 <script setup>
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
-import { EllipsisHorizontalIcon } from '@heroicons/vue/20/solid'
 import { TransitionGroup } from 'vue'
 
 import { ref, onMounted, reactive } from 'vue'
@@ -104,11 +101,6 @@ import ApiServices from '@/services/ApiServices'
 import NotificationService from '@/services/NotificationService'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import RobotDetail from '@/components/dashboard/RobotDetail.vue'
-
-const onlineMap = {
-  true: 'text-green-700 bg-green-50 ring-green-600/20',
-  false: 'text-red-700 bg-red-50 ring-red-600/10'
-}
 
 // 状态样式映射
 const statuses = {
