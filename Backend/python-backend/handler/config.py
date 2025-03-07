@@ -64,23 +64,6 @@ class Config:
         return str(os.getenv("accessKeyId"))  # 返回accessKeyId
 
     @classmethod
-    def deviceId(cls):
-        """
-        device id
-        :return: list
-        """
-        divice_id = os.getenv("device_bot1_cabin")
-        return divice_id
-
-    @classmethod
-    def inside_token(cls):
-        """
-        device name
-        :return: str
-        """
-        return os.getenv("inside_token")
-
-    @classmethod
     def store_Id(cls):
         """
         store id
