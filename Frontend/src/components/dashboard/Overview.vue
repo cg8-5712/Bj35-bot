@@ -51,6 +51,7 @@
                   ></div>
                 </div>
                 {{ robot.status.power }}%
+                <div v-if="robot.status.isCharging" class="ml-2 text-xs text-gray-500">充电中</div>
               </dd>
             </div>
             <div class="flex justify-between gap-x-4 py-3">

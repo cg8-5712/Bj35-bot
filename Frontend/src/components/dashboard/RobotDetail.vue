@@ -82,7 +82,10 @@
                             :style="`width: ${batteryPercentage}%`"
                           ></div>
                         </div>
-                        <div class="text-xs mt-1 text-right">{{ batteryPercentage }}%</div>
+                        <div class="text-xs mt-1 text-right">、
+                          <span v-if="robot.status?.isCharging" class="text-xs text-gray-500">充电中</span>
+                          {{ batteryPercentage }}%
+                        </div>
                       </div>
                     </div>
                     

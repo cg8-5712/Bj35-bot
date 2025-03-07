@@ -301,6 +301,7 @@ async def process_robot_devices(device_list):
             'status': {
                 'isOnline': not device_status.get('isOffline', True),
                 'power': device_status.get('powerPercent', 0),
+                'isCharging': device_status.get('isCharging', False),
                 'message': data.get('message', '无信息'),
                 'status': '空闲' if device_status.get('isIdle', False) else '执行任务中',
                 'location': device_status.get('currentPositionMarker', '未知位置')
