@@ -88,6 +88,14 @@
                         </div>
                       </div>
                     </div>
+
+                    <div class="mt-2 flex justify-between border-b py-2">
+                      <div class="text-sm font-medium text-gray-500">充电状态</div>
+                      <div class="text-sm text-gray-900">
+
+                        <div class="text-xs mt-1 text-right">{{ chargingStatusText.value }}</div>
+                      </div>
+                    </div>
                     
                     <div class="mt-2 flex justify-between border-b py-2">
                       <div class="text-sm font-medium text-gray-500">货仓ID</div>
@@ -152,6 +160,7 @@
         status: {
           isOnline: false,
           power: 0,
+          isCharging: false,
           status: '未知',
           message: '',
           location: ''
@@ -174,7 +183,11 @@
     const power = props.robot.status?.power || 0
     return typeof power === 'number' ? power : parseInt(power) || 0
   })
-  
+
+  const chargingStatusText = computed(() => {
+  return props.robot.status?.isCharging ? '正在充电' : '未充电'
+})
+
   const batteryColorClass = computed(() => {
     if (batteryPercentage.value > 50) return 'bg-green-600'
     if (batteryPercentage.value > 20) return 'bg-yellow-300'
