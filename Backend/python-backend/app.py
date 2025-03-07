@@ -288,10 +288,12 @@ async def process_robot_devices(device_list):
             if robot_id.startswith(prefix):
                 cabin_id = cabinet_id
                 break
-        
+
         # 提取相关数据并格式化
         data = device_status_response.get('data', {})
         device_status = data.get('deviceStatus', {})
+
+        print(device_status)
         
         robot_data = {
             'id': robot_id,
@@ -301,7 +303,7 @@ async def process_robot_devices(device_list):
             'status': {
                 'isOnline': not device_status.get('isOffline', True),
                 'power': device_status.get('powerPercent', 0),
-                'isCharging': device_status.get('isCharging', False),
+                'isCharging' : device_status.get('isCharging', False),
                 'message': data.get('message', '无信息'),
                 'status': '空闲' if device_status.get('isIdle', False) else '执行任务中',
                 'location': device_status.get('currentPositionMarker', '未知位置')
@@ -316,4 +318,4 @@ async def process_robot_devices(device_list):
 app = create_app()
 
 if __name__ == '__main__':
-    app.run(port=8080, debug=True)
+    app.run(host = '0.0.0.0', port=8080, debug=True)
