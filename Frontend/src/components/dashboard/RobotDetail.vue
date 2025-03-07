@@ -185,7 +185,7 @@
   })
 
   const chargingStatusText = computed(() => {
-  return props.robot.status?.isCharging ? '正在充电' : '未充电'
+  return props.robot.status.isCharging ? '正在充电' : '未充电'
 })
 
   const batteryColorClass = computed(() => {

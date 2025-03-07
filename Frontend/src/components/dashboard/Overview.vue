@@ -125,6 +125,7 @@ function showRobotDetail(robot) {
     ...robot,
     lastActivity: new Date() // 这里可以从 robot 对象中获取真实的最后活动时间
   }
+  console.log(selectedRobot.value.status.isCharging)
   isDetailOpen.value = true
 }
 
