@@ -40,8 +40,10 @@ async def get_school_tasks():
     headers = create_headers()
     async with aiohttp.ClientSession(headers=headers) as session:
         params = {'storeIds': Config.store_Id(),
-                  'pageSize': '20',
+                  'pageSize': '100',
                   'current': '1'}
+        print(params)
+        print(headers)
         async with session.get(f'https://open-api.yunjiai.cn/v3/rcs/task/list', params=params) as response:
             return json.loads(await response.text())
 
@@ -94,8 +96,26 @@ async def make_task_flow_docking_cabin_and_move_target(device_id,target):
               "storeId": Config.store_Id(),
               "params": {
                 "dockCabinId": device_id,
-                "chassisId": "3949399854845849594854",
+                # "chassisId": "3949399854845849594854",
                 "target": target
+              }
+            }
+    async with aiohttp.ClientSession(headers=headers) as session:
+        async with session.post(f'https://open-api.yunjiai.cn/v3/rcs/task/flow/execute', json=data) as response:
+            return json.loads(await response.text())
+
+async def make_task_flow_dock_cabin_and_move_target_with_wait_action(device_id,target):
+    headers = create_headers()
+    data = {
+              "outTaskId": str(uuid.uuid4()),
+              "templateId": "dock_cabin_and_move_target_with_wait_action",
+              "storeId": Config.store_Id(),
+              "params": {
+                "dockCabinId": device_id,
+                # "chassisId": "3949399854845849594854",
+                "target": target,
+                "overtime": 20,
+                "overtimeEvent": "down"
               }
             }
     async with aiohttp.ClientSession(headers=headers) as session:
@@ -109,9 +129,8 @@ async def make_task_flow_move_and_lift_down(device_id,dockingMarker, target):
               "templateId": "dock_cabin_to_move_and_lift_down",
               "storeId": Config.store_Id(),
               "params": {
-                "dockCabinId": device_id,
-                "dockingCabinMarker": dockingMarker,
-                "target": target
+              "dockCabinId": device_id,
+              "target": target
               }
 }
     async with aiohttp.ClientSession(headers=headers) as session:
@@ -127,14 +146,18 @@ async def goto_charge(device_id):
 
 if __name__ == '__main__':
     device_bot1_cabin = 1309143264909201408
-
+    # res = asyncio.run(make_task_flow_dock_cabin_and_move_target_with_wait_action(device_bot1_cabin, "Y103"))
+    # print(res)
+    # print(asyncio.run(get_running_task()))
+    # res = asyncio.run(make_task_flow_docking_cabin_and_move_target(device_bot1_cabin, "charge_point_1F_40300716"))
+    # print(res)
     # print(device_bot1_cabin)
     # res = asyncio.run(get_cabin_position(device_bot1_cabin))
     # print(res)
     # res = asyncio.run(get_device_list())
     # print(res)
-    # print(asyncio.run(get_school_tasks()))
-    # print(asyncio.run(reset_cabin_position(device_bot1_cabin)))
+    print(asyncio.run(get_school_tasks()))
+    # print(asyncio.run(reset_cabin_position(device_bot1_cabin, "charge_point_1F_40300716")))
     # res = asyncio.run(make_task_flow())
     # print(res)
     # res = asyncio.run(make_task_flow())

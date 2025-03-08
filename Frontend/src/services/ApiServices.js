@@ -117,6 +117,18 @@ class ApiServices extends ApiPrefix {
       throw error;
     }
   }
+
+  async getDeviceName(id){
+    try {
+      const data = await this.get(`/map-position/${id}`);
+
+      if ( data.code !== 0 ) { throw new Error(data.message); }
+
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export default new ApiServices();

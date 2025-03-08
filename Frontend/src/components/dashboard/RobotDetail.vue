@@ -93,7 +93,7 @@
                       <div class="text-sm font-medium text-gray-500">充电状态</div>
                       <div class="text-sm text-gray-900">
 
-                        <div class="text-xs mt-1 text-right">{{ chargingStatusText.value }}</div>
+                        <div class="text-xs mt-1 text-right">{{ chargingStatusText }}</div>
                       </div>
                     </div>
                     
@@ -187,6 +187,7 @@
   const chargingStatusText = computed(() => {
   return props.robot.status.isCharging ? '正在充电' : '未充电'
 })
+  console.log(chargingStatusText)
 
   const batteryColorClass = computed(() => {
     if (batteryPercentage.value > 50) return 'bg-green-600'
