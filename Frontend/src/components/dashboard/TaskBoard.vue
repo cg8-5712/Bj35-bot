@@ -2,8 +2,8 @@
   <div class="p-4">
     <!-- 标题与说明 -->
     <div class="mb-5">
-      <h1 class="text-2xl font-semibold text-gray-900">历史任务看板</h1>
-      <p class="mt-1 text-sm text-gray-500">点击任务查看详细信息</p>
+      <h1 class="text-2xl font-semibold text-gray-900">任务看板</h1>
+      <p class="mt-1 text-sm text-gray-500">点击查看详细信息</p>
     </div>
 
     <!-- 加载中状态 -->
@@ -41,9 +41,12 @@
               class="cursor-pointer hover:bg-gray-100"
               @click="openTaskDetail(task)"
             >
+
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ task.no }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ formatTime(task.createdAt) }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ task.status }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <div :class="[statuses[task.status], 'rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset']">{{ task.status }}</div>
+              </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ task.target }}</td>
             </tr>
           </tbody>
@@ -157,9 +160,16 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
+import ApiServices from '@/services/ApiServices'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/20/solid'
 
-// 模拟数据
+const statuses = {
+  'SUCCESS': 'text-green-700 bg-green-50 ring-green-600/20 max-w-[70px]',
+  'FAILED': 'text-red-700 bg-red-50 ring-red-600/10 max-w-[55px]',
+  'CREATED': 'text-yellow-600 bg-yellow-50 ring-yellow-500/30 max-w-[70px]'
+}
+
+// Initial data
 const tasks = ref([])
 const loading = ref(true)
 const currentPage = ref(1)
@@ -170,167 +180,9 @@ const selectedTask = ref({})
 // 获取模拟数据（可扩展以测试分页）
 const fetchTasks = async () => {
   try {
-    const simulatedData = [
-      {
-        no: 1,
-        taskId: '20250307091749577874058053020376',
-        createdAt: 1741339069586,
-        updatedAt: 1741339163100,
-        status: 'SUCCESS',
-        taskType: 'EXECUTOR_FLOW_TASK',
-        attach: '',
-        storeId: '202413110921092704037166339072',
-        outTaskId: '5cdd1ad6-bf40-4278-981f-863caa75585b',
-        target: 'charge_point_1F_40300716'
-      },
-      {
-        no: 2,
-        taskId: '20250307091749577874058053020377',
-        createdAt: 1741339069586,
-        updatedAt: 1741339163100,
-        status: 'FAILED',
-        taskType: 'EXECUTOR_FLOW_TASK',
-        attach: '',
-        storeId: '202413110921092704037166339072',
-        outTaskId: '5cdd1ad6-bf40-4278-981f-863caa75585c',
-        target: 'charge_point_1F_40300717'
-      },
-      {
-        no: 3,
-        taskId: '20250307091749577874058053020378',
-        createdAt: 1741339069586,
-        updatedAt: 1741339163100,
-        status: 'SUCCESS',
-        taskType: 'EXECUTOR_FLOW_TASK',
-        attach: '',
-        storeId: '202413110921092704037166339072',
-        outTaskId: '5cdd1ad6-bf40-4278-981f-863caa75585d',
-        target: 'B103'
-      },
-      {
-  "no": 5,
-  "taskId": "20250307091749577874058053020378",
-  "createdAt": 1741339069586,
-  "updatedAt": 1741339163100,
-  "status": "SUCCESS",
-  "taskType": "EXECUTOR_FLOW_TASK",
-  "attach": "",
-  "storeId": "202413110921092704037166339072",
-  "outTaskId": "5cdd1ad6-bf40-4278-981f-863caa75585d",
-  "target": "A101"
-},
-{
-  "no": 6,
-  "taskId": "20250307091749577874058053020378",
-  "createdAt": 1741339069586,
-  "updatedAt": 1741339163100,
-  "status": "SUCCESS",
-  "taskType": "DATA_PROCESSING_TASK",
-  "attach": "",
-  "storeId": "202413110921092704037166339072",
-  "outTaskId": "5cdd1ad6-bf40-4278-981f-863caa75585d",
-  "target": "C202"
-},
-{
-  "no": 7,
-  "taskId": "20250307091749577874058053020378",
-  "createdAt": 1741339069586,
-  "updatedAt": 1741339163100,
-  "status": "SUCCESS",
-  "taskType": "USER_NOTIFICATION_TASK",
-  "attach": "",
-  "storeId": "202413110921092704037166339072",
-  "outTaskId": "5cdd1ad6-bf40-4278-981f-863caa75585d",
-  "target": "D303"
-},
-{
-  "no": 8,
-  "taskId": "20250307091749577874058053020378",
-  "createdAt": 1741339069586,
-  "updatedAt": 1741339163100,
-  "status": "SUCCESS",
-  "taskType": "EXECUTOR_FLOW_TASK",
-  "attach": "",
-  "storeId": "202413110921092704037166339072",
-  "outTaskId": "5cdd1ad6-bf40-4278-981f-863caa75585d",
-  "target": "E404"
-},
-{
-  "no": 9,
-  "taskId": "20250307091749577874058053020378",
-  "createdAt": 1741339069586,
-  "updatedAt": 1741339163100,
-  "status": "SUCCESS",
-  "taskType": "SYSTEM_MAINTENANCE_TASK",
-  "attach": "",
-  "storeId": "202413110921092704037166339072",
-  "outTaskId": "5cdd1ad6-bf40-4278-981f-863caa75585d",
-  "target": "F505"
-},
-{
-  "no": 10,
-  "taskId": "20250307091749577874058053020378",
-  "createdAt": 1741339069586,
-  "updatedAt": 1741339163100,
-  "status": "SUCCESS",
-  "taskType": "EXECUTOR_FLOW_TASK",
-  "attach": "",
-  "storeId": "202413110921092704037166339072",
-  "outTaskId": "5cdd1ad6-bf40-4278-981f-863caa75585d",
-  "target": "G606"
-},
-{
-  "no": 11,
-  "taskId": "20250307091749577874058053020378",
-  "createdAt": 1741339069586,
-  "updatedAt": 1741339163100,
-  "status": "SUCCESS",
-  "taskType": "DATA_BACKUP_TASK",
-  "attach": "",
-  "storeId": "202413110921092704037166339072",
-  "outTaskId": "5cdd1ad6-bf40-4278-981f-863caa75585d",
-  "target": "H707"
-},
-{
-  "no": 12,
-  "taskId": "20250307091749577874058053020378",
-  "createdAt": 1741339069586,
-  "updatedAt": 1741339163100,
-  "status": "SUCCESS",
-  "taskType": "EXECUTOR_FLOW_TASK",
-  "attach": "",
-  "storeId": "202413110921092704037166339072",
-  "outTaskId": "5cdd1ad6-bf40-4278-981f-863caa75585d",
-  "target": "I808"
-},
-{
-  "no": 13,
-  "taskId": "20250307091749577874058053020378",
-  "createdAt": 1741339069586,
-  "updatedAt": 1741339163100,
-  "status": "SUCCESS",
-  "taskType": "USER_AUTHENTICATION_TASK",
-  "attach": "",
-  "storeId": "202413110921092704037166339072",
-  "outTaskId": "5cdd1ad6-bf40-4278-981f-863caa75585d",
-  "target": "J909"
-},
-{
-  "no": 14,
-  "taskId": "20250307091749577874058053020378",
-  "createdAt": 1741339069586,
-  "updatedAt": 1741339163100,
-  "status": "SUCCESS",
-  "taskType": "EXECUTOR_FLOW_TASK",
-  "attach": "",
-  "storeId": "202413110921092704037166339072",
-  "outTaskId": "5cdd1ad6-bf40-4278-981f-863caa75585d",
-  "target": "K110"
-}
-
-      // 如需更多数据，可在此扩展数组
-    ]
-    tasks.value = simulatedData
+    const Data = await ApiServices.getTasklist()
+    tasks.value = Data
+    console.log('获取任务数据成功:', Data)
   } catch (error) {
     console.error('获取任务数据失败:', error)
   } finally {

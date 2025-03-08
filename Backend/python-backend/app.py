@@ -216,12 +216,16 @@ def register_routes(app):
         return jsonify(result)
     
     # 任务相关路由
-    @app.route(URI_PREFIX + '/school-tasks', methods=['GET'])
+    @app.route(URI_PREFIX + '/school-tasks/<pagesize>/<currentpage>', methods=['GET'])
     @jwt_required()
     @error_handler
-    async def fetch_school_tasks():
+    async def fetch_school_tasks(pagesize, currentpage):
         """获取学校任务"""
-        school_tasks = await api.get_school_tasks()
+        school_tasks = await api.get_school_tasks(pagesize, currentpage)
+        no = 100
+        for task in school_tasks.get('data', []):
+            task['no'] = no
+            no -= 1
         return jsonify(school_tasks)
         
     @app.route(URI_PREFIX + '/running-task', methods=['GET'])

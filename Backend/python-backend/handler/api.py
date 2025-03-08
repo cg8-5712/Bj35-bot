@@ -36,14 +36,12 @@ async def get_device_task(device_id):
         async with session.get(f'https://open-api.yunjiai.cn/v3/robots/{device_id}/tasks') as response:
             return json.loads(await response.text())
 
-async def get_school_tasks():
+async def get_school_tasks(pageSize, current):
     headers = create_headers()
     async with aiohttp.ClientSession(headers=headers) as session:
         params = {'storeIds': Config.store_Id(),
-                  'pageSize': '100',
-                  'current': '1'}
-        print(params)
-        print(headers)
+                  'pageSize': pageSize,
+                  'current': current}
         async with session.get(f'https://open-api.yunjiai.cn/v3/rcs/task/list', params=params) as response:
             return json.loads(await response.text())
 
