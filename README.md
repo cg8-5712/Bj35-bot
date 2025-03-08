@@ -53,18 +53,10 @@ BJ35-BOT
 │  │  │  app.py
 │  │  │  readme.md
 │  │  │  
-│  │  ├─handler
-│  │  │  │  accessToken.py
-│  │  │  │  api.py
-│  │  │  │  config.py
-│  │  │  │  
-│  │  │  └─__pycache__
-│  │  │          api.cpython-312.pyc
-│  │  │          config.cpython-312.pyc
-│  │  │          
-│  │  └─__pycache__
-│  │          api.cpython-312.pyc
-│  │          config.cpython-312.pyc
+│  │  └─handler
+│  │     │  accessToken.py
+│  │     │  api.py
+│  │     └─  config.py
 │  │          
 │  └─Send-message
 │      │  API receives messages.py
