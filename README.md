@@ -45,7 +45,7 @@
 4. 访问 `http://localhost:8080/api/v1`
 
 ### 项目结构
-`
+```
 BJ35-BOT
 ├─Backend
 │  ├─python-backend
@@ -135,9 +135,7 @@ BJ35-BOT
                 Dashboard.vue
                 Login.vue
                 NotFound.vue
-                
-
-`
+```
 
 ## 相关文档
 
