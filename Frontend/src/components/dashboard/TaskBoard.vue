@@ -166,7 +166,9 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/20/solid'
 const statuses = {
   'SUCCESS': 'text-green-700 bg-green-50 ring-green-600/20 max-w-[70px]',
   'FAILED': 'text-red-700 bg-red-50 ring-red-600/10 max-w-[55px]',
-  'CREATED': 'text-yellow-600 bg-yellow-50 ring-yellow-500/30 max-w-[70px]'
+  'CREATED': 'text-yellow-600 bg-yellow-50 ring-yellow-500/30 max-w-[70px]',
+  'CANCELLED': 'text-gray-600 bg-gray-50 ring-gray-500/10 max-w-[85px]',
+  'NOT_FETCH': 'text-red-700 bg-red-50 ring-red-600/10 max-w-[85px]'
 }
 
 // Initial data
