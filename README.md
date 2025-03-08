@@ -44,6 +44,101 @@
 3. 启动服务：`python Backend/python-backend/app.py`
 4. 访问 `http://localhost:8080/api/v1`
 
+### 项目结构
+`
+BJ35-BOT
+├─Backend
+│  ├─python-backend
+│  │  │  .env
+│  │  │  app.py
+│  │  │  readme.md
+│  │  │  
+│  │  ├─handler
+│  │  │  │  accessToken.py
+│  │  │  │  api.py
+│  │  │  │  config.py
+│  │  │  │  
+│  │  │  └─__pycache__
+│  │  │          api.cpython-312.pyc
+│  │  │          config.cpython-312.pyc
+│  │  │          
+│  │  └─__pycache__
+│  │          api.cpython-312.pyc
+│  │          config.cpython-312.pyc
+│  │          
+│  └─Send-message
+│      │  API receives messages.py
+│      │  API send messages test.py
+│      │  main.py
+│      │  
+│      └─weworkapi_python
+│              ierror.py
+│              README.md
+│              Readme.txt
+│              WXBizJsonMsgCrypt.py
+│              WXBizMsgCrypt.py
+│              WXBizMsgCrypt3.py
+│              
+├─docs
+│      api文档.txt
+│      develop_project.md
+│      云迹-UP机器人二次开发（集成）接口.pdf
+│      代码逻辑.md
+│      代码逻辑.png
+│      任务流调度.md
+│      前端要加的东西.md
+│      开发文档.md
+│      开发计划（白板）.jpg
+│      
+└─Frontend
+    │  .env.development
+    │  .gitignore
+    │  index.html
+    │  LICENSE
+    │  package.json
+    │  README.md
+    │  vite.config.js
+    │  yarn.lock
+    │    
+    ├─public
+    │      vite.svg
+    │      
+    └─src
+        │  App.vue
+        │  main.js
+        │  style.css
+        │  
+        ├─assets
+        │      favicon.svg
+        │      vue.svg
+        │      
+        ├─components
+        │  ├─common
+        │  │      LoadingSpinner.vue
+        │  │      MessageInfo.vue
+        │  │      
+        │  └─dashboard
+        │          Overview.vue
+        │          RobotDetail.vue
+        │          TaskBoard.vue
+        │          TaskPublish.vue
+        │          
+        ├─router
+        │      index.js
+        │      
+        ├─services
+        │      ApiServices.js
+        │      AuthService.js
+        │      NotificationService.js
+        │      
+        └─views
+                Dashboard.vue
+                Login.vue
+                NotFound.vue
+                
+
+`
+
 ## 相关文档
 
 - [开发文档](docs/开发文档.md)
