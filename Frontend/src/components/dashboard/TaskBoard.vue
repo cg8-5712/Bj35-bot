@@ -1,3 +1,10 @@
+<!--
+ * @fileoverview TaskBoard.vue - 任务看板组件
+ * @author Cg8-5712 <5712.cg8@gmail.com>
+ * @version 0.1.0
+ * @license
+ * 使用本代码需遵循 GPL3.0 协议，以及 Tailwind Plus Personal 许可证
+-->
 <template>
   <div class="p-4">
     <!-- 标题与说明 -->
