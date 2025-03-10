@@ -82,6 +82,10 @@ class ApiPrefix {
   // 错误处理
   _handleError(error) {
     console.error('API请求错误:', error);
+    if (error.response.status === 401) {
+      AuthService.logout();
+      window.location.href = '/login';
+    }
   }
 }
 
@@ -90,12 +94,14 @@ class ApiServices extends ApiPrefix {
     super();
   }
     
-  async getAllDevices() {
+  async getRobotList() {
     try {
-      const data = await this.get('/devicelist');
+      const data = await this.get('/robot_list');
+
+      if ( data.code !== 0 ) { throw new Error(data.message); }
+
       return data;
     } catch (error) {
-      console.error('获取设备列表失败:', error);
       throw error;
     }
   }
@@ -103,9 +109,35 @@ class ApiServices extends ApiPrefix {
   async getDeviceById(id) {
     try {
       const data = await this.get(`/device_status/${id}`);
+      
+      if ( data.code !== 0 ) { throw new Error(data.message); }
+
       return data;
     } catch (error) {
-      console.error('获取设备详情失败:', error);
+      throw error;
+    }
+  }
+
+  async getDeviceName(id){
+    try {
+      const data = await this.get(`/map-position/${id}`);
+
+      if ( data.code !== 0 ) { throw new Error(data.message); }
+
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getTasklist(){
+    try {
+      const data = await this.get(`/school-tasks/100/1`);
+
+      if ( data.code !== 0 ) { throw new Error(data.message); }
+
+      return data.data;
+    } catch (error) {
       throw error;
     }
   }
