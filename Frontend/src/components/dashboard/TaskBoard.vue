@@ -30,35 +30,37 @@
         </select>
       </div>
 
-      <!-- 任务列表表格 -->
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">任务 NO</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">创建时间</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">目标</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <tr
-              v-for="task in pagedTasks"
-              :key="task.no"
-              class="cursor-pointer hover:bg-gray-100"
-              @click="openTaskDetail(task)"
-            >
+      <transition :name="transitionName" mode="out-in">
+        <!-- 任务列表表格 -->
+        <div class="overflow-x-auto" :key="currentPage">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">任务 NO</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">创建时间</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">目标</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr
+                v-for="task in pagedTasks"
+                :key="task.no"
+                class="cursor-pointer hover:bg-gray-100"
+                @click="openTaskDetail(task)"
+              >
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ task.no }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ formatTime(task.createdAt) }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <div :class="[statuses[task.status], 'rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset']">{{ task.status }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ task.target }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </transition>
 
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ task.no }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ formatTime(task.createdAt) }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <div :class="[statuses[task.status], 'rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset']">{{ task.status }}</div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ task.target }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
 
       <!-- 分页控件，集成了移动端和桌面端样式 -->
       <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4">
@@ -136,7 +138,7 @@
     <transition name="fade">
       <div
         v-if="showModal"
-        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+        class="fixed inset-0 flex items-center justify-center backdrop-blur-xs z-15"
       >
         <div class="bg-white rounded-lg shadow-lg p-6 w-96">
           <div class="flex justify-between items-center mb-4">
@@ -186,6 +188,8 @@ const pageSize = ref(10)
 const showModal = ref(false)
 const selectedTask = ref({})
 
+const transitionName = ref('slide-left')
+
 // 获取模拟数据（可扩展以测试分页）
 const fetchTasks = async () => {
   try {
@@ -203,6 +207,8 @@ onMounted(() => {
   fetchTasks()
 })
 
+
+
 // 分页相关计算
 const totalPages = computed(() => Math.ceil(tasks.value.length / pageSize.value) || 1)
 const pagedTasks = computed(() => {
@@ -213,7 +219,7 @@ const firstItem = computed(() => (tasks.value.length === 0 ? 0 : (currentPage.va
 const lastItem = computed(() => Math.min(currentPage.value * pageSize.value, tasks.value.length))
 const totalResults = computed(() => tasks.value.length)
 
-// 简单的分页页码算法，若页码较多时自动显示省略号
+// 分页页码简单算法
 const pages = computed(() => {
   const total = totalPages.value
   const current = currentPage.value
@@ -229,18 +235,23 @@ const pages = computed(() => {
   }
 })
 
+// 翻页方法：更新动画方向
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
+    transitionName.value = 'slide-left'
     currentPage.value++
   }
 }
 const prevPage = () => {
   if (currentPage.value > 1) {
+    transitionName.value = 'slide-right'
     currentPage.value--
   }
 }
 const setPage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
+    // 根据页码变化方向决定动画
+    transitionName.value = page > currentPage.value ? 'slide-left' : 'slide-right'
     currentPage.value = page
   }
 }
@@ -264,6 +275,34 @@ watch(pageSize, () => {
 </script>
 
 <style scoped>
+/* 页面切换动画 */
+.slide-left-enter-active,
+.slide-left-leave-active {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.slide-left-enter-from {
+  transform: translateX(100%);
+  opacity: 0;
+}
+.slide-left-leave-to {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.slide-right-enter-from {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+.slide-right-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+/* 弹窗淡入淡出动画 */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.2s;
