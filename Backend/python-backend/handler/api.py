@@ -1,6 +1,6 @@
 from urllib import response
 
-from .config import Config
+from config import Config
 import aiohttp
 import asyncio
 import uuid
@@ -113,7 +113,7 @@ async def make_task_flow_dock_cabin_and_move_target_with_wait_action(device_id,t
                 # "chassisId": "3949399854845849594854",
                 "target": target,
                 "overtime": 20,
-                "overtimeEvent": "down"
+                "overtimeEvent": "back"
               }
             }
     async with aiohttp.ClientSession(headers=headers) as session:
@@ -142,10 +142,24 @@ async def goto_charge(device_id):
         async with session.post(f'https://open-api.yunjiai.cn/v3/robot/{device_id}/goto-charge', json=data) as response:
             return json.loads(await response.text())
 
+async def sleep(time):
+    await asyncio.sleep(time)
+
 if __name__ == '__main__':
     device_bot1_cabin = 1309143264909201408
-    # res = asyncio.run(make_task_flow_dock_cabin_and_move_target_with_wait_action(device_bot1_cabin, "Y103"))
-    # print(res)
+    res = asyncio.run(make_task_flow_dock_cabin_and_move_target_with_wait_action(device_bot1_cabin, "Y103"))
+    print(res)
+    for i in range(10):
+        asyncio.run(sleep(5))
+        res1 = asyncio.run(get_cabin_position(device_bot1_cabin))
+        print("\n", res1)
+        # res1 = asyncio.run(make_task_flow_dock_cabin_and_move_target_with_wait_action(device_bot1_cabin, "Y102"))
+        # print(res1)
+        res1 = asyncio.run(get_device_status(device_bot1_cabin))
+        print("\nstatus:\n", res1)
+        res1 = asyncio.run(get_device_task(device_bot1_cabin))
+        print("\ntask:\n", res1)
+
     # print(asyncio.run(get_running_task()))
     # res = asyncio.run(make_task_flow_docking_cabin_and_move_target(device_bot1_cabin, "charge_point_1F_40300716"))
     # print(res)
@@ -154,7 +168,7 @@ if __name__ == '__main__':
     # print(res)
     # res = asyncio.run(get_device_list())
     # print(res)
-    print(asyncio.run(get_school_tasks()))
+    # print(asyncio.run(get_school_tasks()))
     # print(asyncio.run(reset_cabin_position(device_bot1_cabin, "charge_point_1F_40300716")))
     # res = asyncio.run(make_task_flow())
     # print(res)
