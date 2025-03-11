@@ -1,5 +1,9 @@
 # Bj35-bot
 
+![版本](https://img.shields.io/badge/版本-0.1.0--alpha-blue)
+![Node.js](https://img.shields.io/badge/Node.js-v16+-green)
+![开发状态](https://img.shields.io/badge/状态-开发中-yellow)
+
 一个用于管理机器人的Web UI系统  
 看个乐呵，不一定对
 
