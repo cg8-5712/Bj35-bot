@@ -19,10 +19,9 @@
 - 访问令牌管理
 
 ## 技术栈
-
-- 前端：Vite + Vue3
-- 后端：Python Flask
-- 数据库：SQLite
+- 前端：<img src="https://skillicons.dev/icons?i=html,css,javascript,vue,nodejs,tailwind">
+- 后端：<img src="https://skillicons.dev/icons?i=py">
+- 数据库：<img src="https://skillicons.dev/icons?i=sqlite">
 
 ## 快速开始
 
@@ -132,6 +131,27 @@ BJ35-BOT
                 Login.vue
                 NotFound.vue
 ```
+
+## 开发路线图
+
+- [x] API基础框架
+- [x] 机器人状态监控
+- [x] 消息发送管理
+- [x] 系统配置管理
+- [x] 访问令牌管理
+- [ ] 定时任务管理
+- [ ] 日志管理
+- [ ] 权限管理
+- [x] 文档编写
+
+
+## 许可证
+
+GPL-3.0 License
+
+## 联系方式
+
+项目维护者: AptS:1547 & Cg8-5712
 
 ## 相关文档
 
