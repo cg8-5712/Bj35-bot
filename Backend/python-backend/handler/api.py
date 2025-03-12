@@ -11,6 +11,7 @@ access_token = Config.accessToken()
 # print(access_token)
 
 def create_headers():
+    # 创建请求头，包含签名随机数、时间戳、访问密钥ID和访问令牌
     signatureNonce = str(uuid.uuid4())
     headers = {'signatureNonce': signatureNonce,
                'timestamp': str(time.strftime('%Y-%m-%dT%H:%M:%S+08:00', time.gmtime())),
@@ -19,24 +20,28 @@ def create_headers():
     return headers
 
 async def get_device_list():
+    # 异步获取设备列表
     headers = create_headers()
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.get(f'https://open-api.yunjiai.cn/v3/device/list?accessToken%3D{access_token}') as response:
             return json.loads(await response.text())
 
 async def get_device_status(device_id):
+    # 异步获取指定设备的状态
     headers = create_headers()
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.get(f'https://open-api.yunjiai.cn/v3/robot/{device_id}/status?accessToken%3D{access_token}') as response:
             return json.loads(await response.text())
 
 async def get_device_task(device_id):
+    # 异步获取指定设备的任务列表
     headers = create_headers()
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.get(f'https://open-api.yunjiai.cn/v3/robots/{device_id}/tasks') as response:
             return json.loads(await response.text())
 
 async def get_school_tasks(pageSize, current):
+    # 异步获取学校任务列表，支持分页
     headers = create_headers()
     async with aiohttp.ClientSession(headers=headers) as session:
         params = {'storeIds': Config.store_Id(),
@@ -46,12 +51,14 @@ async def get_school_tasks(pageSize, current):
             return json.loads(await response.text())
 
 async def get_cabin_position(device_id):
+    # 异步获取指定设备的仓位位置
     headers = create_headers()
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.get(f'https://open-api.yunjiai.cn/v3/robot/{device_id}/position') as response:
             return json.loads(await response.text())
 
 async def reset_cabin_position(device_id, position):
+    # 异步重置指定设备的仓位位置
     headers = create_headers()
     data = {"marker": position}
     async with aiohttp.ClientSession(headers=headers) as session:
@@ -59,6 +66,7 @@ async def reset_cabin_position(device_id, position):
             return json.loads(await response.text())
 
 async def get_running_task():
+    # 异步获取正在运行的任务列表
     headers = create_headers()
     storeId = Config.store_Id()
     async with aiohttp.ClientSession(headers=headers) as session:
@@ -66,12 +74,14 @@ async def get_running_task():
             return json.loads(await response.text())
 
 # async def get_running_task_list(storeId):
+#     # 异步获取指定storeId的正在运行的任务列表
 #     headers = create_headers()
 #     async with aiohttp.ClientSession(headers=headers) as session:
 #         async with session.get(f'https://open-api.yunjiai.cn/v3/rcs/task/running-task/list', json={'storeId': storeId}) as response:
 #             return json.loads(await response.text())
 
 async def make_task_flow_move_target_and_lift_down(device_id, target):
+    # 异步创建任务流，移动到指定目标并放下货柜
     headers = create_headers()
     data = {
           "outTaskId": str(uuid.uuid4()),
@@ -87,6 +97,7 @@ async def make_task_flow_move_target_and_lift_down(device_id, target):
             return json.loads(await response.text())
 
 async def make_task_flow_docking_cabin_and_move_target(device_id,target):
+    # 异步创建任务流，对接货柜并移动到指定目标
     headers = create_headers()
     data = {
               "outTaskId": str(uuid.uuid4()),
@@ -103,6 +114,7 @@ async def make_task_flow_docking_cabin_and_move_target(device_id,target):
             return json.loads(await response.text())
 
 async def make_task_flow_dock_cabin_and_move_target_with_wait_action(device_id,target):
+    # 异步创建任务流，对接货柜并移动到指定目标，支持等待操作
     headers = create_headers()
     data = {
               "outTaskId": str(uuid.uuid4()),
@@ -121,6 +133,7 @@ async def make_task_flow_dock_cabin_and_move_target_with_wait_action(device_id,t
             return json.loads(await response.text())
 
 async def make_task_flow_move_and_lift_down(device_id,dockingMarker, target):
+    # 异步创建任务流，移动到指定目标并放下货柜
     headers = create_headers()
     data = {
               "outTaskId": str(uuid.uuid4()),
@@ -136,6 +149,7 @@ async def make_task_flow_move_and_lift_down(device_id,dockingMarker, target):
             return json.loads(await response.text())
 
 async def goto_charge(device_id):
+    # 异步发送指令使设备移动到充电站
     headers = create_headers()
     data = {"chargeId": ""}
     async with aiohttp.ClientSession(headers=headers) as session:
@@ -143,6 +157,7 @@ async def goto_charge(device_id):
             return json.loads(await response.text())
 
 async def sleep(time):
+    # 异步休眠指定时间
     await asyncio.sleep(time)
 
 if __name__ == '__main__':
