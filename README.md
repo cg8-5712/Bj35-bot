@@ -19,9 +19,9 @@
 - 访问令牌管理
 
 ## 技术栈
-- 前端：<img src="https://skillicons.dev/icons?i=html,css,javascript,vue,nodejs,tailwind">
-- 后端：<img src="https://skillicons.dev/icons?i=py">
-- 数据库：<img src="https://skillicons.dev/icons?i=sqlite">
+- 前端：`nodejs javascript vue`
+- 后端：`python`
+- 数据库：`sqlite`
 
 ## 快速开始
 
@@ -139,7 +139,8 @@ BJ35-BOT
 - [x] 消息发送管理
 - [x] 系统配置管理
 - [x] 访问令牌管理
-- [ ] 定时任务管理
+- [x] 定时任务管理
+- [x] 任务流处理
 - [ ] 日志管理
 - [ ] 权限管理
 - [x] 文档编写
@@ -151,7 +152,7 @@ GPL-3.0 License
 
 ## 联系方式
 
-项目维护者: AptS:1547 & Cg8-5712
+项目维护者: ![AptS:1547](https://github.com/AptS-1547) & ![Cg8-5712](https://github.com/cg8-5712)
 
 ## 相关文档
 
