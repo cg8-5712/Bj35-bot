@@ -152,7 +152,7 @@ GPL-3.0 License
 
 ## 联系方式
 
-项目维护者: ![AptS:1547](https://github.com/AptS-1547) & ![Cg8-5712](https://github.com/cg8-5712)
+项目维护者: [AptS:1547](https://github.com/AptS-1547) & [Cg8-5712](https://github.com/cg8-5712)
 
 ## 相关文档
 
