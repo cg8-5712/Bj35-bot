@@ -76,7 +76,7 @@
               <ul role="list" class="-mx-2 space-y-1">
                 <li v-for="item in navigation" :key="item.name">
                   <a 
-                    href="#" 
+                    :href="item.href"
                     :class="[item.current ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']"
                     @click.prevent="setActiveView(item)"
                   >
@@ -87,7 +87,7 @@
               </ul>
             </li>
             <li class="mt-auto">
-              <a href="#" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-indigo-200 hover:bg-indigo-700 hover:text-white">
+              <a href="/profile" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-indigo-200 hover:bg-indigo-700 hover:text-white">
                 <Cog6ToothIcon class="size-6 shrink-0 text-indigo-200 group-hover:text-white" aria-hidden="true" />
                 Settings
               </a>
@@ -137,10 +137,10 @@
               <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
                 <MenuItems class="absolute right-0 z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white py-2 ring-1 shadow-lg ring-gray-900/5 focus:outline-hidden">
                   <MenuItem v-for="item in userNavigation" :key="item.name" v-slot="{ active }">
-                    <a 
-                      :href="item.href" 
+                    <a
+                      :href="item.href"
                       :class="[active ? 'bg-gray-50 outline-hidden' : '', 'block px-3 py-1 text-sm/6 text-gray-900']"
-                      @click.prevent="item.action ? item.action() : null"
+                      @click="item.action ? item.action() : router.push(item.href)"
                     >
                       {{ item.name }}
                     </a>
@@ -205,6 +205,7 @@ const username = ref("")
 const currentComponent = shallowRef(null)
 
 function logout() {
+  console.log('logout')
   AuthService.logout()
   router.push('/login')
 }
@@ -215,7 +216,7 @@ const navigation = [
   { name: '任务看板', href: '#', icon: ChartBarSquareIcon, current: false, componentName: 'TaskBoard'  },
 ]
 const userNavigation = [
-  { name: '个人资料', href: '#' },
+  { name: '个人资料', href: '/profile' },
   { name: '退出登录', href: '#', action: logout },
 ]
 
