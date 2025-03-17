@@ -5,7 +5,7 @@ import datetime
 import hashlib
 import logging
 from functools import wraps
-
+from send_message.main import send_message
 from handler import api
 from handler.config import Config
 
@@ -267,6 +267,15 @@ def register_routes(app):
         """让机器人去充电"""
         result = await api.goto_charge(device_id)
         return jsonify(result)
+
+    @app.route(URI_PREFIX + '/send-message', methods=['POST'])
+    @jwt_required()
+    @error_handler
+    async def send():
+        data = request.json
+        message = data.get('message')
+        user_id = data.get('userId')
+        await send_message(user_id, message)
 
 # 辅助函数
 async def process_robot_devices(device_list):
