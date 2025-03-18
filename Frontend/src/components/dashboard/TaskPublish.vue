@@ -2,46 +2,206 @@
   <div class="task-publish-container">
     <!-- 页面标题 -->
     <div class="mb-5">
-      <h1 class="text-2xl font-semibold text-gray-900">发布任务</h1>
-      <p class="mt-1 text-sm text-gray-500">发布单个机器人任务</p>
+      <h1 class="text-2xl font-semibold text-gray-900">发布新任务</h1>
+      <p class="mt-1 text-sm text-gray-500">创建机器人任务序列并发送执行</p>
     </div>
 
-    <!-- 任务发布部分 -->
-    <div class="p-5 bg-white rounded-lg shadow mb-6">
-      <div class="space-y-4">
-        <!-- 教室选择 -->
-        <div>
-          <label class="block text-xs text-gray-500">教室</label>
-          <select
-            v-model="selectedClassroom"
-            class="block w-full mt-1 px-3 py-2 text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-          >
-            <option value="" disabled>选择教室</option>
-            <option v-for="(value, key) in classesList" :key="key" :value="key">
-              {{ value }}
-            </option>
-          </select>
+    <!-- 机器人选择与状态部分 -->
+    <div class="grid grid-cols-1 gap-6 mb-8 lg:grid-cols-3">
+      <!-- 机器人选择 -->
+      <div class="p-5 bg-white rounded-lg shadow">
+        <h2 class="mb-4 text-lg font-medium text-gray-900">选择机器人</h2>
+
+        <div v-if="loading" class="flex items-center justify-center py-4">
+          <div class="w-5 h-5 border-2 border-t-transparent border-gray-500 rounded-full animate-spin"></div>
+          <span class="ml-2 text-gray-500">加载机器人列表...</span>
         </div>
 
-        <!-- 充电桩选择 -->
-        <div>
-          <label class="block text-xs text-gray-500">充电桩</label>
-          <select
-            v-model="chargePoint"
-            class="block w-full mt-1 px-3 py-2 text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-          >
-            <option value="" disabled>选择充电桩</option>
-            <option value="3F">3F</option>
-            <option value="1F">1F</option>
-          </select>
+        <div v-else-if="!robots.length" class="py-4 text-center text-gray-500">
+          没有可用的机器人
         </div>
+
+        <div v-else class="space-y-2">
+          <div
+            v-for="robot in robots"
+            :key="robot.id"
+            :class="['flex items-center p-3 rounded-md cursor-pointer border hover:bg-gray-50',
+              selectedRobot?.id === robot.id ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200']"
+            @click="selectRobot(robot)"
+          >
+            <div class="flex-shrink-0 p-2 rounded-full" :class="robot.status.isOnline ? 'bg-green-50' : 'bg-red-50'">
+              <div class="w-3 h-3 rounded-full" :class="robot.status.isOnline ? 'bg-green-500' : 'bg-red-500'"></div>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm font-medium text-gray-900">{{ robot.name }}</p>
+              <p class="text-xs text-gray-500">ID: {{ robot.id.substring(0, 8) }}...</p>
+            </div>
+            <div class="ml-auto text-xs px-2 py-1 rounded" :class="getStatusClass(robot.status.status)">
+              {{ robot.status.status }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 机器人状态 -->
+      <div class="p-5 bg-white rounded-lg shadow lg:col-span-2">
+        <h2 class="mb-4 text-lg font-medium text-gray-900">机器人状态</h2>
+
+        <div v-if="!selectedRobot" class="py-8 text-center text-gray-500">
+          请先选择一个机器人
+        </div>
+
+        <div v-else class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div class="p-3 bg-gray-50 rounded-md">
+              <p class="text-xs text-gray-500">当前位置</p>
+              <p class="mt-1 text-sm font-medium">{{ selectedRobot.status.location || '未知' }}</p>
+            </div>
+            <div class="p-3 bg-gray-50 rounded-md">
+              <p class="text-xs text-gray-500">电池电量</p>
+              <div class="mt-1 flex items-center">
+                <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    class="h-full rounded-full"
+                    :class="getBatteryColorClass(selectedRobot.status.power)"
+                    :style="{width: `${selectedRobot.status.power}%`}">
+                  </div>
+                </div>
+                <span class="ml-2 text-sm font-medium">{{ selectedRobot.status.power }}%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center">
+            <span class="px-2 py-1 text-xs rounded"
+                  :class="getStatusClass(selectedRobot.status.status)">
+              {{ selectedRobot.status.status }}
+            </span>
+            <span class="ml-2 text-sm text-gray-500">{{ selectedRobot.status.message }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 任务创建部分 -->
+    <div class="p-5 bg-white rounded-lg shadow mb-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-medium text-gray-900">创建任务流</h2>
+        <div>
+          <button
+            class="px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            @click="addTaskNode"
+            :disabled="!selectedRobot || !selectedRobot.status.isOnline"
+          >
+            添加任务节点
+          </button>
+        </div>
+      </div>
+
+      <!-- 任务流构建区域 -->
+      <div class="mt-6 mb-4">
+        <div v-if="!taskNodes.length" class="py-8 text-center text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
+          尚未添加任务节点，点击"添加任务节点"按钮开始创建任务流
+        </div>
+
+        <TransitionGroup
+          name="task-list"
+          tag="div"
+          class="space-y-3"
+        >
+          <div
+            v-for="(node, index) in taskNodes"
+            :key="node.id"
+            class="flex items-start p-4 bg-gray-50 rounded-lg border border-gray-200"
+          >
+            <!-- 任务节点序号 -->
+            <div class="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 font-medium">
+              {{ index + 1 }}
+            </div>
+
+            <!-- 任务节点内容 -->
+            <div class="ml-4 flex-grow">
+              <div class="flex items-center mb-2">
+                <select
+                  v-model="node.type"
+                  @change="updateNodeParams(node)"
+                  class="block w-36 px-3 py-2 text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="move">前往教室</option>
+                  <option value="back">返回充电桩</option>
+                </select>
+
+                <button
+                  @click="removeTaskNode(index)"
+                  class="ml-3 text-red-600 hover:text-red-800"
+                >
+                  <span class="sr-only">删除</span>
+                  <TrashIcon class="size-6" aria-hidden="true" />
+                </button>
+
+                <div class="ml-auto flex items-center">
+                  <button
+                    v-if="index > 0"
+                    @click="moveNodeUp(index)"
+                    class="text-gray-500 hover:text-gray-700"
+                  >
+                    <span class="sr-only">上移</span>
+                    <ArrowUpIcon class="size-6" aria-hidden="true" />
+                  </button>
+                  <button
+                    v-if="index < taskNodes.length - 1"
+                    @click="moveNodeDown(index)"
+                    class="ml-2 text-gray-500 hover:text-gray-700"
+                  >
+                    <span class="sr-only">下移</span>
+                    <ArrowDownIcon class="size-6" aria-hidden="true" />
+                  </button>
+                </div>
+              </div>
+
+              <!-- 根据任务类型显示不同的参数 -->
+              <div class="mt-2">
+                <!-- move 命令：教室选择 -->
+                <div v-if="node.type === 'move'" class="grid grid-cols-1 gap-3">
+                  <div>
+                    <label class="block text-xs text-gray-500">教室</label>
+                    <select
+                      v-model="node.params.target"
+                      class="block w-full mt-1 px-3 py-2 text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                    >
+                      <option value="" disabled>选择教室</option>
+                      <option v-for="(value, key) in classesList" :key="key" :value="key">
+                        {{ value }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- back 命令：充电桩选择 -->
+                <div v-else-if="node.type === 'back'" class="grid grid-cols-1 gap-3">
+                  <div>
+                    <label class="block text-xs text-gray-500">充电桩</label>
+                    <select
+                      v-model="node.params.charge_point"
+                      class="block w-full mt-1 px-3 py-2 text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                    >
+                      <option value="" disabled>选择充电桩</option>
+                      <option value="3F">3F</option>
+                      <option value="1F">1F</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </TransitionGroup>
       </div>
 
       <!-- 提交按钮 -->
       <div class="flex justify-end space-x-3 mt-6">
         <button
           class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          @click="resetForm"
+          @click="resetTaskNodes"
         >
           重置
         </button>
@@ -62,8 +222,8 @@
 import { ref, computed, onMounted } from 'vue';
 import { TransitionGroup } from 'vue';
 import { v4 as uuidv4 } from 'uuid';
-// import ApiServices from '@/services/ApiServices';
-import NotificationService from '@/services/NotificationService';
+import ApiServices from '@/services/ApiServices.js';
+import NotificationService from '@/services/NotificationService.js';
 
 import {
   ArrowUpIcon,
@@ -222,9 +382,7 @@ function addTaskNode() {
     id: uuidv4(),
     type: 'move',
     params: {
-      target: "",
-      user: "",
-      message: ""
+      target: ""
     }
   });
 }
@@ -261,13 +419,10 @@ function resetTaskNodes() {
 function updateNodeParams(node) {
   switch (node.type) {
     case 'move':
-      node.params = { target: "", user: "", message: "" };
+      node.params = { target: "" };
       break;
     case 'back':
       node.params = { charge_point: "" };
-      break;
-    case 'send':
-      node.params = { user: "", message: "" };
       break;
     default:
       node.params = {};
@@ -289,58 +444,32 @@ async function publishTask() {
   }
 
   try {
-    // Make a task list for return
-    const taskData = {
-      deviceId: selectedRobot.value.id,
-      taskName: `Task-${Date.now()}`,
-      nodes: taskNodes.value.map(node => ({
-        type: node.type,
-        params: node.params
-      }))
-    };
-
-    // 转换任务节点为API需要的格式
-    const apiTasks = taskData.nodes.map(node => {
-      if (node.type === 'back') {
-        return {
-          type: 'dock_cabin_and_move_target_with_wait_action',
-          params: {
-            dockCabinId: taskData.deviceId,
-            target: node.params.charge_point,
-            overtime: 200,
-            overtimeEvent: 'back'
-          }
-        }
-      } else if (node.type === 'move') {
-        return {
-          type: 'dock_cabin_and_move_target_with_wait_action',
-          params: {
-            dockCabinId: taskData.deviceId,
-            target: node.params.target,
-            overtime: 200,
-            overtimeEvent: 'back'
-          }
-        }
+    // 将任务节点转换为位置列表
+    const locations = taskNodes.value.map(node => {
+      if (node.type === 'move') {
+        return node.params.target;
+      } else if (node.type === 'back') {
+        return node.params.charge_point;
       }
       return null;
     }).filter(Boolean);
 
-    // 调用API发布任务
-    try {
-      const response = await ApiServices.post('/task/docking-cabin-move', {
-        deviceId: taskData.deviceId,
-        tasks: apiTasks
-      });
+    // 调用新的RUN API
+    const response = await ApiServices.post(`/run-task/${selectedRobot.value.id}`, {
+      locations: locations
+    });
 
-      if (response.code === 0) {
-        NotificationService.notify('任务已成功发布', 'success');
-      } else {
-        NotificationService.notify(`发布任务失败: ${response.message}`, 'error');
-      }
-    } catch (error) {
-      NotificationService.notify(`发布任务失败: ${error.message || '未知错误'}`, 'error');
-    } finally {
-      resetTaskNodes(); // 重置任务节点
+    if (!response) {
+      throw new Error('API响应为空');
+    }
+
+    if (response.code === 0) {
+      NotificationService.notify('任务已成功发布', 'success');
+      // 返回结果已经是list格式
+      return response.data;
+    } else {
+      NotificationService.notify(`发布任务失败: ${response.message || '未知错误'}`, 'error');
+      return [];
     }
   } catch (error) {
     console.error('发布任务失败:', error);
@@ -352,50 +481,28 @@ async function publishTask() {
 async function fetchRobots() {
   try {
     loading.value = true;
+    
     // 调用API获取机器人列表
-    // 这里预留API调用代码
-
-    // mock 数据
-    const mockRobots = [
-      {
-        id: 'robot-001-abcd',
-        name: 'Robot-001',
-        imageUrl: '',
+    const response = await ApiServices.get('/robot_list');
+    
+    if (response.code === 0) {
+      // 格式化数据以匹配前端结构
+      robots.value = response.data.map(robot => ({
+        id: robot.id,
+        name: robot.name,
+        imageUrl: robot.imageUrl || '',
         status: {
-          isOnline: true,
-          power: 85,
-          message: '系统正常',
-          status: '空闲',
-          location: '区域A-01'
+          isOnline: robot.status.isOnline,
+          power: robot.status.power,
+          message: robot.status.message,
+          status: robot.status.status,
+          location: robot.status.location
         }
-      },
-      {
-        id: 'robot-002-efgh',
-        name: 'Robot-002',
-        imageUrl: '',
-        status: {
-          isOnline: true,
-          power: 42,
-          message: '执行任务中',
-          status: '执行任务中',
-          location: '区域B-03'
-        }
-      },
-      {
-        id: 'robot-003-ijkl',
-        name: 'Robot-003',
-        imageUrl: '',
-        status: {
-          isOnline: false,
-          power: 15,
-          message: '连接断开',
-          status: '错误',
-          location: '未知位置'
-        }
-      }
-    ];
-
-    robots.value = mockRobots;
+      }));
+    } else {
+      NotificationService.notify(`获取机器人列表失败: ${response.message}`, 'error');
+      robots.value = [];
+    }
   } catch (error) {
     console.error('获取机器人列表失败:', error);
     NotificationService.notify(`获取机器人列表失败: ${error.message || '未知错误'}`, 'error');

@@ -277,6 +277,20 @@ def register_routes(app):
         user_id = data.get('userId')
         await send_message(user_id, message)
 
+    @app.route(URI_PREFIX + '/run-task/<device_id>', methods=['POST'])
+    @jwt_required()
+    @error_handler
+    async def run_task(device_id):
+        """执行任务流"""
+        data = request.json
+        locations = data.get('locations', [])
+        
+        # 调用RUN函数
+        run_result = await api.RUN(locations, device_id)
+        
+        # 根据执行结果返回响应
+        return jsonify(run_result)
+
 # 辅助函数
 async def process_robot_devices(device_list):
     """处理机器人设备列表"""
