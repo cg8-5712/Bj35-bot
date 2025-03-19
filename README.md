@@ -1,12 +1,7 @@
 # Bj35-bot
 
-![版本](https://img.shields.io/badge/版本-0.1.0--alpha-blue)
-![Node.js](https://img.shields.io/badge/Node.js-v16+-green)
-![开发状态](https://img.shields.io/badge/状态-开发中-yellow)
-
 一个用于管理机器人的Web UI系统  
-
-请正确对待自己的代码，不要随意更改代码随意 Push 导致版本管理混乱，谢谢！
+看个乐呵，不一定对
 
 ## 项目背景
 
@@ -20,9 +15,10 @@
 - 访问令牌管理
 
 ## 技术栈
-- 前端：<img src="https://skillicons.dev/icons?i=html,css,javascript,vue,nodejs,tailwind">
-- 后端：<img src="https://skillicons.dev/icons?i=py">
-- 数据库：<img src="https://skillicons.dev/icons?i=sqlite">
+
+- 前端：Vite + Vue3
+- 后端：Python Flask
+- 数据库：SQLite
 
 ## 快速开始
 
@@ -45,114 +41,8 @@
 
 1. 创建虚拟环境并激活：`python -m venv .venv && source .venv/bin/activate`
 2. 安装依赖：`pip install -r requirements.txt`
-3. 启动服务：`python Backend/python-backend/app.py`
+3. 启动服务：`python Backend/python-backend/api/app.py`
 4. 访问 `http://localhost:8080/api/v1`
-
-### 项目结构
-```
-BJ35-BOT
-├─Backend
-│  ├─python-backend
-│  │  │  .env
-│  │  │  app.py
-│  │  │  readme.md
-│  │  │  
-│  │  └─handler
-│  │     │  accessToken.py
-│  │     │  api.py
-│  │     └─  config.py
-│  │          
-│  └─Send-message
-│      │  API receives messages.py
-│      │  API send messages test.py
-│      │  main.py
-│      │  
-│      └─weworkapi_python
-│              ierror.py
-│              README.md
-│              Readme.txt
-│              WXBizJsonMsgCrypt.py
-│              WXBizMsgCrypt.py
-│              WXBizMsgCrypt3.py
-│              
-├─docs
-│      api文档.txt
-│      develop_project.md
-│      云迹-UP机器人二次开发（集成）接口.pdf
-│      代码逻辑.md
-│      代码逻辑.png
-│      任务流调度.md
-│      前端要加的东西.md
-│      开发文档.md
-│      开发计划（白板）.jpg
-│      
-└─Frontend
-    │  .env.development
-    │  .gitignore
-    │  index.html
-    │  LICENSE
-    │  package.json
-    │  README.md
-    │  vite.config.js
-    │  yarn.lock
-    │    
-    ├─public
-    │      vite.svg
-    │      
-    └─src
-        │  App.vue
-        │  main.js
-        │  style.css
-        │  
-        ├─assets
-        │      favicon.svg
-        │      vue.svg
-        │      
-        ├─components
-        │  ├─common
-        │  │      LoadingSpinner.vue
-        │  │      MessageInfo.vue
-        │  │      
-        │  └─dashboard
-        │          Overview.vue
-        │          RobotDetail.vue
-        │          TaskBoard.vue
-        │          TaskPublish.vue
-        │          
-        ├─router
-        │      index.js
-        │      
-        ├─services
-        │      ApiServices.js
-        │      AuthService.js
-        │      NotificationService.js
-        │      
-        └─views
-                Dashboard.vue
-                Login.vue
-                NotFound.vue
-```
-
-## 开发路线图
-
-- [x] API基础框架
-- [x] 机器人状态监控
-- [x] 消息发送管理
-- [x] 系统配置管理
-- [x] 访问令牌管理
-- [ ] 定时任务管理
-- [ ] 日志管理
-- [ ] 权限管理
-- [x] 文档编写
-
-
-## 许可证
-
-GPL-3.0 License
-
-## 联系方式
-
-项目维护者: AptS:1547 & Cg8-5712
 
 ## 相关文档
 

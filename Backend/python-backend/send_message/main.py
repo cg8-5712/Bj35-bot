@@ -44,11 +44,10 @@ async def send_message(access_token, user_id, message_content):
                 print(f"消息发送失败: {result}")
 
 # 主函数
-async def main():
+async def send(user_id, message_content):
     access_token = await get_access_token(corp_id, secret)
-    user_id=input("请输入接收消息的用户ID：")
-    await send_message(access_token, user_id, "您的作业送到了,请注意查收！")
+    await send_message(access_token, user_id, message_content)
 
-# 运行主函数
-if __name__ == "__main__":
-    asyncio.run(main())
+# # 运行主函数
+# if __name__ == "__main__":
+#     asyncio.run(main())

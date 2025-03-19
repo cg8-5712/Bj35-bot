@@ -1,6 +1,6 @@
 from urllib import response
 
-from config import Config
+from .config import Config
 import aiohttp
 import asyncio
 import uuid
@@ -113,7 +113,7 @@ async def make_task_flow_docking_cabin_and_move_target(device_id,target):
         async with session.post(f'https://open-api.yunjiai.cn/v3/rcs/task/flow/execute', json=data) as response:
             return json.loads(await response.text())
 
-async def make_task_flow_dock_cabin_and_move_target_with_wait_action(device_id,target):
+async def make_task_flow_dock_cabin_and_move_target_with_wait_action(device_id,target,overtime):
     # 异步创建任务流，对接货柜并移动到指定目标，支持等待操作
     headers = create_headers()
     data = {
@@ -124,7 +124,7 @@ async def make_task_flow_dock_cabin_and_move_target_with_wait_action(device_id,t
                 "dockCabinId": device_id,
                 # "chassisId": "3949399854845849594854",
                 "target": target,
-                "overtime": 20,
+                "overtime": overtime,
                 "overtimeEvent": "back"
               }
             }
@@ -160,20 +160,51 @@ async def sleep(time):
     # 异步休眠指定时间
     await asyncio.sleep(time)
 
+async def RUN(list):
+    for i in list:
+        print(i)
+        res = await make_task_flow_dock_cabin_and_move_target_with_wait_action(device_bot1_cabin, i, 200)
+        print(res)
+        await sleep(60)
+    await make_task_flow_dock_cabin_and_move_target_with_wait_action(device_bot1_cabin,"一层作业柜",5)
+
+
 if __name__ == '__main__':
     device_bot1_cabin = 1309143264909201408
-    res = asyncio.run(make_task_flow_dock_cabin_and_move_target_with_wait_action(device_bot1_cabin, "Y103"))
-    print(res)
-    for i in range(10):
-        asyncio.run(sleep(5))
-        res1 = asyncio.run(get_cabin_position(device_bot1_cabin))
-        print("\n", res1)
-        # res1 = asyncio.run(make_task_flow_dock_cabin_and_move_target_with_wait_action(device_bot1_cabin, "Y102"))
-        # print(res1)
-        res1 = asyncio.run(get_device_status(device_bot1_cabin))
-        print("\nstatus:\n", res1)
-        res1 = asyncio.run(get_device_task(device_bot1_cabin))
-        print("\ntask:\n", res1)
+    # print("位置在:\n",asyncio.run(get_cabin_position(device_bot1_cabin)))
+    # res = asyncio.run(make_task_flow_dock_cabin_and_move_target_with_wait_action(device_bot1_cabin, "Y103", 200))
+    # print("请求结果:\n",res)
+    # time.sleep(20)
+    #
+    # # print("位置在:\n", asyncio.run(get_cabin_position(device_bot1_cabin)))
+    # res=asyncio.run(make_task_flow_dock_cabin_and_move_target_with_wait_action(device_bot1_cabin, "Y102",200))
+    # print("请求结果:\n",res)
+    # time.sleep(20)
+    #
+    # # print("位置在:\n", asyncio.run(get_cabin_position(device_bot1_cabin)))
+    # res = asyncio.run(make_task_flow_dock_cabin_and_move_target_with_wait_action(device_bot1_cabin, "Q103",5))
+    # print("请求结果:\n", res)
+    # # time.sleep(60)
+    # asyncio.run(make_task_flow_dock_cabin_and_move_target_with_wait_action(device_bot1_cabin, "一层作业柜", 5))
+    list = []
+    while True:
+        s=input("请输入目标位置:")
+        if s=="exit":
+            break
+        list.append(s)
+    asyncio.run(RUN(list))
+    print("查询任务:\n",asyncio.run(get_school_tasks(3,1)))
+
+    # for i in range(10):
+    #     asyncio.run(sleep(5))
+    #     res1 = asyncio.run(get_cabin_position(device_bot1_cabin))
+    #     print("\n", res1)
+    #     # res1 = asyncio.run(make_task_flow_dock_cabin_and_move_target_with_wait_action(device_bot1_cabin, "Y102"))
+    #     # print(res1)
+    #     res1 = asyncio.run(get_device_status(device_bot1_cabin))
+    #     print("\nstatus:\n", res1)
+    #     res1 = asyncio.run(get_device_task(device_bot1_cabin))
+    #     print("\ntask:\n", res1)
 
     # print(asyncio.run(get_running_task()))
     # res = asyncio.run(make_task_flow_docking_cabin_and_move_target(device_bot1_cabin, "charge_point_1F_40300716"))
