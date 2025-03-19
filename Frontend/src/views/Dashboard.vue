@@ -130,7 +130,7 @@
                 <span class="sr-only">Open user menu</span>
                 <img class="size-8 rounded-full bg-gray-50" src="https://cn.cravatar.com/avatar/f42f9f288e5ba41aef369b4edd3c5f5c?d=retro&s=256" alt="" />
                 <span class="hidden lg:flex lg:items-center">
-                  <span class="ml-4 text-sm/6 font-semibold text-gray-900" aria-hidden="true"> {{ username }} </span>
+                  <span class="ml-4 text-sm/6 font-semibold text-gray-900" aria-hidden="true">用户</span>
                   <ChevronDownIcon class="ml-2 size-5 text-gray-400" aria-hidden="true" />
                 </span>
               </MenuButton>
@@ -200,8 +200,6 @@ const sidebarOpen = ref(false)
 const isLargeScreen = ref(window.innerWidth >= 1024)
 const loading = ref(true)
 
-const username = ref("")
-
 const currentComponent = shallowRef(null)
 
 function logout() {
@@ -259,7 +257,6 @@ function handleResize() {
 
 // 在组件挂载时添加事件监听器
 onMounted(async () => {
-  username.value = AuthService.getUsername()
   window.addEventListener('resize', handleResize)
   await setActiveView(navigation[0])
 })
