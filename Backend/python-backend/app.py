@@ -331,7 +331,7 @@ async def process_robot_devices(device_list):
         print(device_status)
         
         robot_data = {
-            'id': robot_id,
+            'deviceId': cabin_id,
             'name': get_robot_name(robot_id),
             'imageUrl': 'https://tailwindcss.com/plus-assets/img/logos/48x48/tuple.svg',
             'cabinId': cabin_id,

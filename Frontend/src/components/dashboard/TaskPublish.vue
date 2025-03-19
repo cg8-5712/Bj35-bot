@@ -488,7 +488,7 @@ async function fetchRobots() {
     if (response.code === 0) {
       // 格式化数据以匹配前端结构
       robots.value = response.data.map(robot => ({
-        id: robot.id,
+        id: robot.deviceId,
         name: robot.name,
         imageUrl: robot.imageUrl || '',
         status: {
