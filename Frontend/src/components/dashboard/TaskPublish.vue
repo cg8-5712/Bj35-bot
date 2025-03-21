@@ -176,13 +176,14 @@
                     />
                     <datalist :id="`move-target-options-${node.id}`">
                       <option
-                        v-for="option in targetOptions"
-                        :key="option.value"
-                        :value="option.value"
+                        v-for="(optionData, index) in targetOptions"
+                        :key="index"
+                        :value="optionData.value"
                       >
-                        {{ option.label }}
+                        {{ optionData.label }}
                       </option>
                     </datalist>
+
                   </div>
                   <div>
                     <label class="block text-xs text-gray-500">用户</label>
@@ -295,7 +296,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { TransitionGroup } from 'vue';
 import { v4 as uuidv4 } from 'uuid';
-// import ApiServices from '@/services/ApiServices';
+import ApiServices from '@/services/ApiServices';
 import NotificationService from '@/services/NotificationService';
 
 import {
@@ -322,17 +323,31 @@ const taskNodes = ref([]);
 
 // A mock data for target and user options
 // Reqire api data
-const targetOptions = ref([
-  { value: '教室A', label: '教室A' },
-  { value: '教室B', label: '教室B' },
-  { value: '教室C', label: '教室C' }
-]);
+// 教室列表
+const targetOptions = ref([]);
+
+const fetchtargets = async () => {
+  try {
+    const data = await ApiServices.gettargetlist();
+    // 假设 data 是数组格式
+    targetOptions.value = data;
+    // 可选：打印结果确认赋值
+    console.log(targetOptions.value);
+  } catch (error) {
+    console.error('获取任务数据失败:', error);
+  } finally {
+    loading.value = false;
+  }
+}
+
+
+
 const userOptions = ref([
   { value: '用户1', label: '用户1' },
   { value: '用户2', label: '用户2' },
   { value: '用户3', label: '用户3' }
 ]);
-
+console.log(typeof(userOptions))
 // 获取状态样式类
 function getStatusClass(status) {
   return statusClasses[status] || statusClasses['未知'];
@@ -423,22 +438,33 @@ async function publishTask() {
   }
 
   try {
-    // Make a task list for return
-    const taskData = {
-      deviceId: selectedRobot.value.id,
-      taskName: `Task-${Date.now()}`,
-      nodes: taskNodes.value.map(node => ({
-        type: node.type,
-        params: node.params
-      }))
-    };
+    // 将任务节点转换为位置列表
+    const locations = taskNodes.value.map(node => {
+      if (node.type === 'move') {
+        return node.params.target;
+      } else if (node.type === 'back') {
+        return node.params.charge_point;
+      }
+      return null;
+    }).filter(Boolean);
 
-    // 调用API发布任务
-    // 这里预留API调用代码
-    console.log('发布任务:', taskData);
+    // 调用新的RUN API
+    const response = await ApiServices.post(`/run-task/${selectedRobot.value.id}`, {
+      locations: locations
+    });
 
-    NotificationService.notify('任务已成功发布', 'success');
-    resetTaskNodes(); // 重置任务节点
+    if (!response) {
+      throw new Error('API响应为空');
+    }
+
+    if (response.code === 0) {
+      NotificationService.notify('任务已成功发布', 'success');
+      // 返回结果已经是list格式
+      return response.data;
+    } else {
+      NotificationService.notify(`发布任务失败: ${response.message || '未知错误'}`, 'error');
+      return [];
+    }
   } catch (error) {
     console.error('发布任务失败:', error);
     NotificationService.notify(`发布任务失败: ${error.message || '未知错误'}`, 'error');
@@ -449,50 +475,28 @@ async function publishTask() {
 async function fetchRobots() {
   try {
     loading.value = true;
+
     // 调用API获取机器人列表
-    // 这里预留API调用代码
+    const response = await ApiServices.get('/robot_list');
 
-    // mock 数据
-    const mockRobots = [
-      {
-        id: 'robot-001-abcd',
-        name: 'Robot-001',
-        imageUrl: '',
+    if (response.code === 0) {
+      // 格式化数据以匹配前端结构
+      robots.value = response.data.map(robot => ({
+        id: robot.deviceId,
+        name: robot.name,
+        imageUrl: robot.imageUrl || '',
         status: {
-          isOnline: true,
-          power: 85,
-          message: '系统正常',
-          status: '空闲',
-          location: '区域A-01'
+          isOnline: robot.status.isOnline,
+          power: robot.status.power,
+          message: robot.status.message,
+          status: robot.status.status,
+          location: robot.status.location
         }
-      },
-      {
-        id: 'robot-002-efgh',
-        name: 'Robot-002',
-        imageUrl: '',
-        status: {
-          isOnline: true,
-          power: 42,
-          message: '执行任务中',
-          status: '执行任务中',
-          location: '区域B-03'
-        }
-      },
-      {
-        id: 'robot-003-ijkl',
-        name: 'Robot-003',
-        imageUrl: '',
-        status: {
-          isOnline: false,
-          power: 15,
-          message: '连接断开',
-          status: '错误',
-          location: '未知位置'
-        }
-      }
-    ];
-
-    robots.value = mockRobots;
+      }));
+    } else {
+      NotificationService.notify(`获取机器人列表失败: ${response.message}`, 'error');
+      robots.value = [];
+    }
   } catch (error) {
     console.error('获取机器人列表失败:', error);
     NotificationService.notify(`获取机器人列表失败: ${error.message || '未知错误'}`, 'error');
@@ -504,6 +508,7 @@ async function fetchRobots() {
 // 组件挂载时获取机器人列表
 onMounted(() => {
   fetchRobots();
+  fetchtargets();
 });
 </script>
 
