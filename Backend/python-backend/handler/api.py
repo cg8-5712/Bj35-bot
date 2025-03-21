@@ -1,6 +1,6 @@
 from urllib import response
 
-from .config import Config
+from config import Config
 import aiohttp
 import asyncio
 import uuid
@@ -165,6 +165,15 @@ async def get_device_by_id(device_id):
     # 实现略，可从数据库或设备管理服务获取
     return {"id": device_id, "type": "robot"}
 
+async def check(device_id):
+    res=await get_device_status(device_id)
+    status=res["data"]["deviceStatus"]["lockers"][1]["status"]
+    if status=="OPEN":
+        return "open"
+    else:
+        return "close"
+
+
 async def RUN(locations, device_id):
     """执行任务流
     
@@ -197,10 +206,18 @@ async def RUN(locations, device_id):
                     raise ValueError(f"找不到设备ID: {device_id}")
                 
                 # 执行任务
-                res = await make_task_flow_dock_cabin_and_move_target_with_wait_action(device_id, location, 200)
+                res = await make_task_flow_dock_cabin_and_move_target_with_wait_action(device_id, location, 300)
+                flag=False #标记是否完成一次开门关门 关门为 False 开门为 True
                 task_results.append(res)
                 logger.info(f'位置 {location} 任务执行结果: {res}')
-                sleep(60)  # 任务间等待60秒
+                while True:
+                    res=await check(device_id)
+                    if res=="open":
+                        flag=True
+                    if res=="close" and flag==True:
+                        break
+                    await asyncio.sleep(1)
+
             except Exception as e:
                 logger.error(f'位置 {location} 任务执行失败: {str(e)}')
                 return {'code': 1, 'message': f'任务执行失败: {str(e)}'}
@@ -227,14 +244,16 @@ if __name__ == '__main__':
     # print("请求结果:\n", res)
     # # time.sleep(60)
     # asyncio.run(make_task_flow_dock_cabin_and_move_target_with_wait_action(device_bot1_cabin, "一层作业柜", 5))
+
     list = []
     while True:
         s=input("请输入目标位置:")
         if s=="exit":
             break
         list.append(s)
-    asyncio.run(RUN(list))
+    asyncio.run(RUN(list,device_bot1_cabin))
     print("查询任务:\n",asyncio.run(get_school_tasks(3,1)))
+    # print(asyncio.run(check(device_bot1_cabin)))
 
     # for i in range(10):
     #     asyncio.run(sleep(5))
