@@ -6,13 +6,17 @@ import asyncio
 import uuid
 import time
 import json
+import logging
 
 access_token = Config.accessToken()
 # print(access_token)
 
 def create_headers():
+    logger = logging.getLogger(__name__)
+    logger.info('开始创建请求头')
     # 创建请求头，包含签名随机数、时间戳、访问密钥ID和访问令牌
     signatureNonce = str(uuid.uuid4())
+    logger.info(f'生成的签名随机数: {signatureNonce}')
     headers = {'signatureNonce': signatureNonce,
                'timestamp': str(time.strftime('%Y-%m-%dT%H:%M:%S+08:00', time.gmtime())),
                'accessKeyId': str(Config.accessKeyId()),
@@ -20,58 +24,121 @@ def create_headers():
     return headers
 
 async def get_device_list():
-    # 异步获取设备列表
-    headers = create_headers()
-    async with aiohttp.ClientSession(headers=headers) as session:
-        async with session.get(f'https://open-api.yunjiai.cn/v3/device/list?accessToken%3D{access_token}') as response:
-            return json.loads(await response.text())
+    logger = logging.getLogger(__name__)
+    logger.info('开始获取设备列表')
+    try:
+        headers = create_headers()
+        url = f'https://open-api.yunjiai.cn/v3/device/list?accessToken%3D{access_token}'
+        logger.info(f'请求URL: {url}')
+        async with aiohttp.ClientSession(headers=headers) as session:
+            async with session.get(url) as response:
+                result = json.loads(await response.text())
+                logger.info(f'成功获取设备列表，响应状态: {response.status}')
+                return result
+    except Exception as e:
+        logger.error(f'获取设备列表失败: {str(e)}')
+        raise
 
 async def get_device_status(device_id):
-    # 异步获取指定设备的状态
-    headers = create_headers()
-    async with aiohttp.ClientSession(headers=headers) as session:
-        async with session.get(f'https://open-api.yunjiai.cn/v3/robot/{device_id}/status?accessToken%3D{access_token}') as response:
-            return json.loads(await response.text())
+    logger = logging.getLogger(__name__)
+    logger.info(f'开始获取设备状态，设备ID: {device_id}')
+    try:
+        headers = create_headers()
+        url = f'https://open-api.yunjiai.cn/v3/robot/{device_id}/status?accessToken%3D{access_token}'
+        logger.info(f'请求URL: {url}')
+        async with aiohttp.ClientSession(headers=headers) as session:
+            async with session.get(url) as response:
+                result = json.loads(await response.text())
+                logger.info(f'成功获取设备状态，响应状态: {response.status}')
+                return result
+    except Exception as e:
+        logger.error(f'获取设备状态失败，设备ID: {device_id}, 错误: {str(e)}')
+        raise
 
 async def get_device_task(device_id):
-    # 异步获取指定设备的任务列表
-    headers = create_headers()
-    async with aiohttp.ClientSession(headers=headers) as session:
-        async with session.get(f'https://open-api.yunjiai.cn/v3/robots/{device_id}/tasks') as response:
-            return json.loads(await response.text())
+    logger = logging.getLogger(__name__)
+    logger.info(f'开始获取设备任务列表，设备ID: {device_id}')
+    try:
+        headers = create_headers()
+        url = f'https://open-api.yunjiai.cn/v3/robots/{device_id}/tasks'
+        logger.info(f'请求URL: {url}')
+        async with aiohttp.ClientSession(headers=headers) as session:
+            async with session.get(url) as response:
+                result = json.loads(await response.text())
+                logger.info(f'成功获取设备任务列表，响应状态: {response.status}')
+                return result
+    except Exception as e:
+        logger.error(f'获取设备任务列表失败，设备ID: {device_id}, 错误: {str(e)}')
+        raise
 
 async def get_school_tasks(pageSize, current):
-    # 异步获取学校任务列表，支持分页
-    headers = create_headers()
-    async with aiohttp.ClientSession(headers=headers) as session:
+    logger = logging.getLogger(__name__)
+    logger.info(f'开始获取学校任务列表，pageSize: {pageSize}, current: {current}')
+    try:
+        headers = create_headers()
+        url = f'https://open-api.yunjiai.cn/v3/rcs/task/list'
         params = {'storeIds': Config.store_Id(),
                   'pageSize': pageSize,
                   'current': current}
-        async with session.get(f'https://open-api.yunjiai.cn/v3/rcs/task/list', params=params) as response:
-            return json.loads(await response.text())
+        logger.info(f'请求URL: {url}, 参数: {params}')
+        async with aiohttp.ClientSession(headers=headers) as session:
+            async with session.get(url, params=params) as response:
+                result = json.loads(await response.text())
+                logger.info(f'成功获取学校任务列表，响应状态: {response.status}')
+                return result
+    except Exception as e:
+        logger.error(f'获取学校任务列表失败，pageSize: {pageSize}, current: {current}, 错误: {str(e)}')
+        raise
 
 async def get_cabin_position(device_id):
-    # 异步获取指定设备的仓位位置
-    headers = create_headers()
-    async with aiohttp.ClientSession(headers=headers) as session:
-        async with session.get(f'https://open-api.yunjiai.cn/v3/robot/{device_id}/position') as response:
-            return json.loads(await response.text())
+    logger = logging.getLogger(__name__)
+    logger.info(f'开始获取仓位位置，设备ID: {device_id}')
+    try:
+        headers = create_headers()
+        url = f'https://open-api.yunjiai.cn/v3/robot/{device_id}/position'
+        logger.info(f'请求URL: {url}')
+        async with aiohttp.ClientSession(headers=headers) as session:
+            async with session.get(url) as response:
+                result = json.loads(await response.text())
+                logger.info(f'成功获取仓位位置，响应状态: {response.status}')
+                return result
+    except Exception as e:
+        logger.error(f'获取仓位位置失败，设备ID: {device_id}, 错误: {str(e)}')
+        raise
 
 async def reset_cabin_position(device_id, position):
-    # 异步重置指定设备的仓位位置
-    headers = create_headers()
-    data = {"marker": position}
-    async with aiohttp.ClientSession(headers=headers) as session:
-        async with session.put(f'https://open-api.yunjiai.cn/v3/robot/up/cabin/{device_id}/reset-position', json=data) as response:
-            return json.loads(await response.text())
+    logger = logging.getLogger(__name__)
+    logger.info(f'开始重置仓位位置，设备ID: {device_id}, 目标位置: {position}')
+    try:
+        headers = create_headers()
+        url = f'https://open-api.yunjiai.cn/v3/robot/up/cabin/{device_id}/reset-position'
+        data = {"marker": position}
+        logger.info(f'请求URL: {url}, 请求数据: {data}')
+        async with aiohttp.ClientSession(headers=headers) as session:
+            async with session.put(url, json=data) as response:
+                result = json.loads(await response.text())
+                logger.info(f'成功重置仓位位置，响应状态: {response.status}')
+                return result
+    except Exception as e:
+        logger.error(f'重置仓位位置失败，设备ID: {device_id}, 目标位置: {position}, 错误: {str(e)}')
+        raise
 
 async def get_running_task():
-    # 异步获取正在运行的任务列表
-    headers = create_headers()
+    logger = logging.getLogger(__name__)
     storeId = Config.store_Id()
-    async with aiohttp.ClientSession(headers=headers) as session:
-        async with session.get(f'https://open-api.yunjiai.cn/v3/rcs/task/running-task/list', json={'storeId': storeId}) as response:
-            return json.loads(await response.text())
+    logger.info(f'开始获取正在运行的任务列表，storeId: {storeId}')
+    try:
+        headers = create_headers()
+        url = f'https://open-api.yunjiai.cn/v3/rcs/task/running-task/list'
+        logger.info(f'请求URL: {url}, 请求数据: storeId: {storeId}')
+        async with aiohttp.ClientSession(headers=headers) as session:
+            async with session.get(url, json={'storeId': storeId}) as response:
+                result = json.loads(await response.text())
+                logger.info(f'成功获取正在运行的任务列表，响应状态: {response.status}')
+                return result
+    except Exception as e:
+        logger.error(f'获取正在运行的任务列表失败，storeId: {storeId}, 错误: {str(e)}')
+        raise
 
 # async def get_running_task_list(storeId):
 #     # 异步获取指定storeId的正在运行的任务列表
@@ -81,80 +148,125 @@ async def get_running_task():
 #             return json.loads(await response.text())
 
 async def make_task_flow_move_target_and_lift_down(device_id, target):
-    # 异步创建任务流，移动到指定目标并放下货柜
-    headers = create_headers()
-    data = {
-          "outTaskId": str(uuid.uuid4()),
-          "templateId": "dock_cabin_and_move_target_and_lift_down",
-          "storeId": Config.store_Id(),
-          "params": {
-            "dockCabinId": device_id,
-            "target": target
-  }
-}
-    async with aiohttp.ClientSession(headers=headers) as session:
-        async with session.post(f'https://open-api.yunjiai.cn/v3/rcs/task/flow/execute', json=data) as response:
-            return json.loads(await response.text())
+    logger = logging.getLogger(__name__)
+    logger.info(f'开始创建移动并放下货柜任务流，设备ID: {device_id}, 目标位置: {target}')
+    try:
+        headers = create_headers()
+        url = f'https://open-api.yunjiai.cn/v3/rcs/task/flow/execute'
+        data = {
+            "outTaskId": str(uuid.uuid4()),
+            "templateId": "dock_cabin_and_move_target_and_lift_down",
+            "storeId": Config.store_Id(),
+            "params": {
+                "dockCabinId": device_id,
+                "target": target
+            }
+        }
+        logger.info(f'请求URL: {url}, 请求数据: {data}')
+        async with aiohttp.ClientSession(headers=headers) as session:
+            async with session.post(url, json=data) as response:
+                result = json.loads(await response.text())
+                logger.info(f'成功创建移动并放下货柜任务流，响应状态: {response.status}')
+                return result
+    except Exception as e:
+        logger.error(f'创建移动并放下货柜任务流失败，设备ID: {device_id}, 目标位置: {target}, 错误: {str(e)}')
+        raise
 
-async def make_task_flow_docking_cabin_and_move_target(device_id,target):
-    # 异步创建任务流，对接货柜并移动到指定目标
-    headers = create_headers()
-    data = {
-              "outTaskId": str(uuid.uuid4()),
-              "templateId": "docking_cabin_and_move_target",
-              "storeId": Config.store_Id(),
-              "params": {
+async def make_task_flow_docking_cabin_and_move_target(device_id, target):
+    logger = logging.getLogger(__name__)
+    logger.info(f'开始创建对接货柜并移动任务流，设备ID: {device_id}, 目标位置: {target}')
+    try:
+        headers = create_headers()
+        url = f'https://open-api.yunjiai.cn/v3/rcs/task/flow/execute'
+        data = {
+            "outTaskId": str(uuid.uuid4()),
+            "templateId": "docking_cabin_and_move_target",
+            "storeId": Config.store_Id(),
+            "params": {
                 "dockCabinId": device_id,
                 # "chassisId": "3949399854845849594854",
                 "target": target
-              }
             }
-    async with aiohttp.ClientSession(headers=headers) as session:
-        async with session.post(f'https://open-api.yunjiai.cn/v3/rcs/task/flow/execute', json=data) as response:
-            return json.loads(await response.text())
+        }
+        logger.info(f'请求URL: {url}, 请求数据: {data}')
+        async with aiohttp.ClientSession(headers=headers) as session:
+            async with session.post(url, json=data) as response:
+                result = json.loads(await response.text())
+                logger.info(f'成功创建对接货柜并移动任务流，响应状态: {response.status}')
+                return result
+    except Exception as e:
+        logger.error(f'创建对接货柜并移动任务流失败，设备ID: {device_id}, 目标位置: {target}, 错误: {str(e)}')
+        raise
 
-async def make_task_flow_dock_cabin_and_move_target_with_wait_action(device_id,target,overtime):
-    # 异步创建任务流，对接货柜并移动到指定目标，支持等待操作
-    headers = create_headers()
-    data = {
-              "outTaskId": str(uuid.uuid4()),
-              "templateId": "dock_cabin_and_move_target_with_wait_action",
-              "storeId": Config.store_Id(),
-              "params": {
+async def make_task_flow_dock_cabin_and_move_target_with_wait_action(device_id, target, overtime):
+    logger = logging.getLogger(__name__)
+    logger.info(f'开始创建带等待操作的任务流，设备ID: {device_id}, 目标位置: {target}, 超时时间: {overtime}')
+    try:
+        headers = create_headers()
+        url = f'https://open-api.yunjiai.cn/v3/rcs/task/flow/execute'
+        data = {
+            "outTaskId": str(uuid.uuid4()),
+            "templateId": "dock_cabin_and_move_target_with_wait_action",
+            "storeId": Config.store_Id(),
+            "params": {
                 "dockCabinId": device_id,
                 # "chassisId": "3949399854845849594854",
                 "target": target,
                 "overtime": overtime,
                 "overtimeEvent": "back"
-              }
             }
-    async with aiohttp.ClientSession(headers=headers) as session:
-        async with session.post(f'https://open-api.yunjiai.cn/v3/rcs/task/flow/execute', json=data) as response:
-            return json.loads(await response.text())
+        }
+        logger.info(f'请求URL: {url}, 请求数据: {data}')
+        async with aiohttp.ClientSession(headers=headers) as session:
+            async with session.post(url, json=data) as response:
+                result = json.loads(await response.text())
+                logger.info(f'成功创建带等待操作的任务流，响应状态: {response.status}')
+                return result
+    except Exception as e:
+        logger.error(f'创建带等待操作的任务流失败，设备ID: {device_id}, 目标位置: {target}, 超时时间: {overtime}, 错误: {str(e)}')
+        raise
 
-async def make_task_flow_move_and_lift_down(device_id,dockingMarker, target):
-    # 异步创建任务流，移动到指定目标并放下货柜
-    headers = create_headers()
-    data = {
-              "outTaskId": str(uuid.uuid4()),
-              "templateId": "dock_cabin_to_move_and_lift_down",
-              "storeId": Config.store_Id(),
-              "params": {
-              "dockCabinId": device_id,
-              "target": target
-              }
-}
-    async with aiohttp.ClientSession(headers=headers) as session:
-        async with session.post(f'https://open-api.yunjiai.cn/v3/rcs/task/flow/execute', json=data) as response:
-            return json.loads(await response.text())
+async def make_task_flow_move_and_lift_down(device_id, dockingMarker, target):
+    logger = logging.getLogger(__name__)
+    logger.info(f'开始创建移动并放下货柜任务流，设备ID: {device_id}, 对接标记: {dockingMarker}, 目标位置: {target}')
+    try:
+        headers = create_headers()
+        url = f'https://open-api.yunjiai.cn/v3/rcs/task/flow/execute'
+        data = {
+            "outTaskId": str(uuid.uuid4()),
+            "templateId": "dock_cabin_to_move_and_lift_down",
+            "storeId": Config.store_Id(),
+            "params": {
+                "dockCabinId": device_id,
+                "target": target
+            }
+        }
+        logger.info(f'请求URL: {url}, 请求数据: {data}')
+        async with aiohttp.ClientSession(headers=headers) as session:
+            async with session.post(url, json=data) as response:
+                result = json.loads(await response.text())
+                logger.info(f'成功创建移动并放下货柜任务流，响应状态: {response.status}')
+                return result
+    except Exception as e:
+        logger.error(f'创建移动并放下货柜任务流失败，设备ID: {device_id}, 对接标记: {dockingMarker}, 目标位置: {target}, 错误: {str(e)}')
+        raise
 
 async def goto_charge(device_id):
-    # 异步发送指令使设备移动到充电站
-    headers = create_headers()
-    data = {"chargeId": ""}
-    async with aiohttp.ClientSession(headers=headers) as session:
-        async with session.post(f'https://open-api.yunjiai.cn/v3/robot/{device_id}/goto-charge', json=data) as response:
-            return json.loads(await response.text())
+    logger = logging.getLogger(__name__)
+    logger.info(f'开始发送充电指令，设备ID: {device_id}')
+    try:
+        headers = create_headers()
+        url = f'https://open-api.yunjiai.cn/v3/robot/{device_id}/goto-charge'
+        data = {"chargeId": ""}
+        logger.info(f'请求URL: {url}, 请求数据: {data}')
+        async with aiohttp.ClientSession(headers=headers) as session:
+            async with session.post(url, json=data) as response:
+                result = json.loads(await response.text())
+                logger.info(f'成功发送充电指令，响应状态: {response.status}')
+                return result
+    except Exception as e:
+        logger.error(f'发送充电指令失败，设备ID: {device_id}, 错误: {str(e)}')
+        raise
 
 async def sleep(time):
     # 异步休眠指定时间
@@ -164,6 +276,14 @@ async def get_device_by_id(device_id):
     """根据设备ID获取设备对象"""
     # 实现略，可从数据库或设备管理服务获取
     return {"id": device_id, "type": "robot"}
+
+async def check(device_id):
+    res=await get_device_status(device_id)
+    status=res["data"]["deviceStatus"]["lockers"][1]["status"]
+    if status=="OPEN":
+        return "open"
+    elif status=="CLOSE":
+        return "close"
 
 async def RUN(locations, device_id):
     """执行任务流
@@ -197,10 +317,18 @@ async def RUN(locations, device_id):
                     raise ValueError(f"找不到设备ID: {device_id}")
                 
                 # 执行任务
-                res = await make_task_flow_dock_cabin_and_move_target_with_wait_action(device_id, location, 200)
+                res = await make_task_flow_dock_cabin_and_move_target_with_wait_action(device_id, location, 300)
+                flag=False #标记是否完成一次开门关门 关门为 False 开门为 True
                 task_results.append(res)
                 logger.info(f'位置 {location} 任务执行结果: {res}')
-                sleep(60)  # 任务间等待60秒
+                while True:
+                    res=await check(device_id)
+                    if res=="open":
+                        flag=True
+                    if res=="close" and flag==True:
+                        break
+                    await asyncio.sleep(1)
+
             except Exception as e:
                 logger.error(f'位置 {location} 任务执行失败: {str(e)}')
                 return {'code': 1, 'message': f'任务执行失败: {str(e)}'}
