@@ -141,6 +141,18 @@ class ApiServices extends ApiPrefix {
       throw error;
     }
   }
+
+  async gettargetlist(){
+    try {
+      const data = await this.get(`/target-list`);
+
+      // if ( data.code !== 0 ) { throw new Error(data.message); }
+
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export default new ApiServices();

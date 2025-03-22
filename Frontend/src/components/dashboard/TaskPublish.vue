@@ -1,3 +1,4 @@
+
 <template>
   <div class="task-publish-container">
     <!-- 页面标题 -->
@@ -129,6 +130,7 @@
                 >
                   <option value="move">前往教室</option>
                   <option value="back">返回充电桩</option>
+                  <option value="send">发送信息</option>
                 </select>
 
                 <button
@@ -161,23 +163,59 @@
 
               <!-- 根据任务类型显示不同的参数 -->
               <div class="mt-2">
-                <!-- move 命令：教室选择 -->
-                <div v-if="node.type === 'move'" class="grid grid-cols-1 gap-3">
+                <!-- move 命令：两个带搜索的下拉框(target, user) 和 一个输入框(message) -->
+                <div v-if="node.type === 'move'" class="grid grid-cols-3 gap-3">
                   <div>
-                    <label class="block text-xs text-gray-500">教室</label>
-                    <select
+                    <label class="block text-xs text-gray-500">目标</label>
+                    <input
                       v-model="node.params.target"
+                      :list="`move-target-options-${node.id}`"
+                      type="text"
+                      placeholder="搜索目标"
                       class="block w-full mt-1 px-3 py-2 text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                    >
-                      <option value="" disabled>选择教室</option>
-                      <option v-for="(value, key) in classesList" :key="key" :value="key">
-                        {{ value }}
+                    />
+                    <datalist :id="`move-target-options-${node.id}`">
+                      <option
+                        v-for="(optionData, index) in targetOptions"
+                        :key="index"
+                        :value="optionData.value"
+                      >
+                        {{ optionData.label }}
                       </option>
-                    </select>
+                    </datalist>
+
+                  </div>
+                  <div>
+                    <label class="block text-xs text-gray-500">用户</label>
+                    <input
+                      v-model="node.params.user"
+                      :list="`move-user-options-${node.id}`"
+                      type="text"
+                      placeholder="搜索用户"
+                      class="block w-full mt-1 px-3 py-2 text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                    <datalist :id="`move-user-options-${node.id}`">
+                      <option
+                        v-for="option in userOptions"
+                        :key="option.value"
+                        :value="option.value"
+                      >
+                        {{ option.label }}
+                      </option>
+                    </datalist>
+                  </div>
+                  <div>
+                    <label class="block text-xs text-gray-500">消息</label>
+                    <input
+                      v-model="node.params.message"
+                      type="text"
+                      placeholder="输入消息"
+                      class="block w-full mt-1 px-3 py-2 text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                    />
                   </div>
                 </div>
 
-                <!-- back 命令：充电桩选择 -->
+                <!-- back 命令：下拉框选择充电桩 -->
                 <div v-else-if="node.type === 'back'" class="grid grid-cols-1 gap-3">
                   <div>
                     <label class="block text-xs text-gray-500">充电桩</label>
@@ -190,6 +228,43 @@
                       <option value="1F">1F</option>
                     </select>
                   </div>
+                </div>
+
+                <!-- send 命令：带搜索下拉框(user) 和 输入框(message) -->
+                <div v-else-if="node.type === 'send'" class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-xs text-gray-500">用户</label>
+                    <input
+                      v-model="node.params.user"
+                      :list="`send-user-options-${node.id}`"
+                      type="text"
+                      placeholder="搜索用户"
+                      class="block w-full mt-1 px-3 py-2 text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                    <datalist :id="`send-user-options-${node.id}`">
+                      <option
+                        v-for="option in userOptions"
+                        :key="option.value"
+                        :value="option.value"
+                      >
+                        {{ option.label }}
+                      </option>
+                    </datalist>
+                  </div>
+                  <div>
+                    <label class="block text-xs text-gray-500">消息</label>
+                    <input
+                      v-model="node.params.message"
+                      type="text"
+                      placeholder="输入消息"
+                      class="block w-full mt-1 px-3 py-2 text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                  </div>
+                </div>
+
+                <!-- 如果需要扩展其他任务类型，可在此添加 -->
+                <div v-else class="mt-2">
+                  <p class="text-sm text-gray-600">请配置任务参数</p>
                 </div>
               </div>
             </div>
@@ -217,13 +292,12 @@
   </div>
 </template>
 
-
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { TransitionGroup } from 'vue';
 import { v4 as uuidv4 } from 'uuid';
-import ApiServices from '@/services/ApiServices.js';
-import NotificationService from '@/services/NotificationService.js';
+import ApiServices from '@/services/ApiServices';
+import NotificationService from '@/services/NotificationService';
 
 import {
   ArrowUpIcon,
@@ -247,118 +321,33 @@ const selectedRobot = ref(null);
 // 任务节点
 const taskNodes = ref([]);
 
+// A mock data for target and user options
+// Reqire api data
 // 教室列表
-const classesList = ref({
-  "B101": "B101",
-  "B102": "B102",
-  "B103": "B103",
-  "B104": "B104",
-  "B105": "B105",
-  "B201": "B201",
-  "B202": "B202",
-  "B203": "B203",
-  "B204": "B204",
-  "B205": "B205",
-  "B206": "B206",
-  "B207": "B207",
-  "B208": "B208",
-  "B209": "B209",
-  "B210": "B210",
-  "B211": "B211",
-  "B212": "B212",
-  "B213": "B213",
-  "B214": "B214",
-  "B215": "B215",
-  "B216": "B216",
-  "B217": "B217",
-  "B218": "B218",
-  "B219": "B219",
-  "B220": "B220",
-  "B301": "B301",
-  "B302": "B302",
-  "B303": "B303",
-  "B304": "B304",
-  "B305": "B305",
-  "B308": "B308",
-  "B309": "B309",
-  "B310": "B310",
-  "B311": "B311",
-  "B312": "B312",
-  "B313": "B313",
-  "B314": "B314",
-  "B315": "B315",
-  "B401": "B401",
-  "B402": "B402",
-  "B403": "B403",
-  "C101": "C101",
-  "C102": "C102",
-  "C103": "C103",
-  "C104": "C104",
-  "C201": "C201",
-  "C202": "C202",
-  "C203": "C203",
-  "C204": "C204",
-  "C205": "C205",
-  "C206": "C206",
-  "C301": "C301",
-  "C302": "C302",
-  "C303": "C303",
-  "C304": "C304",
-  "C305": "C305",
-  "C306": "C306",
-  "Y101": "Y101",
-  "Y102": "Y102",
-  "Y103": "Y103",
-  "Y201": "Y201",
-  "Y202": "Y202",
-  "Y203": "Y203",
-  "Y204": "Y204",
-  "Y301": "Y301",
-  "Y302": "Y302",
-  "Y303": "Y303",
-  "Y401": "Y401",
-  "Y402": "Y402",
-  "Q101": "Q101",
-  "Q103": "Q103",
-  "Q201": "Q201",
-  "Q202": "Q202",
-  "Q203": "Q203",
-  "Q205": "Q205",
-  "Q301": "Q301",
-  "Q302": "Q302",
-  "Q304": "Q304",
-  "Q401": "Q401",
-  "S101": "S101",
-  "S201": "S201",
-  "S202": "S202",
-  "S203": "S203",
-  "S204": "S204",
-  "S205": "S205",
-  "S206": "S206",
-  "S207": "S207",
-  "S301": "S301",
-  "S302": "S302",
-  "S303": "S303",
-  "S304": "S304",
-  "S305": "S305",
-  "S306": "S306",
-  "S307": "S307",
-  "S308": "S308",
-  "S309": "S309",
-  "S401": "S401",
-  "S402": "S402",
-  "S403": "S403",
-  "S404": "S404",
-  "S405": "S405",
-  "S406": "S406",
-  "S407": "S407",
-  "S408": "S408",
-  "S409": "S409",
-  "一楼作业柜": "一楼作业柜",
-  "二楼作业柜": "二楼作业柜",
-  "三楼作业柜": "三楼作业柜"
-});
+const targetOptions = ref([]);
 
+const fetchtargets = async () => {
+  try {
+    const data = await ApiServices.gettargetlist();
+    // 假设 data 是数组格式
+    targetOptions.value = data;
+    // 可选：打印结果确认赋值
+    console.log(targetOptions.value);
+  } catch (error) {
+    console.error('获取任务数据失败:', error);
+  } finally {
+    loading.value = false;
+  }
+}
+
+
+
+const userOptions = ref([
+  { value: '用户1', label: '用户1' },
+  { value: '用户2', label: '用户2' },
+  { value: '用户3', label: '用户3' }
+]);
+console.log(typeof(userOptions))
 // 获取状态样式类
 function getStatusClass(status) {
   return statusClasses[status] || statusClasses['未知'];
@@ -382,7 +371,9 @@ function addTaskNode() {
     id: uuidv4(),
     type: 'move',
     params: {
-      target: ""
+      target: "",
+      user: "",
+      message: ""
     }
   });
 }
@@ -419,10 +410,13 @@ function resetTaskNodes() {
 function updateNodeParams(node) {
   switch (node.type) {
     case 'move':
-      node.params = { target: "" };
+      node.params = { target: "", user: "", message: "" };
       break;
     case 'back':
       node.params = { charge_point: "" };
+      break;
+    case 'send':
+      node.params = { user: "", message: "" };
       break;
     default:
       node.params = {};
@@ -481,10 +475,10 @@ async function publishTask() {
 async function fetchRobots() {
   try {
     loading.value = true;
-    
+
     // 调用API获取机器人列表
     const response = await ApiServices.get('/robot_list');
-    
+
     if (response.code === 0) {
       // 格式化数据以匹配前端结构
       robots.value = response.data.map(robot => ({
@@ -514,6 +508,7 @@ async function fetchRobots() {
 // 组件挂载时获取机器人列表
 onMounted(() => {
   fetchRobots();
+  fetchtargets();
 });
 </script>
 
