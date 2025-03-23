@@ -12,13 +12,15 @@ class SqliteData:
     @classmethod
     def create_table(cls):
         cls.cursor.execute('''CREATE TABLE IF NOT EXISTS userinfo (
+                wecom INTEGER,
                 wecom_id INTEGER,
-                password TEXT,
                 name TEXT,
+                password TEXT,
                 department TEXT,
                 position TEXT,
                 mobile TEXT,
+                language TEXT,
                 email TEXT,
-                avatar_url TEXT
+                avatar_text TEXT
             )''')
         cls.conn.commit()

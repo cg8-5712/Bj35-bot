@@ -1,50 +1,34 @@
 <template>
   <header class="absolute inset-x-0 top-0 z-50 flex h-16 border-b border-gray-900/10">
     <div class="mx-auto flex w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-      <!-- 左侧区域：移动菜单按钮、Logo 及 Back 链接 -->
       <div class="flex flex-1 items-center gap-x-6">
         <button type="button" class="-m-3 p-3 md:hidden" @click="mobileMenuOpen = true">
           <span class="sr-only">Open main menu</span>
-          <Bars3Icon class="h-6 w-6 text-gray-900" aria-hidden="true" />
+          <Bars3Icon class="size-5 text-gray-900" aria-hidden="true" />
         </button>
-        <img
-          class="h-8 w-auto"
-          src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-          alt="Your Company"
-        />
-        <!-- Back 链接：包含箭头图标 -->
+      </div>
+      <nav class="hidden md:flex md:gap-x-11 md:text-sm/6 md:font-semibold">
         <a
           v-for="(item, itemIdx) in navigation"
           :key="itemIdx"
           :href="item.href"
-          class="flex items-center text-sm font-semibold text-gray-700 hover:text-indigo-600"
+          class="text-gray-700 hover:text-indigo-600"
+          @click.prevent="item.action ? item.action() : null"
         >
-          <component :is="item.icon" class="h-5 w-5 mr-1" aria-hidden="true" />
+          <component v-if="item.icon" :is="item.icon" class="size-6 mr-1" aria-hidden="false" />
           {{ item.name }}
         </a>
-      </div>
+      </nav>
       <div class="flex flex-1 items-center justify-end gap-x-8">
-        <button type="button" class="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500">
-          <span class="sr-only">View notifications</span>
-          <BellIcon class="h-6 w-6" aria-hidden="true" />
-        </button>
-        <!-- 顶部头像显示，并支持修改头像 -->
-        <div class="relative">
-          <a href="#" class="-m-1.5 p-1.5">
-            <span class="sr-only">Your profile</span>
-            <img class="h-8 w-8 rounded-full bg-gray-800" :src="profile.avatar" alt="Your Avatar" />
-          </a>
-        </div>
       </div>
     </div>
-
     <Dialog class="lg:hidden" @close="mobileMenuOpen = false" :open="mobileMenuOpen">
       <div class="fixed inset-0 z-50" />
       <DialogPanel class="fixed inset-y-0 left-0 z-50 w-full overflow-y-auto bg-white px-4 pb-6 sm:max-w-sm sm:px-6 sm:ring-1 sm:ring-gray-900/10">
         <div class="-ml-0.5 flex h-16 items-center gap-x-6">
           <button type="button" class="-m-2.5 p-2.5 text-gray-700" @click="mobileMenuOpen = false">
             <span class="sr-only">Close menu</span>
-            <XMarkIcon class="h-6 w-6" aria-hidden="true" />
+            <XMarkIcon class="size-6" aria-hidden="true" />
           </button>
           <div class="-ml-0.5">
             <a href="#" class="-m-1.5 block p-1.5">
@@ -54,46 +38,42 @@
           </div>
         </div>
         <div class="mt-2 space-y-2">
-          <a v-for="item in navigation" :key="item.name" :href="item.href" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-gray-900 hover:bg-gray-50">{{ item.name }}</a>
+          <a
+            v-for="item in navigation"
+            :key="item.name"
+            :href="item.href"
+            class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
+            @click.prevent="item.action ? item.action() : null"
+          >
+            <component
+              v-if="item.icon"
+              :is="item.icon"
+              :class="[item.current ? 'text-indigo-600' : 'text-gray-400', 'size-6 shrink-0 mr-1']"
+              aria-hidden="true"
+            />
+            {{ item.name }}
+          </a>
         </div>
       </DialogPanel>
     </Dialog>
   </header>
 
-  <div class="mx-auto max-w-7xl pt-16 lg:flex lg:gap-x-16 lg:px-8">
+  <!-- 删除了左侧边栏，直接在 main 中展示用户内容 -->
+  <div class="max-w-7xl lg:px-16">
     <h1 class="sr-only">General Settings</h1>
-
-    <aside class="flex overflow-x-auto border-b border-gray-900/5 py-4 lg:block lg:w-64 lg:flex-none lg:border-0 lg:py-20">
-      <nav class="flex-none px-4 sm:px-6 lg:px-0">
-        <ul role="list" class="flex gap-x-3 gap-y-1 whitespace-nowrap lg:flex-col">
-          <li v-for="item in secondaryNavigation" :key="item.name">
-            <a :href="item.href"
-               :class="[item.current ? 'bg-gray-50 text-indigo-600' : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600', 'group flex gap-x-3 rounded-md py-2 pr-3 pl-2 text-sm font-semibold']"
-               @click.prevent="item.action ? item.action() : null"
-            >
-              <component :is="item.icon" :class="[item.current ? 'text-indigo-600' : 'text-gray-400 group-hover:text-indigo-600', 'h-6 w-6 shrink-0']" aria-hidden="true" />
-              {{ item.name }}
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </aside>
-
-    <main class="px-4 py-16 sm:px-6 lg:flex-auto lg:px-0 lg:py-20">
-      <!-- 放大版头像，右侧显示 -->
-      <div class="flex justify-end">
+    <main class="px-4 py-16 sm:px-6 lg:px-0 lg:py-20">
+      <div class="flex justify-end mb-8">
         <div class="relative inline-block">
           <img :src="profile.avatar" alt="Avatar" class="w-64 h-64 rounded-full object-cover" />
           <button
             class="absolute bottom-4 right-4 bg-white p-2 rounded-full shadow hover:bg-gray-100"
-            @click="updateAvatar"
+            @click="openCropper"
           >
             <PencilIcon class="w-5 h-5 text-gray-700" />
           </button>
         </div>
       </div>
-
-      <div class="mx-auto max-w-2xl space-y-16 sm:space-y-20 lg:mx-0 lg:max-w-none">
+      <div class="mx-auto max-w-2xl space-y-16 sm:space-y-20">
         <!-- Profile 部分 -->
         <div>
           <h2 class="text-base font-semibold text-gray-900">Profile</h2>
@@ -159,10 +139,18 @@
               </dd>
             </div>
             <SwitchGroup as="div" class="flex pt-6">
-              <SwitchLabel as="dt" class="flex-none pr-6 font-medium text-gray-900 sm:w-64" passive>Automatic timezone</SwitchLabel>
+              <SwitchLabel as="dt" class="flex-none pr-6 font-medium text-gray-900 sm:w-64" passive>
+                Automatic timezone
+              </SwitchLabel>
               <dd class="flex flex-auto items-center justify-end">
-                <Switch v-model="automaticTimezoneEnabled" :class="[automaticTimezoneEnabled ? 'bg-indigo-600' : 'bg-gray-200', 'flex w-8 cursor-pointer rounded-full p-px ring-1 ring-gray-900/5 transition-colors duration-200 ease-in-out ring-inset focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600']">
-                  <span aria-hidden="true" :class="[automaticTimezoneEnabled ? 'translate-x-3.5' : 'translate-x-0', 'h-4 w-4 transform rounded-full bg-white ring-1 shadow-xs ring-gray-900/5 transition duration-200 ease-in-out']" />
+                <Switch
+                  v-model="automaticTimezoneEnabled"
+                  :class="[automaticTimezoneEnabled ? 'bg-indigo-600' : 'bg-gray-200', 'flex w-8 cursor-pointer rounded-full p-px ring-1 ring-gray-900/5 transition-colors duration-200 ease-in-out ring-inset focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600']"
+                >
+                  <span
+                    aria-hidden="true"
+                    :class="[automaticTimezoneEnabled ? 'translate-x-3.5' : 'translate-x-0', 'size-4 transform rounded-full bg-white ring-1 shadow-xs ring-gray-900/5 transition duration-200 ease-in-out']"
+                  />
                 </Switch>
               </dd>
             </SwitchGroup>
@@ -171,22 +159,42 @@
       </div>
     </main>
   </div>
+
+  <!-- 头像裁剪弹窗（更新头像后返回裁剪后的图片） -->
+  <Dialog :open="cropperOpen" @close="closeCropper">
+    <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+      <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+        <h2 class="text-lg font-semibold mb-2">Upload and Crop Avatar</h2>
+        <input type="file" accept="image/*" @change="onFileChange" class="mb-4" />
+        <div v-if="imageSrc" class="mb-4">
+          <vue-cropper
+            ref="cropper"
+            :src="imageSrc"
+            :aspect-ratio="1"
+            :view-mode="1"
+            class="cropper-container"
+          />
+        </div>
+        <div class="flex justify-end gap-2">
+          <button class="px-4 py-2 bg-gray-200 rounded" @click="closeCropper">Cancel</button>
+          <button class="px-4 py-2 bg-indigo-600 text-white rounded" @click="saveCroppedAvatar">Save</button>
+        </div>
+      </div>
+    </div>
+  </Dialog>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { Dialog, DialogPanel, Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue'
-import { Bars3Icon, BellIcon, ArrowLeftIcon, CubeIcon, XCircleIcon, PowerIcon, FingerPrintIcon, UserCircleIcon, UsersIcon, XMarkIcon, PencilIcon } from '@heroicons/vue/24/outline'
-import AuthService from "@/services/AuthService.js"
+import { Bars3Icon, BellIcon, XMarkIcon, PencilIcon } from '@heroicons/vue/20/solid'
+import { UserCircleIcon, FingerPrintIcon, UsersIcon, XCircleIcon } from '@heroicons/vue/24/outline'
 import { useRouter } from 'vue-router'
-// import { useI18n } from 'vue-i18n'
+import AuthService from '@/services/AuthService.js'
+import VueCropper from 'vue-cropperjs'
+import 'cropperjs/dist/cropper.css'
 
 const router = useRouter()
-// const { locale } = useI18n()
-
-const navigation = [
-  { name: 'Back', href: '/', icon: ArrowLeftIcon }
-]
 
 function logout() {
   AuthService.logout()
@@ -194,16 +202,16 @@ function logout() {
 }
 
 function goToSecurity() {
-  // 跳转到 Security 页面（对应组件：components/profiles/ProfilePassword.vue）
   router.push('/profile/password')
 }
 
-const secondaryNavigation = [
+// 合并后的导航数据（顶侧导航栏）
+const navigation = [
   { name: 'General', href: '#', icon: UserCircleIcon, current: true },
   { name: 'Security', href: '#', icon: FingerPrintIcon, current: false, action: goToSecurity },
   { name: 'Notifications', href: '#', icon: BellIcon, current: false },
   { name: 'Team members', href: '#', icon: UsersIcon, current: false },
-  { name: 'Logout', href: '#', icon: XCircleIcon, action: logout }
+  { name: 'Logout', href: '#', icon: XCircleIcon, action: logout },
 ]
 
 const mobileMenuOpen = ref(false)
@@ -213,7 +221,7 @@ const profile = ref({
   name: "Cg8-5712",
   Email: "5712.cg8@gmail.com",
   Title: "Administartor",
-  Wecom: "cg8@bj35",
+  Wecom: "cg8",
   avatar: "https://avatars.githubusercontent.com/u/163859507?s=256",
 })
 
@@ -221,7 +229,7 @@ const profileData = ref({
   "Name": profile.value.name,
   "Email address": profile.value.Email,
   "Title": profile.value.Title,
-  "Wecom": profile.value.Wecom,
+  "Wecom": profile.value.Wecom + "@北京三十五中",
 })
 
 const editingField = ref(null)
@@ -238,7 +246,6 @@ function saveField(key) {
       alert("Invalid email address.")
       return
     }
-    // 模拟发送验证邮件
     alert(`A verification email has been sent to ${editingValue.value}.`)
   }
   profileData.value[key] = editingValue.value
@@ -251,24 +258,80 @@ function validateEmail(email) {
   return re.test(email)
 }
 
+// ===== 修改 updateAvatar 为打开裁剪弹窗 =====
 function updateAvatar() {
-  const newAvatar = prompt("Enter new avatar URL:", profile.value.avatar)
-  if (newAvatar) {
-    profile.value.avatar = newAvatar
-    alert("Avatar updated.")
+  openCropper()
+}
+
+// ===== Avatar Cropper 部分 =====
+const cropperOpen = ref(false)
+const imageSrc = ref(null)
+const cropper = ref(null)
+
+function openCropper() {
+  cropperOpen.value = true
+}
+
+function closeCropper() {
+  cropperOpen.value = false;
+  imageSrc.value = null;
+}
+
+function onFileChange(event) {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      imageSrc.value = e.target.result;
+    };
+    reader.readAsDataURL(file);
   }
 }
 
+function saveCroppedAvatar() {
+  if (cropper.value) {
+    const croppedCanvas = cropper.value.getCroppedCanvas({ width: 256, height: 256 });
+    if (croppedCanvas) {
+      try {
+        // 获取裁剪后的图片数据 URL
+        const croppedImageData = croppedCanvas.toDataURL('image/png');
+
+        // 模拟 API 请求，保存裁剪后的图片
+        // 示例：发生实际的 API 请求可以替换这一部分
+        setTimeout(() => {
+          profile.value.avatar = croppedImageData;
+          alert('Avatar updated successfully!');
+          closeCropper();
+        }, 500); // 模拟稍后的处理
+      } catch (error) {
+        console.error('Error saving cropped avatar:', error);
+        alert('Error saving avatar. Please try again.');
+      }
+    } else {
+      alert('No cropped image available.');
+    }
+  } else {
+    alert('Cropper instance is not available.');
+  }
+}
+
+// ===== Language and Dates =====
 const languageOptions = ["English", "中文(简体)", "中文(繁体)"]
 const currentLanguage = ref("English")
 const editingLanguage = ref(false)
 
 function toggleLanguageEdit() {
   if (editingLanguage.value) {
-    // 保存语言并更新全局语言（确保整个页面及 / 路由下页面更新）
-    locale.value = currentLanguage.value
+    // 假设这里可以更新全局语言设置
     alert(`Language updated to ${currentLanguage.value}`)
   }
   editingLanguage.value = !editingLanguage.value
 }
 </script>
+
+<style>
+.cropper-container {
+  max-width: 100%;
+  max-height: 300px;
+}
+</style>

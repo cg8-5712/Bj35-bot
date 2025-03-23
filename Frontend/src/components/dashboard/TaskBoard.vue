@@ -15,7 +15,7 @@
 
     <!-- 加载中状态 -->
     <div v-if="loading" class="flex justify-center items-center h-64">
-      <div class="text-gray-500">加载中...</div>
+<!--      <div class="text-gray-500">加载中...</div>-->
     </div>
 
     <!-- 数据展示 -->
@@ -164,6 +164,19 @@
         </div>
       </div>
     </transition>
+    <main class="py-10">
+        <div class="px-4 sm:px-6 lg:px-8">
+          <LoadingSpinner v-if="loading" message="加载中..." />
+          <Suspense v-else>
+            <template #default>
+              <component :is="currentComponent" />
+            </template>
+            <template #fallback>
+              <LoadingSpinner message="正在渲染组件..." color="indigo" />
+            </template>
+          </Suspense>
+        </div>
+      </main>
   </div>
 </template>
 

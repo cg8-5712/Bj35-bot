@@ -4,7 +4,7 @@ import AuthService from '@/services/AuthService'
 const routes = [
   { path: '/', name: 'Dashboard', component: () => import('@/views/dashboard.vue') },
   { path: '/login', name: 'Login', component: () => import('@/views/Login.vue') },
-  { path: '/profile', name: 'profile', component: () => import('@/views/profile.vue') },
+
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: () => import('@/views/NotFound.vue') }
 ]
 

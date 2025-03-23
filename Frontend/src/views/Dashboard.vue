@@ -84,7 +84,11 @@
               </ul>
             </li>
             <li class="mt-auto">
-              <a href="/profile" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-indigo-200 hover:bg-indigo-700 hover:text-white">
+              <a
+                  href="#"
+                  class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-indigo-200 hover:bg-indigo-700 hover:text-white"
+                  @click.prevent="setActiveView({ componentName: 'Profile' })"
+              >
                 <Cog6ToothIcon class="size-6 shrink-0 text-indigo-200 group-hover:text-white" aria-hidden="true" />
                 Settings
               </a>
@@ -110,7 +114,7 @@
 
         <div class="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
           <div class="grid flex-1 grid-cols-1 items-center">
-            <h1 class="text-lg/6 font-semibold text-gray-900">Dashboard</h1>
+<!--            <h1 class="text-lg/6 font-semibold text-gray-900">Dashboard</h1>-->
           </div>
           <div class="flex items-center gap-x-4 lg:gap-x-6">
             <button type="button" class="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500">
@@ -135,16 +139,19 @@
                 <MenuItems class="absolute right-0 z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white py-2 ring-1 shadow-lg ring-gray-900/5 focus:outline-hidden">
                   <MenuItem v-for="item in userNavigation" :key="item.name" v-slot="{ active }">
                     <a
-                      :href="item.href"
+                      href="#"
                       :class="[active ? 'bg-gray-50 outline-hidden' : '', 'block px-3 py-1 text-sm/6 text-gray-900']"
-                      @click="handleUserNavClick(item, $event)"
+                      @click="item.action ? item.action() : setActiveView(item)"
                     >
                       {{ item.name }}
                     </a>
                   </MenuItem>
+
                 </MenuItems>
               </transition>
             </Menu>
+
+
           </div>
         </div>
       </div>
@@ -212,7 +219,7 @@ const navigation = [
   { name: '任务看板', href: '#', icon: ChartBarSquareIcon, current: false, componentName: 'TaskBoard'  },
 ]
 const userNavigation = [
-  { name: '个人资料', href: '/profile' },
+  { name: '个人资料', href: '#', componentName: 'Profile' },
   { name: '退出登录', href: '#', action: logout },
 ]
 
@@ -220,6 +227,7 @@ const componentMap = {
   Overview: () => import('../components/dashboard/Overview.vue'),
   TaskPublish: () => import('../components/dashboard/TaskPublish.vue'),
   TaskBoard: () => import('../components/dashboard/TaskBoard.vue'),
+  Profile: () => import('../components/dashboard/Profile.vue'),
 }
 const activeView = ref(navigation[0])
 
@@ -245,13 +253,13 @@ async function setActiveView(item) {
   }
 }
 
-// 新增：处理用户菜单点击事件，根据是否有 action 决定是否阻止默认行为
-function handleUserNavClick(item, event) {
-  if (item.action) {
-    event.preventDefault()
-    item.action()
-  }
-}
+// // 新增：处理用户菜单点击事件，根据是否有 action 决定是否阻止默认行为
+// function handleUserNavClick(item, event) {
+//   if (item.action) {
+//     event.preventDefault()
+//     item.action()
+//   }
+// }
 
 // 监听窗口大小变化
 function handleResize() {

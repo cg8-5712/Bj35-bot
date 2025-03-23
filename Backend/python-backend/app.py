@@ -8,6 +8,7 @@ from functools import wraps
 from send_message.main import send_message
 from handler import api
 from handler.config import Config
+from SqliteData import SqliteData
 
 # 配置日志
 logging.basicConfig(
@@ -157,7 +158,7 @@ def register_routes(app):
                 expires_delta=expires_delta,
                 additional_claims={
                     'username': username,
-                    'role': 'admin'  # 在实际应用中，角色应从数据库获取
+                    # 'role': 'admin'  # 在实际应用中，角色应从数据库获取
                 }
             )
             app.logger.info(f"User {username} logged in successfully")
@@ -366,9 +367,10 @@ async def process_robot_devices(device_list):
 
     return robot_list
 
-
+SqliteData.initialize
 # 创建应用实例
 app = create_app()
 
 if __name__ == '__main__':
+
     app.run(host='0.0.0.0', port=8080, debug=True)
