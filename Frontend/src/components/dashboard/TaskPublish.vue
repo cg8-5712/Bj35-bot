@@ -92,7 +92,6 @@
           <button
             class="px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             @click="addTaskNode"
-            :disabled="!selectedRobot || !selectedRobot.status.isOnline"
           >
             添加任务节点
           </button>
@@ -340,14 +339,13 @@ const fetchtargets = async () => {
   }
 }
 
-
-
 const userOptions = ref([
   { value: '用户1', label: '用户1' },
   { value: '用户2', label: '用户2' },
   { value: '用户3', label: '用户3' }
 ]);
 console.log(typeof(userOptions))
+
 // 获取状态样式类
 function getStatusClass(status) {
   return statusClasses[status] || statusClasses['未知'];
@@ -367,6 +365,11 @@ function selectRobot(robot) {
 
 // 添加任务节点，默认类型为 move，新格式的参数结构
 function addTaskNode() {
+  console.log(selectedRobot.value)
+  if (!selectedRobot.value) {
+    showNotification('请先选择一个机器人', 'warning');
+    return;
+  }
   taskNodes.value.push({
     id: uuidv4(),
     type: 'move',
@@ -505,12 +508,18 @@ async function fetchRobots() {
   }
 }
 
+// 提示方法
+function showNotification(message, type) {
+  NotificationService.notify(message, type);
+}
+
 // 组件挂载时获取机器人列表
 onMounted(() => {
   fetchRobots();
   fetchtargets();
 });
 </script>
+
 
 <style scoped>
 .task-list-move,

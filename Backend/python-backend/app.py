@@ -5,9 +5,12 @@ import datetime
 import hashlib
 import logging
 from functools import wraps
-from send_message.main import send_message
+from send_message.main import send
 from handler import api
 from handler.config import Config
+from SqliteData import SqliteData
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 
 # 配置日志
 logging.basicConfig(
@@ -26,18 +29,32 @@ ROBOT_LOCATION_MAPPING = {
     "1309097": "办公楼三楼",
 }
 
+def find_kind_by_username(string, values):
+    for value, kind in values:
+        if value == string:
+            return string, kind
+    return None
 
 def get_robot_name(robot_id):
     """根据机器人ID获取友好名称"""
     prefix = robot_id[:7] if len(robot_id) >= 7 else robot_id
     return ROBOT_LOCATION_MAPPING.get(prefix, f"Robot-{prefix}")
 
-
-def get_user(username, password):
+async def get_user(username, password):
     """验证用户凭据"""
-    expected_hash = hashlib.sha256("password".encode()).hexdigest()
-    return username if username == "admin" and password == expected_hash else None
+    username_list = await SqliteData.get_login_username_list()
+    values = [(v, key) for key, lst in username_list.items() for v in lst]
+    kind = find_kind_by_username(username, values)[1] if find_kind_by_username(username, values) else None
+    print(kind)
+    if not kind:
+        return None
+    password_hash = await SqliteData.get_password_by_username(username, kind)
+    return (username, kind) if password == password_hash else None
 
+async def get_user_avatar(username, kind):
+    """获取用户头像"""
+    avatar = await SqliteData.get_avatar_by_username(username, kind)
+    return avatar
 
 def create_app():
     """应用工厂函数，创建并配置Flask应用"""
@@ -139,7 +156,7 @@ def register_routes(app):
 
     # 认证相关路由
     @app.route(URI_PREFIX + '/login', methods=['POST'])
-    def login():
+    async def login():
         username = request.json.get('username', None)
         password = request.json.get('password', None)
         remember_me = request.json.get('rememberMe', False)
@@ -147,17 +164,20 @@ def register_routes(app):
         if not username or not password:
             return jsonify(code=1, message="Missing username or password"), 422
 
-        user = get_user(username, password)
-
+        user = await get_user(username, password)
+        print(user)
         if user:
+            avatar = await get_user_avatar(user[0], user[1])
             # 创建访问令牌，可选择添加更多声明
             expires_delta = JWT_EXPIRY_REMEMBER if remember_me else JWT_EXPIRY_DEFAULT
             access_token = create_access_token(
-                identity=user,
+                identity=user[0],
                 expires_delta=expires_delta,
                 additional_claims={
                     'username': username,
-                    'role': 'admin'  # 在实际应用中，角色应从数据库获取
+                    'kind': user[1],
+                    'avatar': avatar,
+                    # 'role': 'admin'  # 在实际应用中，角色应从数据库获取
                 }
             )
             app.logger.info(f"User {username} logged in successfully")
@@ -280,11 +300,12 @@ def register_routes(app):
     @app.route(URI_PREFIX + '/send-message', methods=['POST'])
     @jwt_required()
     @error_handler
-    async def send():
+    async def send_message():
         data = request.json
         message = data.get('message')
         user_id = data.get('userId')
-        await send_message(user_id, message)
+
+        await send(user_id, message)
 
     @app.route(URI_PREFIX + '/run-task/<device_id>', methods=['POST'])
     @jwt_required()
@@ -366,9 +387,11 @@ async def process_robot_devices(device_list):
 
     return robot_list
 
-
 # 创建应用实例
 app = create_app()
 
 if __name__ == '__main__':
+    asyncio.run(SqliteData.initialize())
     app.run(host='0.0.0.0', port=8080, debug=True)
+
+

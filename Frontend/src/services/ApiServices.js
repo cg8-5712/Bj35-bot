@@ -130,25 +130,15 @@ class ApiServices extends ApiPrefix {
     }
   }
 
-  async getTasklist(){
+  async getTasklist() {
     try {
       const data = await this.get(`/school-tasks/100/1`);
 
-      if ( data.code !== 0 ) { throw new Error(data.message); }
+      if (data.code !== 0) {
+        throw new Error(data.message);
+      }
 
       return data.data;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async gettargetlist(){
-    try {
-      const data = await this.get(`/target-list`);
-
-      // if ( data.code !== 0 ) { throw new Error(data.message); }
-
-      return data;
     } catch (error) {
       throw error;
     }

@@ -68,6 +68,11 @@ class AuthService {
     const userInfo = this.getUserInfo();
     return userInfo ? userInfo.sub : null;
   }
+
+  getUserAvatar() {
+    const userInfo = this.getUserInfo();
+    return userInfo ? userInfo.avatar : null;
+  }
 }
 
 export default new AuthService();
