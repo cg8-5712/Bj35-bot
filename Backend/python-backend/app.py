@@ -43,19 +43,18 @@ def get_robot_name(robot_id):
 async def get_user(username, password):
     """验证用户凭据"""
     username_list = await SqliteData.get_login_username_list()
-    print(username_list)
     values = [(v, key) for key, lst in username_list.items() for v in lst]
-    print(values)
     kind = find_kind_by_username(username, values)[1] if find_kind_by_username(username, values) else None
-    print(username)
-    print(type(username))
     print(kind)
-    print(password)
     if not kind:
         return None
     password_hash = await SqliteData.get_password_by_username(username, kind)
-    print(password_hash)
-    return username if password == password_hash else None
+    return (username, kind) if password == password_hash else None
+
+async def get_user_avatar(username, kind):
+    """获取用户头像"""
+    avatar = await SqliteData.get_avatar_by_username(username, kind)
+    return avatar
 
 def create_app():
     """应用工厂函数，创建并配置Flask应用"""
@@ -166,15 +165,18 @@ def register_routes(app):
             return jsonify(code=1, message="Missing username or password"), 422
 
         user = await get_user(username, password)
-
+        print(user)
         if user:
+            avatar = await get_user_avatar(user[0], user[1])
             # 创建访问令牌，可选择添加更多声明
             expires_delta = JWT_EXPIRY_REMEMBER if remember_me else JWT_EXPIRY_DEFAULT
             access_token = create_access_token(
-                identity=user,
+                identity=user[0],
                 expires_delta=expires_delta,
                 additional_claims={
                     'username': username,
+                    'kind': user[1],
+                    'avatar': avatar,
                     # 'role': 'admin'  # 在实际应用中，角色应从数据库获取
                 }
             )
@@ -390,3 +392,5 @@ app = create_app()
 if __name__ == '__main__':
     asyncio.run(SqliteData.initialize())
     app.run(host='0.0.0.0', port=8080, debug=True)
+
+
