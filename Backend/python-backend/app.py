@@ -5,7 +5,7 @@ import datetime
 import hashlib
 import logging
 from functools import wraps
-from send_message.main import send_message
+from send_message.main import send
 from handler import api
 from handler.config import Config
 from SqliteData import SqliteData
@@ -300,11 +300,12 @@ def register_routes(app):
     @app.route(URI_PREFIX + '/send-message', methods=['POST'])
     @jwt_required()
     @error_handler
-    async def send():
+    async def send_message():
         data = request.json
         message = data.get('message')
         user_id = data.get('userId')
-        await send_message(user_id, message)
+
+        await send(user_id, message)
 
     @app.route(URI_PREFIX + '/run-task/<device_id>', methods=['POST'])
     @jwt_required()
