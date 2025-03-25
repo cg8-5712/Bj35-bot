@@ -64,7 +64,7 @@
     <main class="px-4 py-16 sm:px-6 lg:px-0 lg:py-20">
       <div class="flex justify-end mb-8">
         <div class="relative inline-block">
-          <img :src="profile.avatar" alt="Avatar" class="w-64 h-64 rounded-full object-cover" />
+          <img src="https://avatars.githubusercontent.com/u/163859507?v=4" alt="Avatar" class="w-64 h-64 rounded-full object-cover" />
           <button
             class="absolute bottom-4 right-4 bg-white p-2 rounded-full shadow hover:bg-gray-100"
             @click="openCropper"
@@ -185,7 +185,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, computed } from 'vue' // 添加 computed
 import { Dialog, DialogPanel, Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue'
 import { Bars3Icon, BellIcon, XMarkIcon, PencilIcon } from '@heroicons/vue/20/solid'
 import { UserCircleIcon, FingerPrintIcon, UsersIcon, XCircleIcon } from '@heroicons/vue/24/outline'
@@ -193,6 +193,7 @@ import { useRouter } from 'vue-router'
 import AuthService from '@/services/AuthService.js'
 import VueCropper from 'vue-cropperjs'
 import 'cropperjs/dist/cropper.css'
+import ApiServices from "@/services/ApiServices.js";
 
 const router = useRouter()
 
@@ -218,19 +219,19 @@ const mobileMenuOpen = ref(false)
 const automaticTimezoneEnabled = ref(true)
 
 const profile = ref({
-  name: "Cg8-5712",
-  Email: "5712.cg8@gmail.com",
-  Title: "Administartor",
-  Wecom: "cg8",
-  avatar: "https://avatars.githubusercontent.com/u/163859507?s=256",
+    name: "None",
+    Email: "None",
+    role: "None",
+    Wecom: "None",
+    avatar: "None",
 })
 
-const profileData = ref({
-  "Name": profile.value.name,
-  "Email address": profile.value.Email,
-  "Title": profile.value.Title,
-  "Wecom": profile.value.Wecom + "@北京三十五中",
-})
+const profileData = computed(() => ({
+  "Name": profile.value.name || "None",
+  "Email address": profile.value.Email || "None",
+  "Title": profile.value.role || "None",
+  "Wecom": profile.value.Wecom + "@北京三十五中" || "None",
+}))
 
 const editingField = ref(null)
 const editingValue = ref('')
@@ -248,7 +249,7 @@ function saveField(key) {
     }
     alert(`A verification email has been sent to ${editingValue.value}.`)
   }
-  profileData.value[key] = editingValue.value
+  profile.value[key.toLowerCase()] = editingValue.value // 根据 profile 的实际字段名修改
   editingField.value = null
   editingValue.value = ''
 }
@@ -327,7 +328,32 @@ function toggleLanguageEdit() {
   }
   editingLanguage.value = !editingLanguage.value
 }
+
+const getUserInfo = async () => {
+  try {
+    const data = await AuthService.getUserInfo();
+    console.log(data);
+    // 假设 data 是对象格式
+    profile.value = {
+      name: data.name || "None",
+      Email: data.email || "None",
+      role: data.role || "None",
+      Wecom: data.wecom || "None",
+      avatar: data.avatar || "None",
+    };
+    // 可选：打印结果确认赋值
+    console.log(profile.value);
+  } catch (error) {
+    console.error('获取任务数据失败:', error);
+  }
+}
+
+onMounted( () => {
+  getUserInfo();
+});
+
 </script>
+
 
 <style>
 .cropper-container {
