@@ -45,7 +45,8 @@ class SqliteData:
         return password_sha256[0] if password_sha256 else None
 
     @classmethod
-    async def get_avatar_by_username(cls, username, kind):
-        await cls.cursor.execute("SELECT avatar_text FROM userinfo WHERE " + kind + " = ?", (username,))
-        user_avatar_text = await cls.cursor.fetchone()
-        return user_avatar_text[0] if user_avatar_text else None
+    async def get_userinfo_by_username(cls, username, kind):
+        await cls.cursor.execute("SELECT * FROM userinfo WHERE " + kind + " = ?", (username,))
+        user_info = await cls.cursor.fetchone()
+        print(user_info)
+        return user_info if user_info else None

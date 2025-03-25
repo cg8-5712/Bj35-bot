@@ -51,9 +51,9 @@ async def get_user(username, password):
     password_hash = await SqliteData.get_password_by_username(username, kind)
     return (username, kind) if password == password_hash else None
 
-async def get_user_avatar(username, kind):
+async def get_user_info(username, kind):
     """获取用户头像"""
-    avatar = await SqliteData.get_avatar_by_username(username, kind)
+    avatar = await SqliteData.get_userinfo_by_username(username, kind)
     return avatar
 
 def create_app():
@@ -167,7 +167,7 @@ def register_routes(app):
         user = await get_user(username, password)
         print(user)
         if user:
-            avatar = await get_user_avatar(user[0], user[1])
+            user_info = await get_user_info(user[0], user[1])
             # 创建访问令牌，可选择添加更多声明
             expires_delta = JWT_EXPIRY_REMEMBER if remember_me else JWT_EXPIRY_DEFAULT
             access_token = create_access_token(
@@ -176,8 +176,14 @@ def register_routes(app):
                 additional_claims={
                     'username': username,
                     'kind': user[1],
-                    'avatar': avatar,
-                    # 'role': 'admin'  # 在实际应用中，角色应从数据库获取
+                    'wecom': user_info[0],
+                    'wecom_id': user_info[1],
+                    'name': user_info[2],
+                    'role': user_info[4],  # 在实际应用中，角色应从数据库获取
+                    'mobile_number': user_info[6],
+                    'language': user_info[7],
+                    'email': user_info[8],
+                    'avatar': user_info[9],
                 }
             )
             app.logger.info(f"User {username} logged in successfully")
