@@ -1,14 +1,17 @@
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
-import notificationService from './NotificationService';
+import CryptoJS from 'crypto-js';
+import NotificationService from './NotificationService';
 
 class AuthService {
   login(username, password, rememberMe) {
-
+    // 对密码进行SHA-256哈希处理
+    const hashedPassword = CryptoJS.SHA256(password).toString();
+  
     return axios
       .post(`${import.meta.env.VITE_APP_API_URL}/login`, {
         username,
-        password,
+        password: hashedPassword,
         rememberMe
       })
       .then(response => {
@@ -35,19 +38,40 @@ class AuthService {
     
     try {
       const decoded = jwtDecode(token);
-      // 检查令牌是否过期
       const currentTime = Date.now() / 1000;
       if (decoded.exp < currentTime) {
-        // 令牌已过期
-        notificationService.notify('Session expired, please login again', 'error');
+        NotificationService.notify('Session expired, please login again', 'error');
         this.logout();
         return false;
       }
       return true;
     } catch (error) {
-      // 解码失败
       return false;
     }
+  }
+
+  getUserInfo() {
+    const token = this.getToken();
+    if (!token) return null;
+    
+    try {
+      // 解码JWT获取用户信息
+      const decoded = jwtDecode(token);
+      return decoded;
+    } catch (error) {
+      console.error('解码token失败:', error);
+      return null;
+    }
+  }
+
+  getUsername() {
+    const userInfo = this.getUserInfo();
+    return userInfo ? userInfo.sub : null;
+  }
+
+  getUserAvatar() {
+    const userInfo = this.getUserInfo();
+    return userInfo ? userInfo.avatar : null;
   }
 }
 

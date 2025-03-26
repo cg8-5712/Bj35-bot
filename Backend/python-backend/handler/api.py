@@ -1,6 +1,6 @@
 from urllib import response
 
-from config import Config
+from .config import Config
 import aiohttp
 import asyncio
 import uuid
@@ -148,6 +148,11 @@ async def make_task_flow_move_and_lift_down(device_id,dockingMarker, target):
         async with session.post(f'https://open-api.yunjiai.cn/v3/rcs/task/flow/execute', json=data) as response:
             return json.loads(await response.text())
 
+async def get_device_by_id(device_id):
+    """根据设备ID获取设备对象"""
+     # 实现略，可从数据库或设备管理服务获取
+    return {"id": device_id, "type": "robot"}
+
 async def goto_charge(device_id):
     # 异步发送指令使设备移动到充电站
     headers = create_headers()
@@ -160,13 +165,65 @@ async def sleep(time):
     # 异步休眠指定时间
     await asyncio.sleep(time)
 
-async def RUN(list):
-    for i in list:
-        print(i)
-        res = await make_task_flow_dock_cabin_and_move_target_with_wait_action(device_bot1_cabin, i, 200)
-        print(res)
-        await sleep(60)
-    await make_task_flow_dock_cabin_and_move_target_with_wait_action(device_bot1_cabin,"一层作业柜",5)
+async def check(device_id):
+    res=await get_device_status(device_id)
+    status=res["data"]["deviceStatus"]["lockers"][1]["status"]
+    if status=="OPEN":
+        return "open"
+    elif status=="CLOSE":
+        return "close"
+
+async def RUN(locations, device_id):
+    """执行任务流
+
+    Args:
+        locations: 位置列表，包含机器人需要到达的目标位置
+        device_id: 需要执行任务的机器人设备ID
+
+    Returns:
+        dict: 包含执行结果的状态码和消息
+    """
+    from time import sleep
+    import logging
+    logger = logging.getLogger(__name__)
+
+    try:
+        if not locations:
+            return {'code': 1, 'message': '位置列表不能为空'}
+
+        logger.info(f'开始执行任务流，设备ID: {device_id}, 位置列表: {locations}')
+
+        # 执行每个位置的任务
+        task_results = []
+        for idx, location in enumerate(locations):
+            logger.info(f'执行第 {idx + 1} 个任务，目标位置: {location}')
+
+            try:
+                # 获取设备对象
+                device = await get_device_by_id(device_id)
+                if not device:
+                    raise ValueError(f"找不到设备ID: {device_id}")
+
+                # 执行任务
+                res = await make_task_flow_dock_cabin_and_move_target_with_wait_action(device_id, location, 300)
+                flag = False  # 标记是否完成一次开门关门 关门为 False 开门为 True
+                task_results.append(res)
+                logger.info(f'位置 {location} 任务执行结果: {res}')
+                while True:
+                    res = await check(device_id)
+                    if res == "open":
+                        flag = True
+                    if res == "close" and flag == True:
+                        break
+                    await asyncio.sleep(1)
+
+            except Exception as e:
+                logger.error(f'位置 {location} 任务执行失败: {str(e)}')
+                return {'code': 1, 'message': f'任务执行失败: {str(e)}'}
+
+    except Exception as e:
+        logger.error(f'任务流执行失败: {str(e)}')
+        return {'code': 1, 'message': f'任务流执行失败: {str(e)}'}
 
 
 if __name__ == '__main__':

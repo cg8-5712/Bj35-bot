@@ -8,11 +8,6 @@ secret = "hPUCEvAKMm3o8X6pWNLtF89dKQyDkJhuktiGefpKyjo"  # 应用Secret
 agent_id = "1000002"  # 应用AgentId
 user_id = ""  # 接收消息的用户ID
 
-teacher={
-    "程禹赫": "ChengYuHe",
-    "董致澄": "DongZhiChengwatt"
-}
-
 # 获取access_token
 async def get_access_token(corp_id, secret):
     url = f"https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={corp_id}&corpsecret={secret}"
@@ -53,8 +48,6 @@ async def send(user_id, message_content):
     access_token = await get_access_token(corp_id, secret)
     await send_message(access_token, user_id, message_content)
 
-# 运行主函数
-if __name__ == "__main__":
-    name=input("请输入姓名：")
-    user_id=teacher[name]
-    asyncio.run(send(user_id, "helo world"))
+# # 运行主函数
+# if __name__ == "__main__":
+#     asyncio.run(main())
