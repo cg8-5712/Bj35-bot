@@ -143,6 +143,20 @@ class ApiServices extends ApiPrefix {
       throw error;
     }
   }
+
+  async updateUserProfile(data) {
+      try {
+        const response = await this.post('/post_user_profile', data);
+
+        if (response.code !== 0) {
+          throw new Error(response.message);
+        }
+
+        return response;
+      } catch (error) {
+        throw error;
+      }
+    }
 }
 
 export default new ApiServices();
