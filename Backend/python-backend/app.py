@@ -341,6 +341,13 @@ def register_routes(app):
         target_list = Config.target_list()
         return target_list
 
+    @app.route(URI_PREFIX + '/post_user_profile', methods=['POST'])
+    @jwt_required()
+    @error_handler
+    async def post_user_profile():
+        data = request.json
+        print(data)
+
 
 # 辅助函数
 async def process_robot_devices(device_list):

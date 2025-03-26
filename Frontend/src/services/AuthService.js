@@ -50,6 +50,7 @@ class AuthService {
     }
   }
 
+
   getUserInfo() {
     const token = this.getToken();
     if (!token) return null;

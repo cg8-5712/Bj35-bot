@@ -58,13 +58,12 @@
     </Dialog>
   </header>
 
-  <!-- 删除了左侧边栏，直接在 main 中展示用户内容 -->
   <div class="max-w-7xl lg:px-16">
     <h1 class="sr-only">General Settings</h1>
-    <main class="px-4 py-16 sm:px-6 lg:px-0 lg:py-20">
+    <main class="px-4 py-16 sm:px-0 lg:px-0 lg:py-20">
       <div class="flex justify-end mb-8">
         <div class="relative inline-block">
-          <img src="https://avatars.githubusercontent.com/u/163859507?v=4" alt="Avatar" class="w-64 h-64 rounded-full object-cover" />
+          <img :src="profileData.avatar" alt="Avatar" class="w-64 h-64 rounded-full object-cover" />
           <button
             class="absolute bottom-4 right-4 bg-white p-2 rounded-full shadow hover:bg-gray-100"
             @click="openCropper"
@@ -74,7 +73,6 @@
         </div>
       </div>
       <div class="mx-auto max-w-2xl space-y-16 sm:space-y-20">
-        <!-- Profile 部分 -->
         <div>
           <h2 class="text-base font-semibold text-gray-900">Profile</h2>
           <dl class="mt-6 divide-y divide-gray-100 border-t border-gray-200 text-sm">
@@ -107,8 +105,6 @@
             </div>
           </dl>
         </div>
-
-        <!-- Language and dates 部分 -->
         <div>
           <h2 class="text-base font-semibold text-gray-900">Language and dates</h2>
           <p class="mt-1 text-sm text-gray-500">Choose what language and date format to use throughout your account.</p>
@@ -160,7 +156,6 @@
     </main>
   </div>
 
-  <!-- 头像裁剪弹窗（更新头像后返回裁剪后的图片） -->
   <Dialog :open="cropperOpen" @close="closeCropper">
     <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
       <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
@@ -185,7 +180,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue' // 添加 computed
+import { ref, onMounted, computed } from 'vue'
 import { Dialog, DialogPanel, Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue'
 import { Bars3Icon, BellIcon, XMarkIcon, PencilIcon } from '@heroicons/vue/20/solid'
 import { UserCircleIcon, FingerPrintIcon, UsersIcon, XCircleIcon } from '@heroicons/vue/24/outline'
@@ -206,7 +201,6 @@ function goToSecurity() {
   router.push('/profile/password')
 }
 
-// 合并后的导航数据（顶侧导航栏）
 const navigation = [
   { name: 'General', href: '#', icon: UserCircleIcon, current: true },
   { name: 'Security', href: '#', icon: FingerPrintIcon, current: false, action: goToSecurity },
@@ -231,6 +225,7 @@ const profileData = computed(() => ({
   "Email address": profile.value.Email || "None",
   "Title": profile.value.role || "None",
   "Wecom": profile.value.Wecom + "@北京三十五中" || "None",
+  "Avatar": profile.value.avatar || "https://avatars.githubusercontent.com/u/163859507?v=4",
 }))
 
 const editingField = ref(null)
@@ -241,7 +236,7 @@ function updateField(key) {
   editingValue.value = profileData.value[key]
 }
 
-function saveField(key) {
+async function saveField(key) {
   if (key === "Email address") {
     if (!validateEmail(editingValue.value)) {
       alert("Invalid email address.")
@@ -249,22 +244,39 @@ function saveField(key) {
     }
     alert(`A verification email has been sent to ${editingValue.value}.`)
   }
-  profile.value[key.toLowerCase()] = editingValue.value // 根据 profile 的实际字段名修改
-  editingField.value = null
-  editingValue.value = ''
+
+  try {
+    // 将已编辑的值保存到本地 profile 对象中
+    profile.value[key.toLowerCase()] = editingValue.value;
+
+    // 调用 updateUserProfile 方法并传入编辑后的字段和值
+    const updateResponse = await ApiServices.updateUserProfile({ [key.toLowerCase()]: editingValue.value });
+
+    // 根据 API 返回的数据进行处理
+    if (updateResponse.success) {
+      alert('Profile updated successfully!');
+    } else {
+      alert(`Failed to update profile. Reason: ${updateResponse.message}`);
+    }
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    alert('Error updating profile. Please try again.');
+  } finally {
+    editingField.value = null;
+    editingValue.value = '';
+  }
 }
+
 
 function validateEmail(email) {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   return re.test(email)
 }
 
-// ===== 修改 updateAvatar 为打开裁剪弹窗 =====
 function updateAvatar() {
   openCropper()
 }
 
-// ===== Avatar Cropper 部分 =====
 const cropperOpen = ref(false)
 const imageSrc = ref(null)
 const cropper = ref(null)
@@ -289,21 +301,20 @@ function onFileChange(event) {
   }
 }
 
-function saveCroppedAvatar() {
+async function saveCroppedAvatar() {
   if (cropper.value) {
     const croppedCanvas = cropper.value.getCroppedCanvas({ width: 256, height: 256 });
     if (croppedCanvas) {
       try {
-        // 获取裁剪后的图片数据 URL
         const croppedImageData = croppedCanvas.toDataURL('image/png');
-
-        // 模拟 API 请求，保存裁剪后的图片
-        // 示例：发生实际的 API 请求可以替换这一部分
-        setTimeout(() => {
+        const avatarUpdateResponse = await ApiServices.updateUserAvatar(croppedImageData)
+        if (avatarUpdateResponse.success) {
           profile.value.avatar = croppedImageData;
           alert('Avatar updated successfully!');
-          closeCropper();
-        }, 500); // 模拟稍后的处理
+        } else {
+          alert('Failed to update avatar. Please try again.')
+        }
+        closeCropper();
       } catch (error) {
         console.error('Error saving cropped avatar:', error);
         alert('Error saving avatar. Please try again.');
@@ -316,15 +327,14 @@ function saveCroppedAvatar() {
   }
 }
 
-// ===== Language and Dates =====
 const languageOptions = ["English", "中文(简体)", "中文(繁体)"]
 const currentLanguage = ref("English")
 const editingLanguage = ref(false)
 
 function toggleLanguageEdit() {
   if (editingLanguage.value) {
-    // 假设这里可以更新全局语言设置
     alert(`Language updated to ${currentLanguage.value}`)
+    ApiServices.updateUserLanguage(currentLanguage.value) // 假设这是更新语言的API函数
   }
   editingLanguage.value = !editingLanguage.value
 }
@@ -332,17 +342,13 @@ function toggleLanguageEdit() {
 const getUserInfo = async () => {
   try {
     const data = await AuthService.getUserInfo();
-    console.log(data);
-    // 假设 data 是对象格式
     profile.value = {
       name: data.name || "None",
       Email: data.email || "None",
       role: data.role || "None",
       Wecom: data.wecom || "None",
-      avatar: data.avatar || "None",
+      avatar: data.avatar || "https://avatars.githubusercontent.com/u/163859507?v=4",
     };
-    // 可选：打印结果确认赋值
-    console.log(profile.value);
   } catch (error) {
     console.error('获取任务数据失败:', error);
   }
@@ -353,7 +359,6 @@ onMounted( () => {
 });
 
 </script>
-
 
 <style>
 .cropper-container {

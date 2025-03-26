@@ -66,3 +66,8 @@ class SqliteData:
         user_info = await cls.cursor.fetchone()
         print(user_info)
         return user_info if user_info else None
+
+    @classmethod
+    async def update_userinfo(cls, username, kind, value):
+        await cls.cursor.execute("UPDATE userinfo SET " + kind + " = ? WHERE wecom = ?", (value, username))
+        await cls.conn.commit()
