@@ -45,21 +45,20 @@ async def send_message(access_token, user_id, message_content):
 
 
 async def get_userid_by_mobile(mobile):
+    #返回结果为userid字符串
     async with aiohttp.ClientSession() as session:
         # 获取access_token
         token_url = f"https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={corp_id}&corpsecret={secret}"
         async with session.get(token_url) as token_resp:
             token_data = await token_resp.json()
             if token_data.get('errcode') != 0:
-                return None, token_data
-
+                return None
             access_token = token_data['access_token']
-
             # 查询UserID
             userid_url = f"https://qyapi.weixin.qq.com/cgi-bin/user/getuserid?access_token={access_token}"
             async with session.post(userid_url, json={"mobile": mobile}) as user_resp:
                 user_data = await user_resp.json()
-                return user_data.get('userid'), user_data
+                return user_data.get('userid')
 
 # 主函数
 async def send(user_id, message_content):
@@ -69,6 +68,6 @@ async def send(user_id, message_content):
 # # 运行主函数
 if __name__ == "__main__":
     mobile=input("mobile:")
-    user_id=asyncio.run(get_userid_by_mobile(mobile))[0]
+    user_id=asyncio.run(get_userid_by_mobile(mobile))
     print(f"user_id:{user_id}")
     asyncio.run(send(user_id, "你的作业送到了，请注意查收"))
