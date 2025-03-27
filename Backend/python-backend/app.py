@@ -61,7 +61,9 @@ def create_app():
     app = Flask(__name__)
 
     # 配置CORS和JWT
-    CORS(app, resources={r"/*": {"methods": ["GET", "POST", "PUT", "DELETE"]}})
+    CORS(app, resources={
+        r"/api/*": {"origins": ["http://localhost:5173"], "methods": ["GET", "POST", "PUT", "DELETE"]}
+    })
     app.config["JWT_SECRET_KEY"] = Config.jwt_secret_key()
     jwt = JWTManager(app)
 
