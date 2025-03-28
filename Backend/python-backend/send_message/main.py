@@ -45,7 +45,7 @@ async def send_message(access_token, user_id, message_content):
 
 
 async def get_userid_by_mobile(mobile):
-    #返回结果为userid字符串
+    # 通过手机号获取企业微信用户ID
     async with aiohttp.ClientSession() as session:
         # 获取access_token
         token_url = f"https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={corp_id}&corpsecret={secret}"
@@ -60,6 +60,31 @@ async def get_userid_by_mobile(mobile):
                 user_data = await user_resp.json()
                 return user_data.get('userid')
 
+async def get_userid_by_email(email):
+    # 通过邮箱获取企业微信用户ID
+    async with aiohttp.ClientSession() as session:
+        token_url = f"https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={corp_id}&corpsecret={secret}"
+        async with session.get(token_url) as token_response:
+            token_res = await token_response.json()
+
+            if token_res.get("errcode") != 0:
+                raise Exception(f"获取access_token失败: {token_res.get('errmsg')}")
+
+            access_token = token_res["access_token"]
+            params = {
+                "access_token": access_token
+            }
+            payload = {
+                "email": email,
+                "email_type":2 # 邮箱类型，1：企业邮箱，2：个人邮箱
+            }
+            async with session.post("https://qyapi.weixin.qq.com/cgi-bin/user/get_userid_by_email", params=params, json=payload) as user_response:
+                user_res = await user_response.json()
+                if user_res.get("errcode") == 0:
+                    return user_res.get("userid")
+                else:
+                    raise Exception(f"查询失败: {user_res.get('errmsg')}")
+
 # 主函数
 async def send(user_id, message_content):
     access_token = await get_access_token(corp_id, secret)
@@ -67,7 +92,9 @@ async def send(user_id, message_content):
 
 # # 运行主函数
 if __name__ == "__main__":
-    mobile=input("mobile:")
-    user_id=asyncio.run(get_userid_by_mobile(mobile))
+    # mobile=input("mobile:")
+    # user_id=asyncio.run(get_userid_by_mobile(mobile))
+    email=input("email:")
+    user_id=asyncio.run(get_userid_by_email(email))
     print(f"user_id:{user_id}")
     asyncio.run(send(user_id, "你的作业送到了，请注意查收"))
