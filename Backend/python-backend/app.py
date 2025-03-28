@@ -61,7 +61,14 @@ def create_app():
     app = Flask(__name__)
 
     # 配置CORS和JWT
-    CORS(app)
+    CORS(app, resources={
+        r"/api/*": {
+            "origins": ["http://localhost:5173"],
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"],
+            "supports_credentials": True
+        }
+    })
     app.config["JWT_SECRET_KEY"] = Config.jwt_secret_key()
     jwt = JWTManager(app)
 
@@ -398,6 +405,6 @@ app = create_app()
 
 if __name__ == '__main__':
     asyncio.run(SqliteData.initialize())
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    app.run(host='0.0.0.0', port=8080, debug=False)
 
 

@@ -1,6 +1,22 @@
 import aiosqlite
 import hashlib
 
+"""
+    数据库
+
+    wecom: 老师工号
+    wecom_id: 老师企微的user_id
+    name: 老师姓名
+    password: 老师密码
+    department: 老师部门（可选）
+    position: 老师职位（可选）
+    mobile: 老师手机号
+    language: 老师语言（默认Chinese）
+    email: 老师邮箱（可选）
+    avatar_text: 老师头像文字（可选）
+
+"""
+
 class SqliteData:
 
     @classmethod
