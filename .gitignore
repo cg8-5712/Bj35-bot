@@ -34,3 +34,4 @@ dist-ssr
 
 tree.txt
 doc.md
+/Backend/.env
