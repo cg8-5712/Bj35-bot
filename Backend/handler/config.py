@@ -29,7 +29,13 @@ import time
 from dotenv import load_dotenv
 
 # 加载.env文件，指定文件位置
-load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.env'))
+load_dotenv(
+    os.path.join(
+        os.path.dirname(
+            os.path.abspath(__file__)),
+        '..',
+        '.env'))
+
 
 class Config:
     @classmethod
@@ -42,7 +48,6 @@ class Config:
         # print(os.getenv("accessToken"))
         return os.getenv("accessToken")  # 返回accessToken
 
-
     @classmethod
     def expiration(cls):
         """
@@ -53,7 +58,8 @@ class Config:
         expiration_str = os.getenv("expiration")  # 获取过期时间字符串
         print(expiration_str)
         # 将时间字符串转换为时间戳
-        return int(time.mktime(time.strptime(expiration_str, '%Y-%m-%dT%H:%M:%S+08:00')))
+        return int(time.mktime(time.strptime(
+            expiration_str, '%Y-%m-%dT%H:%M:%S+08:00')))
 
     @classmethod
     def accessKeyId(cls):
@@ -78,7 +84,7 @@ class Config:
         :return: str
         """
         return os.getenv("SECRET_KEY")
-    
+
     @classmethod
     def jwt_secret_key(cls):
         """
@@ -99,7 +105,7 @@ class Config:
         一楼作业柜、二楼作业柜、三楼作业柜
         up to date on 2025-03-05 08:24:40.871318+00:00
         """
-        targets_list =[
+        targets_list = [
             {"value": "B101", "label": "B101"},
             {"value": "B102", "label": "B102"},
             {"value": "B103", "label": "B103"},

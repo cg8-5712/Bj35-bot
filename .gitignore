@@ -34,3 +34,6 @@ dist-ssr
 
 tree.txt
 doc.md
+
+/Backend/.env
+/Backend/user-data.sqlite

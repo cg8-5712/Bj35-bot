@@ -10,6 +10,7 @@ import json
 access_token = Config.accessToken()
 # print(access_token)
 
+
 def create_headers():
     # 创建请求头，包含签名随机数、时间戳、访问密钥ID和访问令牌
     signatureNonce = str(uuid.uuid4())
@@ -19,12 +20,14 @@ def create_headers():
                'token': str(access_token)}
     return headers
 
+
 async def get_device_list():
     # 异步获取设备列表
     headers = create_headers()
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.get(f'https://open-api.yunjiai.cn/v3/device/list?accessToken%3D{access_token}') as response:
             return json.loads(await response.text())
+
 
 async def get_device_status(device_id):
     # 异步获取指定设备的状态
@@ -33,12 +36,14 @@ async def get_device_status(device_id):
         async with session.get(f'https://open-api.yunjiai.cn/v3/robot/{device_id}/status?accessToken%3D{access_token}') as response:
             return json.loads(await response.text())
 
+
 async def get_device_task(device_id):
     # 异步获取指定设备的任务列表
     headers = create_headers()
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.get(f'https://open-api.yunjiai.cn/v3/robots/{device_id}/tasks') as response:
             return json.loads(await response.text())
+
 
 async def get_school_tasks(pageSize, current):
     # 异步获取学校任务列表，支持分页
@@ -50,12 +55,14 @@ async def get_school_tasks(pageSize, current):
         async with session.get(f'https://open-api.yunjiai.cn/v3/rcs/task/list', params=params) as response:
             return json.loads(await response.text())
 
+
 async def get_cabin_position(device_id):
     # 异步获取指定设备的仓位位置
     headers = create_headers()
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.get(f'https://open-api.yunjiai.cn/v3/robot/{device_id}/position') as response:
             return json.loads(await response.text())
+
 
 async def reset_cabin_position(device_id, position):
     # 异步重置指定设备的仓位位置
@@ -64,6 +71,7 @@ async def reset_cabin_position(device_id, position):
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.put(f'https://open-api.yunjiai.cn/v3/robot/up/cabin/{device_id}/reset-position', json=data) as response:
             return json.loads(await response.text())
+
 
 async def get_running_task():
     # 异步获取正在运行的任务列表
@@ -80,78 +88,85 @@ async def get_running_task():
 #         async with session.get(f'https://open-api.yunjiai.cn/v3/rcs/task/running-task/list', json={'storeId': storeId}) as response:
 #             return json.loads(await response.text())
 
+
 async def make_task_flow_move_target_and_lift_down(device_id, target):
     # 异步创建任务流，移动到指定目标并放下货柜
     headers = create_headers()
     data = {
-          "outTaskId": str(uuid.uuid4()),
-          "templateId": "dock_cabin_and_move_target_and_lift_down",
-          "storeId": Config.store_Id(),
-          "params": {
+        "outTaskId": str(uuid.uuid4()),
+        "templateId": "dock_cabin_and_move_target_and_lift_down",
+        "storeId": Config.store_Id(),
+        "params": {
             "dockCabinId": device_id,
             "target": target
-  }
-}
+        }
+    }
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.post(f'https://open-api.yunjiai.cn/v3/rcs/task/flow/execute', json=data) as response:
             return json.loads(await response.text())
 
-async def make_task_flow_docking_cabin_and_move_target(device_id,target):
+
+async def make_task_flow_docking_cabin_and_move_target(device_id, target):
     # 异步创建任务流，对接货柜并移动到指定目标
     headers = create_headers()
     data = {
-              "outTaskId": str(uuid.uuid4()),
-              "templateId": "docking_cabin_and_move_target",
-              "storeId": Config.store_Id(),
-              "params": {
-                "dockCabinId": device_id,
-                # "chassisId": "3949399854845849594854",
-                "target": target
-              }
-            }
+        "outTaskId": str(uuid.uuid4()),
+        "templateId": "docking_cabin_and_move_target",
+        "storeId": Config.store_Id(),
+        "params": {
+            "dockCabinId": device_id,
+            # "chassisId": "3949399854845849594854",
+            "target": target
+        }
+    }
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.post(f'https://open-api.yunjiai.cn/v3/rcs/task/flow/execute', json=data) as response:
             return json.loads(await response.text())
 
-async def make_task_flow_dock_cabin_and_move_target_with_wait_action(device_id,target,overtime):
+
+async def make_task_flow_dock_cabin_and_move_target_with_wait_action(
+        device_id, target, overtime):
     # 异步创建任务流，对接货柜并移动到指定目标，支持等待操作
     headers = create_headers()
     data = {
-              "outTaskId": str(uuid.uuid4()),
-              "templateId": "dock_cabin_and_move_target_with_wait_action",
-              "storeId": Config.store_Id(),
-              "params": {
-                "dockCabinId": device_id,
-                # "chassisId": "3949399854845849594854",
-                "target": target,
-                "overtime": overtime,
-                "overtimeEvent": "back"
-              }
-            }
+        "outTaskId": str(uuid.uuid4()),
+        "templateId": "dock_cabin_and_move_target_with_wait_action",
+        "storeId": Config.store_Id(),
+        "params": {
+            "dockCabinId": device_id,
+            # "chassisId": "3949399854845849594854",
+            "target": target,
+            "overtime": overtime,
+            "overtimeEvent": "back"
+        }
+    }
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.post(f'https://open-api.yunjiai.cn/v3/rcs/task/flow/execute', json=data) as response:
             return json.loads(await response.text())
 
-async def make_task_flow_move_and_lift_down(device_id,dockingMarker, target):
+
+async def make_task_flow_move_and_lift_down(device_id, dockingMarker, target):
     # 异步创建任务流，移动到指定目标并放下货柜
     headers = create_headers()
     data = {
-              "outTaskId": str(uuid.uuid4()),
-              "templateId": "dock_cabin_to_move_and_lift_down",
-              "storeId": Config.store_Id(),
-              "params": {
-              "dockCabinId": device_id,
-              "target": target
-              }
-}
+        "outTaskId": str(uuid.uuid4()),
+        "templateId": "dock_cabin_to_move_and_lift_down",
+        "storeId": Config.store_Id(),
+        "params": {
+            "dockCabinId": device_id,
+            "target": target
+        }
+    }
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.post(f'https://open-api.yunjiai.cn/v3/rcs/task/flow/execute', json=data) as response:
             return json.loads(await response.text())
 
+
 async def get_device_by_id(device_id):
     """根据设备ID获取设备对象"""
-     # 实现略，可从数据库或设备管理服务获取
+    # 实现略，可从数据库或设备管理服务获取
     return {"id": device_id, "type": "robot"}
+
 
 async def goto_charge(device_id):
     # 异步发送指令使设备移动到充电站
@@ -161,17 +176,20 @@ async def goto_charge(device_id):
         async with session.post(f'https://open-api.yunjiai.cn/v3/robot/{device_id}/goto-charge', json=data) as response:
             return json.loads(await response.text())
 
+
 async def sleep(time):
     # 异步休眠指定时间
     await asyncio.sleep(time)
 
+
 async def check(device_id):
-    res=await get_device_status(device_id)
-    status=res["data"]["deviceStatus"]["lockers"][1]["status"]
-    if status=="OPEN":
+    res = await get_device_status(device_id)
+    status = res["data"]["deviceStatus"]["lockers"][1]["status"]
+    if status == "OPEN":
         return "open"
-    elif status=="CLOSE":
+    elif status == "CLOSE":
         return "close"
+
 
 async def RUN(locations, device_id):
     """执行任务流
@@ -245,12 +263,12 @@ if __name__ == '__main__':
     # asyncio.run(make_task_flow_dock_cabin_and_move_target_with_wait_action(device_bot1_cabin, "一层作业柜", 5))
     list = []
     while True:
-        s=input("请输入目标位置:")
-        if s=="exit":
+        s = input("请输入目标位置:")
+        if s == "exit":
             break
         list.append(s)
     asyncio.run(RUN(list))
-    print("查询任务:\n",asyncio.run(get_school_tasks(3,1)))
+    print("查询任务:\n", asyncio.run(get_school_tasks(3, 1)))
 
     # for i in range(10):
     #     asyncio.run(sleep(5))

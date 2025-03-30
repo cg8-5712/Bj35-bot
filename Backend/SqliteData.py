@@ -1,5 +1,5 @@
 import aiosqlite
-import hashlib
+
 
 class SqliteData:
 
@@ -48,8 +48,15 @@ class SqliteData:
     async def get_userinfo_by_username(cls, username, kind):
         await cls.cursor.execute("SELECT * FROM userinfo WHERE " + kind + " = ?", (username,))
         user_info = await cls.cursor.fetchone()
-        print(user_info)
-        return user_info if user_info else None
+        if user_info:
+            # 获取列名
+            columns = [column[0] for column in cls.cursor.description]
+            # 将列名与查询结果组合成字典
+            user_info_dict = dict(zip(columns, user_info))
+            print(user_info_dict)
+            return user_info_dict
+        else:
+            return None
 
     @classmethod
     async def update_userinfo(cls, username, kind, value):

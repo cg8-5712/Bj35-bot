@@ -20,9 +20,9 @@
 - 访问令牌管理
 
 ## 技术栈
-- 前端：<img src="https://skillicons.dev/icons?i=html,css,javascript,vue,nodejs,tailwind">
-- 后端：<img src="https://skillicons.dev/icons?i=py">
-- 数据库：<img src="https://skillicons.dev/icons?i=sqlite">
+- 前端：`HTML JavaScript Vue Vite TailwindCSS`
+- 后端：`Python`
+- 数据库：`Sqlite`
 
 ## 快速开始
 
@@ -156,6 +156,5 @@ GPL-3.0 License
 
 ## 相关文档
 
-- [开发文档](docs/开发文档.md)
-- [API文档](docs/api文档.txt)
-- [集成接口文档](docs/云迹-UP机器人二次开发（集成）接口.pdf)
+- [API文档](docs/开发文档.md)
+- [API文档-pdf](docs/云迹-UP机器人二次开发（集成）接口.pdf)

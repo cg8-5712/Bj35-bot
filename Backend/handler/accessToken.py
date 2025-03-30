@@ -31,6 +31,8 @@ import aiohttp
 import asyncio
 
 # Function to generate signature asynchronously
+
+
 async def generate_signature_async(params, access_key_secret):
     # Sort request parameters in dictionary order
     sorted_params = sorted(params.items())
@@ -38,7 +40,8 @@ async def generate_signature_async(params, access_key_secret):
     print(f"Sorted request parameters: {sorted_params}")
 
     # Construct canonical request string
-    canonical_string = "&".join([f"{key}={value}" for key, value in sorted_params])
+    canonical_string = "&".join(
+        [f"{key}={value}" for key, value in sorted_params])
     print(f"Canonical request string: {canonical_string}")
 
     # Construct HMAC signature
@@ -101,8 +104,11 @@ async def get_access_token_async(access_key_id, access_key_secret):
 access_key_id = "6DkfdbFN1lrz1I1c"
 access_key_secret = "keH70VXm8Es1o3krnSsblpJu646FfciD"
 
+
 def get_access_token(access_key_id, access_key_secret):
-    return asyncio.run(get_access_token_async(access_key_id, access_key_secret))
+    return asyncio.run(get_access_token_async(
+        access_key_id, access_key_secret))
+
 
 try:
     access_token = get_access_token(access_key_id, access_key_secret)

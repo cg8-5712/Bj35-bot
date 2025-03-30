@@ -67,12 +67,7 @@ class AuthService {
 
   getUsername() {
     const userInfo = this.getUserInfo();
-    return userInfo ? userInfo.sub : null;
-  }
-
-  getUserAvatar() {
-    const userInfo = this.getUserInfo();
-    return userInfo ? userInfo.avatar : null;
+    return userInfo ? userInfo.username : null;
   }
 }
 

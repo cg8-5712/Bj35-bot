@@ -198,6 +198,7 @@ import {
   XMarkIcon,
 } from '@heroicons/vue/24/outline'
 import { ChevronDownIcon } from '@heroicons/vue/20/solid'
+import ApiServices from "@/services/ApiServices.js";
 
 const router = useRouter()
 const sidebarOpen = ref(false)
@@ -274,7 +275,8 @@ function handleResize() {
 // 在组件挂载时添加事件监听器
 onMounted(async () => {
   username.value = AuthService.getUsername()
-  useravatar.value = AuthService.getUserAvatar()
+  useravatar.value = ApiServices.getUserAvatar()
+  console.log(useravatar.value)
   window.addEventListener('resize', handleResize)
   await setActiveView(navigation[0])
 })

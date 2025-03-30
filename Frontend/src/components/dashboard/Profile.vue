@@ -342,14 +342,15 @@ function toggleLanguageEdit() {
 
 const getUserInfo = async () => {
   try {
-    const data = await AuthService.getUserInfo();
+    const data = await ApiServices.getUserInfo();
     profile.value = {
       name: data.name || "None",
       Email: data.email || "None",
-      role: data.role || "None",
+      role: data.department || "None",
       Wecom: data.wecom || "None",
-      avatar: data.avatar || "https://avatars.githubusercontent.com/u/163859507?v=4",
+      avatar: data.avatar_text || "https://avatars.githubusercontent.com/u/163859507?v=4",
     };
+    console.log(profile.mobile);
   } catch (error) {
     console.error('获取任务数据失败:', error);
   }

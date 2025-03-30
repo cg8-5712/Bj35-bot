@@ -8,7 +8,6 @@ import requests
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 
-
 class WXWorkMessageSimulator:
     def __init__(self, token, encoding_aes_key):
         """
@@ -22,7 +21,8 @@ class WXWorkMessageSimulator:
 
     def _generate_random_str(self, length=16):
         """生成指定长度的随机字符串"""
-        return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+        return ''.join(random.choices(
+            string.ascii_letters + string.digits, k=length))
 
     def _encrypt(self, plaintext):
         """
@@ -37,12 +37,14 @@ class WXWorkMessageSimulator:
 
         # 拼接明文： [16字节随机字符串] + [4字节消息长度] + [明文] + [企业CorpID]
         msg_len = len(byte_plaintext).to_bytes(4, byteorder="big")
-        full_plaintext = byte_random_str + msg_len + byte_plaintext + b"wwf7b517dadde6fcc6"  # CorpID 可留空或填写测试值
+        full_plaintext = byte_random_str + msg_len + \
+            byte_plaintext + b"wwf7b517dadde6fcc6"  # CorpID 可留空或填写测试值
         cipher = AES.new(self.aes_key, AES.MODE_CBC, iv=self.aes_key[:16])
         ciphertext = cipher.encrypt(pad(full_plaintext, AES.block_size))
         return base64.b64encode(ciphertext).decode("utf-8")
 
-    def generate_verify_request(self, plaintext="Though the path be broken and uncertain, claim your place as Elden Lord"):
+    def generate_verify_request(
+            self, plaintext="Though the path be broken and uncertain, claim your place as Elden Lord"):
         """
         生成模拟企业微信验证服务器的 GET 请求参数
         :param plaintext: 明文 echostr（默认值可自定义）
@@ -54,7 +56,8 @@ class WXWorkMessageSimulator:
         encrypted_echostr = self._encrypt(plaintext)
 
         # 计算签名
-        signature_list = sorted([self.token, timestamp, nonce, encrypted_echostr])
+        signature_list = sorted(
+            [self.token, timestamp, nonce, encrypted_echostr])
         signature_str = "".join(signature_list)
         signature = hashlib.sha1(signature_str.encode("utf-8")).hexdigest()
 
@@ -69,7 +72,8 @@ class WXWorkMessageSimulator:
 if __name__ == "__main__":
     # ------------------ 配置参数 ------------------
     TOKEN = "Bj35"  # 替换为企业微信后台配置的 Token
-    ENCODING_AES_KEY = "7DYzzFxM4kIDoVYFTQL5n75LxNIvSgRBNALzWyxgaVF"  # 替换为 43 位的 EncodingAESKey
+    # 替换为 43 位的 EncodingAESKey
+    ENCODING_AES_KEY = "7DYzzFxM4kIDoVYFTQL5n75LxNIvSgRBNALzWyxgaVF"
 
     # ------------------ 测试示例 ------------------
     simulator = WXWorkMessageSimulator(TOKEN, ENCODING_AES_KEY)
