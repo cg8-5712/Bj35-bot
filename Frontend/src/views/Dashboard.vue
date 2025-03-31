@@ -177,6 +177,7 @@
 import { ref, shallowRef, onMounted, onBeforeUnmount, defineAsyncComponent } from 'vue'
 import { useRouter } from 'vue-router'
 import AuthService from '@/services/AuthService'
+import ApiServices from '@/services/ApiServices'
 
 import {
   Dialog,
@@ -274,7 +275,8 @@ function handleResize() {
 // 在组件挂载时添加事件监听器
 onMounted(async () => {
   username.value = AuthService.getUsername()
-  useravatar.value = AuthService.getUserAvatar()
+  useravatar.value = await ApiServices.getUserAvatar()
+  console.log(username.value, useravatar.value)
   window.addEventListener('resize', handleResize)
   await setActiveView(navigation[0])
 })

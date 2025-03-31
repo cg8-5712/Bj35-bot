@@ -72,6 +72,8 @@ class AuthService {
 
   getUserAvatar() {
     const userInfo = this.getUserInfo();
+    console.log(userInfo);
+    console.log(userInfo.avatar);
     return userInfo ? userInfo.avatar : null;
   }
 }

@@ -10,94 +10,194 @@
 
 <template>
   <div>
+    <div class="mb-5">
+      <h1 class="text-2xl font-semibold text-gray-900">机器人状态列表</h1>
+      <p class="mt-1 text-sm text-gray-500">点击查看机器人详细信息</p>
+    </div>
     <LoadingSpinner v-if="loading" message="加载中..." />
     <div v-else>
-      <div class="border-b border-gray-200 pb-5 m-5">
-        <h3 class="text-2xl font-semibold text-gray-900">机器人状态列表</h3>
-        <p class="mt-2 max-w-4xl text-sm text-gray-500">点击查看机器人详细信息</p>
-      </div>
-      <ul role="list" class="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
-        <li v-for="robot in robots" :key="robots.id" class="overflow-hidden rounded-xl border border-gray-200">
+      <TransitionGroup 
+        name="stagger-fade" 
+        tag="ul" 
+        class="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8"
+        role="list"
+      >
+        <li 
+          v-for="(robot, index) in robots" 
+          :key="robot.id" 
+          class="overflow-hidden rounded-xl border border-gray-200 slide-in-right cursor-pointer hover:shadow-md transition-shadow"
+          :style="{ animationDelay: `${index * 150}ms` }"
+          @click="showRobotDetail(robot)"
+        >
           <div class="flex items-center gap-x-4 border-b border-gray-900/5 bg-gray-50 p-6">
             <img :src="robot.imageUrl" :alt="robot.name" class="size-12 flex-none rounded-lg bg-white object-cover ring-1 ring-gray-900/10" />
-            <div class="text-sm/6 font-medium text-gray-900">{{ robot.name }}</div>
-            <Menu as="div" class="relative ml-auto">
-              <MenuButton class="-m-2.5 block p-2.5 text-gray-400 hover:text-gray-500">
-                <span class="sr-only">查看更多</span>
-                <EllipsisHorizontalIcon class="size-5" aria-hidden="true" />
-              </MenuButton>
-              <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
-                <MenuItems class="absolute right-0 z-10 mt-0.5 w-32 origin-top-right rounded-md bg-white py-2 ring-1 shadow-lg ring-gray-900/5 focus:outline-hidden">
-                  <MenuItem v-slot="{ active }">
-                    <a href="#" :class="[active ? 'bg-gray-50 outline-hidden' : '', 'block px-3 py-1 text-sm/6 text-gray-900']"
-                      >状态预览<span class="sr-only">, {{ robot.name }}</span></a
-                    >
-                  </MenuItem>
-                </MenuItems>
-              </transition>
-            </Menu>
+            <div class="flex flex-col min-w-0 flex-1">
+              <div class="text-sm font-medium text-gray-900">{{ robot.name }}</div>
+              <div class="text-xs text-gray-500 truncate" :title="robot.id">ID: {{ robot.id }}</div>
+            </div>
+            <div class="flex-shrink-0 p-2 rounded-full" :class="robot.status.isOnline ? 'bg-green-50' : 'bg-red-50'">
+              <div class="w-3 h-3 rounded-full" :class="robot.status.isOnline ? 'bg-green-500' : 'bg-red-500'"></div>
+            </div>
           </div>
           <dl class="-my-3 divide-y divide-gray-100 px-6 py-4 text-sm/6">
             <div class="flex justify-between gap-x-4 py-3">
               <dt class="text-gray-500">电量</dt>
-              <dd class="text-gray-700"> {{ robot.status.power }} </dd>
+              <dd class="text-gray-700 flex items-center">
+                <div class="w-16 bg-gray-200 rounded-full h-1.5 mr-2 dark:bg-gray-700">
+                  <div 
+                    class="h-1.5 rounded-full" 
+                    :class="getBatteryColorClass(robot.status.power)"
+                    :style="`width: ${robot.status.power}%`"
+                  ></div>
+                </div>
+                {{ robot.status.power }}%
+                <div v-if="robot.status.isCharging" class="ml-2 text-xs text-gray-500">充电中</div>
+              </dd>
             </div>
             <div class="flex justify-between gap-x-4 py-3">
               <dt class="text-gray-500">任务状态</dt>
               <dd class="flex items-start gap-x-2">
-                <div class="font-medium text-gray-900">{{ robot.status.amount }}</div>
+                <div class="font-medium text-gray-900">{{ robot.status.message }}</div>
                 <div :class="[statuses[robot.status.status], 'rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset']">{{ robot.status.status }}</div>
               </dd>
             </div>
+            <div class="flex justify-between gap-x-4 py-3">
+              <dt class="text-gray-500">位置</dt>
+              <dd class="text-gray-700">{{ robot.status.location }}</dd>
+            </div>
+            <div class="flex justify-between gap-x-4 py-3">
+              <dt class="text-gray-500">货仓ID</dt>
+              <dd class="text-gray-700">{{ robot.cabinId }}</dd>
+            </div>
           </dl>
         </li>
-      </ul>
+      </TransitionGroup>
+      
+      <!-- 没有数据时显示 -->
+      <div v-if="robots.length === 0" class="text-center py-20">
+        <div class="mx-auto h-12 w-12 text-gray-400">
+          <svg class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h3 class="mt-2 text-sm font-semibold text-gray-900">暂无机器人数据</h3>
+        <p class="mt-1 text-sm text-gray-500">检查网络连接或联系管理员</p>
+      </div>
     </div>
+    
+    <!-- 机器人详情模态框 -->
+    <RobotDetail 
+      v-model:isOpen="isDetailOpen" 
+      :robot="selectedRobot" 
+      class="bg-opacity-50"
+    />
   </div>
 </template>
 
 <script setup>
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
-import { EllipsisHorizontalIcon } from '@heroicons/vue/20/solid'
+import { TransitionGroup } from 'vue'
 
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import ApiServices from '@/services/ApiServices'
 import NotificationService from '@/services/NotificationService'
+import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
+import RobotDetail from '@/components/dashboard/RobotDetail.vue'
 
+// 状态样式映射
 const statuses = {
-  空闲: 'text-green-700 bg-green-50 ring-green-600/20',
-  执行任务中: 'text-yellow-600 bg-yellow-50 ring-yellow-500/30',
+  '空闲': 'text-green-700 bg-green-50 ring-green-600/20',
+  '执行任务中': 'text-yellow-600 bg-yellow-50 ring-yellow-500/30',
+  '未知': 'text-gray-600 bg-gray-50 ring-gray-500/10',
+  '错误': 'text-red-700 bg-red-50 ring-red-600/10'
 }
 
-const robots = [
-  {
-    id: 1,
-    name: 'Tuple',
-    imageUrl: 'https://tailwindcss.com/plus-assets/img/logos/48x48/tuple.svg',
-    status: { power: 'December 13, 2022', dateTime: '2022-12-13', amount: '$2,000.00', status: '执行任务中' },
-  },
-  {
-    id: 2,
-    name: 'SavvyCal',
-    imageUrl: 'https://tailwindcss.com/plus-assets/img/logos/48x48/savvycal.svg',
-    status: { power: 'January 22, 2023', dateTime: '2023-01-22', amount: '$14,000.00', status: '空闲' },
-  },
-]
-
+// 状态数据
+const robots = ref([])
 const loading = ref(true)
 
-onMounted(async () => {
-  try {
-    const devices = await ApiServices.getAllDevices()
+// 模态框状态
+const isDetailOpen = ref(false)
+const selectedRobot = ref({})
 
-    console.log('设备数据:', devices)
-    console.log('设备数据类型:', typeof devices)
+// 显示机器人详情
+function showRobotDetail(robot) {
+  selectedRobot.value = {
+    ...robot,
+    lastActivity: new Date() // 这里可以从 robot 对象中获取真实的最后活动时间
+  }
+  console.log(selectedRobot.value.status.isCharging)
+  isDetailOpen.value = true
+}
+
+// 获取电量颜色类
+function getBatteryColorClass(power) {
+  if (power > 50) return 'bg-green-600'
+  if (power > 20) return 'bg-yellow-300'
+  return 'bg-red-600'
+}
+
+// 获取设备列表
+async function fetchRobots() {
+  try {
+    loading.value = true
+    const response = await ApiServices.getRobotList()
+    robots.value = response.data
   } catch (error) {
-    console.error('获取设备列表失败:', error)
-    NotificationService.notify('获取设备列表失败', 'error')
+    console.error('获取机器人列表失败:', error)
+    NotificationService.notify('获取机器人列表失败: ' + error.message, 'error')
   } finally {
     loading.value = false
   }
+}
+
+function startAutoRefresh() {
+  refreshTimer = setInterval(() => {
+    fetchRobots()
+  }, REFRESH_INTERVAL)
+}
+
+// 生命周期钩子
+onMounted(() => {
+  fetchRobots()
 })
 
 </script>
+
+<style scoped>
+@keyframes slideInRight {
+  from {
+    transform: translateX(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.slide-in-right {
+  animation: slideInRight 0.6s ease-out forwards;
+  opacity: 0; /* 初始状态是透明的 */
+}
+
+/* 列表进入/离开过渡 */
+.stagger-fade-enter-active,
+.stagger-fade-leave-active {
+  transition: all 0.3s ease;
+}
+.stagger-fade-enter-from,
+.stagger-fade-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+/* 确保列表项在离开时有正确的定位 */
+.stagger-fade-leave-active {
+  position: absolute;
+}
+
+/* 确保列表在项目移动时平滑过渡 */
+.stagger-fade-move {
+  transition: transform 0.5s ease;
+}
+</style>

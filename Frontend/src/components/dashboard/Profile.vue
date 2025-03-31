@@ -63,7 +63,7 @@
     <main class="px-4 py-16 sm:px-0 lg:px-0 lg:py-20">
       <div class="flex justify-end mb-8">
         <div class="relative inline-block">
-          <img :src="profileData.avatar" alt="Avatar" class="w-64 h-64 rounded-full object-cover" />
+          <img :src="profile.avatar" alt="Avatar" class="w-64 h-64 rounded-full obj ect-cover" />
           <button
             class="absolute bottom-4 right-4 bg-white p-2 rounded-full shadow hover:bg-gray-100"
             @click="openCropper"
@@ -217,15 +217,14 @@ const profile = ref({
     Email: "None",
     role: "None",
     Wecom: "None",
-    avatar: "None",
+    avatar: ""
 })
 
 const profileData = computed(() => ({
   "Name": profile.value.name || "None",
   "Email address": profile.value.Email || "None",
   "Title": profile.value.role || "None",
-  "Wecom": profile.value.Wecom + "@北京三十五中" || "None",
-  "Avatar": profile.value.avatar || "https://avatars.githubusercontent.com/u/163859507?v=4",
+  "Wecom": profile.value.Wecom + "@北京三十五中" || "None"
 }))
 
 const editingField = ref(null)
@@ -247,10 +246,11 @@ async function saveField(key) {
 
   try {
     // 将已编辑的值保存到本地 profile 对象中
-    profile.value[key.toLowerCase()] = editingValue.value;
+    // 使用原始的 key 而不是 key.toLowerCase()
+    profile.value[key.replace(/\s+/g, '')] = editingValue.value;
 
     // 调用 updateUserProfile 方法并传入编辑后的字段和值
-    const updateResponse = await ApiServices.updateUserProfile({ [key.toLowerCase()]: editingValue.value });
+    const updateResponse = await ApiServices.updateUserProfile({ [key.replace(/\s+/g, '').toLowerCase()]: editingValue.value });
 
     // 根据 API 返回的数据进行处理
     if (updateResponse.success) {
@@ -266,6 +266,7 @@ async function saveField(key) {
     editingValue.value = '';
   }
 }
+
 
 
 function validateEmail(email) {
@@ -341,14 +342,16 @@ function toggleLanguageEdit() {
 
 const getUserInfo = async () => {
   try {
-    const data = await AuthService.getUserInfo();
+    const data = await ApiServices.getUserInfo();
+    console.log(data);
     profile.value = {
       name: data.name || "None",
       Email: data.email || "None",
-      role: data.role || "None",
+      role: data.department || "None",
       Wecom: data.wecom || "None",
-      avatar: data.avatar || "https://avatars.githubusercontent.com/u/163859507?v=4",
+      avatar: data.avatar_text || "https://avatars.githubusercontent.com/u/163859507?v=4",
     };
+    console.log(profile.mobile);
   } catch (error) {
     console.error('获取任务数据失败:', error);
   }

@@ -5,12 +5,12 @@ import datetime
 import hashlib
 import logging
 from functools import wraps
+
 from send_message.main import send
 from handler import api
 from handler.config import Config
 from SqliteData import SqliteData
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
 
 # 配置日志
 logging.basicConfig(
@@ -29,32 +29,38 @@ ROBOT_LOCATION_MAPPING = {
     "1309097": "办公楼三楼",
 }
 
+
 def find_kind_by_username(string, values):
     for value, kind in values:
         if value == string:
             return string, kind
     return None
 
+
 def get_robot_name(robot_id):
     """根据机器人ID获取友好名称"""
     prefix = robot_id[:7] if len(robot_id) >= 7 else robot_id
     return ROBOT_LOCATION_MAPPING.get(prefix, f"Robot-{prefix}")
 
+
 async def get_user(username, password):
     """验证用户凭据"""
     username_list = await SqliteData.get_login_username_list()
     values = [(v, key) for key, lst in username_list.items() for v in lst]
-    kind = find_kind_by_username(username, values)[1] if find_kind_by_username(username, values) else None
+    kind = find_kind_by_username(
+        username, values)[1] if find_kind_by_username(
+        username, values) else None
     print(kind)
     if not kind:
         return None
     password_hash = await SqliteData.get_password_by_username(username, kind)
     return (username, kind) if password == password_hash else None
 
+
 async def get_user_info(username, kind):
-    """获取用户头像"""
-    avatar = await SqliteData.get_userinfo_by_username(username, kind)
-    return avatar
+    info = await SqliteData.get_userinfo_by_username(username, kind)
+    return info
+
 
 def create_app():
     """应用工厂函数，创建并配置Flask应用"""
@@ -62,12 +68,7 @@ def create_app():
 
     # 配置CORS和JWT
     CORS(app, resources={
-        r"/api/*": {
-            "origins": ["http://localhost:5173"],
-            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-            "allow_headers": ["Content-Type", "Authorization"],
-            "supports_credentials": True
-        }
+        r"/api/*": {"origins": ["http://localhost:5173"], "methods": ["GET", "POST", "PUT", "DELETE"]}
     })
     app.config["JWT_SECRET_KEY"] = Config.jwt_secret_key()
     jwt = JWTManager(app)
@@ -153,7 +154,7 @@ def register_routes(app):
         <body>
             <h1>Welcome to BJ35-Bot API Server</h1>
             <p>This server provides APIs for controlling and monitoring robots.</p>
-            <p>For more information, please visit 
+            <p>For more information, please visit
                <a href="https://github.com/cg8-5712/Bj35-bot/blob/main/Backend/python-backend/api/readme.md">
                Readme.md</a>
             </p>
@@ -181,16 +182,8 @@ def register_routes(app):
                 identity=user[0],
                 expires_delta=expires_delta,
                 additional_claims={
-                    'username': username,
-                    'kind': user[1],
-                    'wecom': user_info[0],
-                    'wecom_id': user_info[1],
-                    'name': user_info[2],
-                    'role': user_info[4],  # 在实际应用中，角色应从数据库获取
-                    'mobile_number': user_info[6],
-                    'language': user_info[7],
-                    'email': user_info[8],
-                    'avatar': user_info[9],
+                    'username': user_info['name'],
+                    'role': user_info['department'],  # 在实际应用中，角色应从数据库获取
                 }
             )
             app.logger.info(f"User {username} logged in successfully")
@@ -249,7 +242,8 @@ def register_routes(app):
         cabin_position = await api.get_cabin_position(device_id)
         return jsonify(cabin_position)
 
-    @app.route(URI_PREFIX + '/reset-cabin-position/<device_id>/<position>', methods=['PUT'])
+    @app.route(URI_PREFIX +
+               '/reset-cabin-position/<device_id>/<position>', methods=['PUT'])
     @jwt_required()
     @error_handler
     async def reset_cabin_position(device_id, position):
@@ -258,7 +252,8 @@ def register_routes(app):
         return jsonify(result)
 
     # 任务相关路由
-    @app.route(URI_PREFIX + '/school-tasks/<pagesize>/<currentpage>', methods=['GET'])
+    @app.route(URI_PREFIX + '/school-tasks/<pagesize>/<currentpage>',
+               methods=['GET'])
     @jwt_required()
     @error_handler
     async def fetch_school_tasks(pagesize, currentpage):
@@ -278,7 +273,8 @@ def register_routes(app):
         running_task = await api.get_running_task()
         return jsonify(running_task)
 
-    @app.route(URI_PREFIX + '/task/move-lift-down/<device_id>/<docking_marker>/<target>', methods=['POST'])
+    @app.route(URI_PREFIX +
+               '/task/move-lift-down/<device_id>/<docking_marker>/<target>', methods=['POST'])
     @jwt_required()
     @error_handler
     async def task_move_and_lift(device_id, docking_marker, target):
@@ -286,7 +282,8 @@ def register_routes(app):
         result = await api.make_task_flow_move_and_lift_down(device_id, docking_marker, target)
         return jsonify(result)
 
-    @app.route(URI_PREFIX + '/task/docking-cabin-move/<device_id>/<target>', methods=['POST'])
+    @app.route(URI_PREFIX +
+               '/task/docking-cabin-move/<device_id>/<target>', methods=['POST'])
     @jwt_required()
     @error_handler
     async def task_dock_and_move(device_id, target):
@@ -294,7 +291,8 @@ def register_routes(app):
         result = await api.make_task_flow_docking_cabin_and_move_target(device_id, target)
         return jsonify(result)
 
-    @app.route(URI_PREFIX + '/task/docking-cabin-move/<device_id>/<target>', methods=['POST'])
+    @app.route(URI_PREFIX +
+               '/task/docking-cabin-move/<device_id>/<target>', methods=['POST'])
     @jwt_required()
     @error_handler
     async def task_dock_and_back(device_id, target):
@@ -341,6 +339,17 @@ def register_routes(app):
         target_list = Config.target_list()
         return target_list
 
+    @app.route(URI_PREFIX + '/get_user_profile', methods=['GET'])
+    @jwt_required()
+    @error_handler
+    async def get_user_profile():
+        username = request.args.get('username')
+        print(username)
+        info = await SqliteData.get_userinfo_by_username(username, 'name')
+        print(info)
+        print(type(info))
+        return jsonify(info), 200
+
     @app.route(URI_PREFIX + '/post_user_profile', methods=['POST'])
     @jwt_required()
     @error_handler
@@ -348,13 +357,67 @@ def register_routes(app):
         data = request.json
         print(data)
 
+        # 从请求中获取key和value
+        key = list(data.keys())[0]
+        value = data[key]
+
+        # # 验证邮箱地址，如果需要
+        # if key.lower() == "email address":
+        #     if not validate_email(value):
+        #         return jsonify({'success': False, 'message': 'Invalid email address.'}), 400
+        #     print(f"A verification email has been sent to {value}.")
+
+        # 将已编辑的值保存到本地profile对象中
+        # 这里假设profile是一个字典
+        profile = {}
+        profile[key.replace(' ', '')] = value
+
+        print(profile)
+
+        # 调用update_user_profile方法并传入编辑后的字段和值
+        # update_response = await
+        # ApiServices.update_user_profile({key.replace(' ', '').lower():
+        # value})
+
+        update_response = {"success": True}
+
+        # 根据API返回的数据进行处理
+        if update_response['success']:
+            print("Profile updated successfully!")
+            return jsonify(
+                {'success': True, 'message': 'Profile updated successfully!'}), 200
+
+        else:
+            return jsonify(
+                {'success': False, 'message': update_response['message']}), 400
+
+    @app.route(URI_PREFIX + '/post_user_avatar', methods=['POST'])
+    @jwt_required()
+    @error_handler
+    async def post_user_avatar():
+        data = request.json
+        print(data)
+        update_response = {"success": True}
+
+        # 根据API返回的数据进行处理
+        if update_response['success']:
+            print("Profile updated successfully!")
+            return jsonify(
+                {'success': True, 'message': 'Profile updated successfully!'}), 200
+
+        else:
+            return jsonify(
+                {'success': False, 'message': update_response['message']}), 400
+
 
 # 辅助函数
 async def process_robot_devices(device_list):
     """处理机器人设备列表"""
     # 分类设备
-    cabin_devices = [device for device in device_list if device.get('deviceType') == 'CABIN']
-    robot_devices = [device for device in device_list if device.get('deviceType') != 'CABIN']
+    cabin_devices = [
+        device for device in device_list if device.get('deviceType') == 'CABIN']
+    robot_devices = [
+        device for device in device_list if device.get('deviceType') != 'CABIN']
 
     # 创建机柜ID映射表
     cabin_map = {}
@@ -412,6 +475,4 @@ app = create_app()
 
 if __name__ == '__main__':
     asyncio.run(SqliteData.initialize())
-    app.run(host='0.0.0.0', port=8080, debug=False)
-
-
+    app.run(host='0.0.0.0', port=8080, debug=True)

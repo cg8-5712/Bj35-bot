@@ -144,13 +144,60 @@ class ApiServices extends ApiPrefix {
     }
   }
 
+  async getUserInfo() {
+  try {
+    const user = AuthService.getUserInfo();
+    const info = await this.get('/get_user_profile', { username: user.username });
+    // console.log(info);
+    // if (info.code !== 0) {
+    //   throw new Error(info.message);
+    // }
+    return info;
+  } catch (error) {
+    throw error;
+  }
+}
+  async getUserAvatar() {
+    try {
+      const userinfo = await this.getUserInfo();
+      const avatar = userinfo.avatar_text;
+      console.log(avatar);
+      return avatar;
+  } catch (error) {
+    throw error;
+    }
+  }
+
+  async gettargetlist() {
+    try {
+      const targetlist = await this.get('/target-list');
+      return targetlist;
+  } catch (error) {
+    throw error;
+    }
+  }
+
   async updateUserProfile(data) {
       try {
         const response = await this.post('/post_user_profile', data);
+        //
+        // if (response.code !== 0) {
+        //   throw new Error(response.message);
+        // }
 
-        if (response.code !== 0) {
-          throw new Error(response.message);
-        }
+        return response;
+      } catch (error) {
+        throw error;
+      }
+    }
+
+    async updateUserAvatar(data) {
+      try {
+        const response = await this.post('/post_user_avatar', data);
+        //
+        // if (response.code !== 0) {
+        //   throw new Error(response.message);
+        // }
 
         return response;
       } catch (error) {
