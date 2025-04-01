@@ -1,14 +1,25 @@
 import requests
 import pandas as pd
-import json
 from time import time
+
+'''
+35中企业：
+企业ID：ww8e4628d565c6588f
+应用Secret：f03d8WfJfKpgX3NG84pXMaN7a6G1xOY2QummZNZh_Xg
+应用AgentId：1000166
+
+我的企业：
+企业ID：wwf7b517dadde6fcc6
+应用Secret：hPUCEvAKMm3o8X6pWNLtF89dKQyDkJhuktiGefpKyjo
+应用AgentId：1000002
+'''
 
 
 class WeComAPI:
     def __init__(self, corpid, corpsecret):
         self.corpid = corpid
         self.corpsecret = corpsecret
-        self.token_expire = 0  # token过期时间戳
+        self.token_expire = 0
         self.access_token = ""
 
     def _get_access_token(self):
@@ -26,7 +37,7 @@ class WeComAPI:
             data = response.json()
             if data.get("errcode") == 0:
                 self.access_token = data["access_token"]
-                self.token_expire = time() + data["expires_in"] - 60  # 提前60秒刷新
+                self.token_expire = time() + data["expires_in"] - 60
                 return True
             else:
                 print(f"获取access_token失败: {data}")
@@ -35,7 +46,7 @@ class WeComAPI:
         return False
 
     def get_all_users_basic(self):
-        """获取所有成员基础信息（优化版本）"""
+        """获取所有成员基础信息"""
         if not self._get_access_token():
             return None
 
@@ -56,58 +67,31 @@ class WeComAPI:
             print(f"获取成员列表异常: {str(e)}")
         return None
 
-    def get_user_detail(self, userid):
-        """获取成员详细信息（包含手机号等敏感信息）"""
-        if not self._get_access_token():
-            return None
+    def export_to_excel(self, filename="user_list.xlsx"):
+        """导出用户名和userid到Excel"""
+        users = self.get_all_users_basic()
+        if not users:
+            print("没有获取到用户数据")
+            return False
 
-        url = "https://qyapi.weixin.qq.com/cgi-bin/user/get"
-        params = {
-            "access_token": self.access_token,
-            "userid": userid
-        }
+        # 提取需要的字段
+        data = []
+        for user in users:
+            data.append({
+                "姓名": user.get("name", ""),
+                "UserID": user.get("userid", "")
+            })
 
+        # 创建DataFrame并保存
         try:
-            response = requests.get(url, params=params, timeout=5)
-            data = response.json()
-            if data.get("errcode") == 0:
-                return {
-                    "userid": data["userid"],
-                    "name": data.get("name", ""),
-                    "mobile": data.get("mobile", ""),
-                    "department": data.get("department", []),
-                    "position": data.get("position", ""),
-                    "gender": data.get("gender", 0),
-                    "email": data.get("email", ""),
-                    "status": data.get("status", 1)
-                }
-            print(f"获取用户 {userid} 详细信息失败: {data}")
+            df = pd.DataFrame(data)
+            df.to_excel(filename, index=False, engine="openpyxl")
+            print(f"成功导出 {len(df)} 条数据到 {filename}")
+            return True
         except Exception as e:
-            print(f"获取用户 {userid} 信息异常: {str(e)}")
-        return None
-
-    def get_all_users_full_info(self):
-        """获取所有成员的完整信息"""
-        # 先获取基础用户列表
-        basic_users = self.get_all_users_basic()
-        if not basic_users:
-            return None
-
-        full_users = []
-        success_count = 0
-        total = len(basic_users)
-
-        for idx, user in enumerate(basic_users, 1):
-            print(f"正在获取 {user['userid']} 的详细信息 ({idx}/{total})...")
-            detail = self.get_user_detail(user["userid"])
-            if detail:
-                # 合并基础信息和详细信息
-                merged = {**user, **detail}
-                full_users.append(merged)
-                success_count += 1
-
-        print(f"\n信息获取完成！成功获取 {success_count}/{total} 用户的信息")
-        return full_users
+            print(f"导出Excel失败: {str(e)}")
+            print("请确保已安装依赖库：pip install pandas openpyxl")
+            return False
 
 
 # 使用示例
@@ -118,15 +102,8 @@ if __name__ == "__main__":
 
     wecom = WeComAPI(CORP_ID, CORP_SECRET)
 
-    # 获取所有用户完整信息
-    all_users = wecom.get_all_users_full_info()
-
-    if all_users!= None:
-        print("\n用户信息示例：")
-        for user in all_users:
-            print(json.dumps(user, indent=2, ensure_ascii=False))
-
-        df = pd.DataFrame(all_users)
-        df.to_excel("wecom_users.xlsx", index=False)
+    # 导出到Excel
+    if wecom.export_to_excel():
+        print("导出成功！")
     else:
-        print("未能获取用户信息")
+        print("导出失败")
