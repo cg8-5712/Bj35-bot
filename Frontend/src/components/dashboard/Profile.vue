@@ -248,13 +248,16 @@ async function saveField(key) {
     // 将已编辑的值保存到本地 profile 对象中
     // 使用原始的 key 而不是 key.toLowerCase()
     profile.value[key.replace(/\s+/g, '')] = editingValue.value;
-
     // 调用 updateUserProfile 方法并传入编辑后的字段和值
-    const updateResponse = await ApiServices.updateUserProfile({ [key.replace(/\s+/g, '').toLowerCase()]: editingValue.value });
+    const updateResponse = await ApiServices.updateUserProfile({ "name_old": profile.value.name ,[key.replace(/\s+/g, '').toLowerCase()]: editingValue.value });
 
     // 根据 API 返回的数据进行处理
     if (updateResponse.success) {
       alert('Profile updated successfully!');
+      if (key.replace(/\s+/g, '').toLowerCase() === "name") {
+        AuthService.logout()
+        await router.push('/login')
+      }
     } else {
       alert(`Failed to update profile. Reason: ${updateResponse.message}`);
     }

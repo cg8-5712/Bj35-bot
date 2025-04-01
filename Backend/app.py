@@ -355,11 +355,6 @@ def register_routes(app):
     @error_handler
     async def post_user_profile():
         data = request.json
-        print(data)
-
-        # 从请求中获取key和value
-        key = list(data.keys())[0]
-        value = data[key]
 
         # # 验证邮箱地址，如果需要
         # if key.lower() == "email address":
@@ -367,19 +362,9 @@ def register_routes(app):
         #         return jsonify({'success': False, 'message': 'Invalid email address.'}), 400
         #     print(f"A verification email has been sent to {value}.")
 
-        # 将已编辑的值保存到本地profile对象中
-        # 这里假设profile是一个字典
-        profile = {}
-        profile[key.replace(' ', '')] = value
-
-        print(profile)
-
         # 调用update_user_profile方法并传入编辑后的字段和值
-        # update_response = await
-        # ApiServices.update_user_profile({key.replace(' ', '').lower():
-        # value})
-
-        update_response = {"success": True}
+        update_response = await SqliteData.update_userinfo(data)
+        # update_response = {"success": True}
 
         # 根据API返回的数据进行处理
         if update_response['success']:
