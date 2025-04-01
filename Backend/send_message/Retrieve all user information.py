@@ -122,7 +122,6 @@ if __name__ == "__main__":
     all_users = wecom.get_all_users_full_info()
 
     if all_users!= None:
-        # 打印前5个用户信息示例
         print("\n用户信息示例：")
         for user in all_users:
             print(json.dumps(user, indent=2, ensure_ascii=False))

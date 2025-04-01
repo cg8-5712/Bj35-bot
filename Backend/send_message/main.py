@@ -3,6 +3,18 @@ import asyncio
 import json
 
 # 企业微信API配置
+'''
+35中企业：
+企业ID：ww8e4628d565c6588f
+应用Secret：f03d8WfJfKpgX3NG84pXMaN7a6G1xOY2QummZNZh_Xg
+应用AgentId：1000166
+
+我的企业：
+企业ID：wwf7b517dadde6fcc6
+应用Secret：hPUCEvAKMm3o8X6pWNLtF89dKQyDkJhuktiGefpKyjo
+应用AgentId：1000002
+'''
+
 corp_id = "ww8e4628d565c6588f"  # 企业ID
 secret = "f03d8WfJfKpgX3NG84pXMaN7a6G1xOY2QummZNZh_Xg"  # 应用Secret
 agent_id = "1000166"  # 应用AgentId
@@ -92,10 +104,9 @@ async def send(user_id, message_content):
 
 # # 运行主函数
 if __name__ == "__main__":
-    #mobile=input("mobile:")
-    #user_id=asyncio.run(get_userid_by_mobile(mobile))
+    mobile=input("mobile:")
+    user_id=asyncio.run(get_userid_by_mobile(mobile))
     #email=input("email:")
     #user_id=asyncio.run(get_userid_by_email(email))
-    user_id="YuLu"
     print(f"user_id:{user_id}")
     asyncio.run(send(user_id, "你的作业送到了，请注意查收"))
