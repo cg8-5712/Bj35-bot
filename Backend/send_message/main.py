@@ -5,7 +5,7 @@ import json
 # 企业微信API配置
 corp_id = "ww8e4628d565c6588f"  # 企业ID
 secret = "f03d8WfJfKpgX3NG84pXMaN7a6G1xOY2QummZNZh_Xg"  # 应用Secret
-agent_id = "1000002"  # 应用AgentId
+agent_id = "1000166"  # 应用AgentId
 user_id = ""  # 接收消息的用户ID
 
 # 获取access_token
@@ -92,9 +92,10 @@ async def send(user_id, message_content):
 
 # # 运行主函数
 if __name__ == "__main__":
-    # mobile=input("mobile:")
-    # user_id=asyncio.run(get_userid_by_mobile(mobile))
-    email=input("email:")
-    user_id=asyncio.run(get_userid_by_email(email))
+    #mobile=input("mobile:")
+    #user_id=asyncio.run(get_userid_by_mobile(mobile))
+    #email=input("email:")
+    #user_id=asyncio.run(get_userid_by_email(email))
+    user_id="YuLu"
     print(f"user_id:{user_id}")
     asyncio.run(send(user_id, "你的作业送到了，请注意查收"))

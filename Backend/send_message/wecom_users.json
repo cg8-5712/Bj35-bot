@@ -1,0 +1,118 @@
+[
+  {
+    "name": "程禹赫",
+    "department": [
+      1
+    ],
+    "position": "",
+    "status": 1,
+    "enable": 1,
+    "isleader": 0,
+    "extattr": {
+      "attrs": []
+    },
+    "hide_mobile": 0,
+    "telephone": "",
+    "order": [
+      0
+    ],
+    "external_profile": {
+      "external_attr": [],
+      "external_corp_name": ""
+    },
+    "main_department": 1,
+    "alias": "",
+    "is_leader_in_dept": [
+      0
+    ],
+    "userid": "13031051909",
+    "direct_leader": [],
+    "mobile": "",
+    "gender": 0,
+    "email": ""
+  },
+  {
+    "name": "Cg8",
+    "department": [
+      1
+    ],
+    "position": "",
+    "status": 1,
+    "enable": 1,
+    "isleader": 0,
+    "extattr": {
+      "attrs": []
+    },
+    "hide_mobile": 0,
+    "telephone": "",
+    "order": [
+      0
+    ],
+    "main_department": 1,
+    "alias": "",
+    "is_leader_in_dept": [
+      0
+    ],
+    "userid": "DongZhiChengwatt",
+    "direct_leader": [],
+    "mobile": "",
+    "gender": 0,
+    "email": ""
+  },
+  {
+    "name": "杨静娴",
+    "department": [
+      1
+    ],
+    "position": "",
+    "status": 1,
+    "enable": 1,
+    "isleader": 0,
+    "extattr": {
+      "attrs": []
+    },
+    "hide_mobile": 0,
+    "telephone": "",
+    "order": [
+      0
+    ],
+    "main_department": 1,
+    "alias": "",
+    "is_leader_in_dept": [
+      0
+    ],
+    "userid": "YuLu",
+    "direct_leader": [],
+    "mobile": "",
+    "gender": 0,
+    "email": ""
+  },
+  {
+    "name": "魏立轩",
+    "department": [
+      1
+    ],
+    "position": "",
+    "status": 1,
+    "enable": 1,
+    "isleader": 0,
+    "extattr": {
+      "attrs": []
+    },
+    "hide_mobile": 0,
+    "telephone": "",
+    "order": [
+      0
+    ],
+    "main_department": 1,
+    "alias": "0515wlx",
+    "is_leader_in_dept": [
+      0
+    ],
+    "userid": "0515wlx",
+    "direct_leader": [],
+    "mobile": "",
+    "gender": 0,
+    "email": ""
+  }
+]
