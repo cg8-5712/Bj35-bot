@@ -1,4 +1,5 @@
 import requests
+import pandas as pd
 import json
 from time import time
 
@@ -126,9 +127,7 @@ if __name__ == "__main__":
         for user in all_users:
             print(json.dumps(user, indent=2, ensure_ascii=False))
 
-        # 可选：保存到文件
-        # with open("wecom_users.json", "w", encoding="utf-8") as f:
-        #     json.dump(all_users, f, indent=2, ensure_ascii=False)
-        #     print("\n已保存完整数据到 wecom_users.json")
+        df = pd.DataFrame(all_users)
+        df.to_excel("wecom_users.xlsx", index=False)
     else:
         print("未能获取用户信息")
