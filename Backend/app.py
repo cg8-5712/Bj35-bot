@@ -9,7 +9,7 @@ from functools import wraps
 from send_message.main import send
 from handler import api
 from handler.config import Config
-from SqliteData import SqliteData
+from handler.SqliteData import SqliteData
 import asyncio
 
 # 配置日志
