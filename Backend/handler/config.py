@@ -32,6 +32,21 @@ from dotenv import load_dotenv
 load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.env'))
 
 class Config:
+
+    @classmethod
+    def database_config(cls):
+        return {
+            'host': os.getenv('DB_HOST', 'localhost'),
+            'port': int(os.getenv('DB_PORT', '5432')),
+            'database': os.getenv('DB_NAME', 'userdata'),
+            'user': os.getenv('DB_USER', 'postgres'),
+            'password': os.getenv('DB_PASSWORD', 'password'),
+            'min_size': int(os.getenv('DB_POOL_MIN_SIZE', '5')),
+            'max_size': int(os.getenv('DB_POOL_MAX_SIZE', '10')),
+            'ssl': os.getenv('DB_SSL', 'false').lower() == 'true'
+        }
+
+
     @classmethod
     def accessToken(cls):
         """
@@ -41,19 +56,6 @@ class Config:
         """
         # print(os.getenv("accessToken"))
         return os.getenv("accessToken")  # 返回accessToken
-
-
-    @classmethod
-    def expiration(cls):
-        """
-        expiration time
-        with no params
-        :return: the expiration time timestamp -> int
-        """
-        expiration_str = os.getenv("expiration")  # 获取过期时间字符串
-        print(expiration_str)
-        # 将时间字符串转换为时间戳
-        return int(time.mktime(time.strptime(expiration_str, '%Y-%m-%dT%H:%M:%S+08:00')))
 
     @classmethod
     def accessKeyId(cls):

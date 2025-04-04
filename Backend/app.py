@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+import asyncio
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
@@ -9,7 +11,7 @@ from functools import wraps
 from send_message.main import send
 from handler import api
 from handler.config import Config
-from handler.SqliteData import SqliteData
+from handler.PostgreSQLConnector import PostgreSQLConnector
 import asyncio
 
 # 配置日志
@@ -45,21 +47,10 @@ def get_robot_name(robot_id):
 
 async def get_user(username, password):
     """验证用户凭据"""
-    username_list = await SqliteData.get_login_username_list()
-    values = [(v, key) for key, lst in username_list.items() for v in lst]
-    kind = find_kind_by_username(
-        username, values)[1] if find_kind_by_username(
-        username, values) else None
-    print(kind)
-    if not kind:
-        return None
-    password_hash = await SqliteData.get_password_by_username(username, kind)
-    return (username, kind) if password == password_hash else None
-
+    return await PostgreSQLConnector.verify_user_credentials(username, password)
 
 async def get_user_info(username, kind):
-    info = await SqliteData.get_userinfo_by_username(username, kind)
-    return info
+    return await PostgreSQLConnector.get_userinfo_by_username(username, kind)
 
 
 def create_app():
@@ -345,7 +336,7 @@ def register_routes(app):
     async def get_user_profile():
         username = request.args.get('username')
         print(username)
-        info = await SqliteData.get_userinfo_by_username(username, 'name')
+        info = await PostgreSQLConnector.get_userinfo_by_username(username, 'name')
         print(info)
         print(type(info))
         return jsonify(info), 200
@@ -363,7 +354,7 @@ def register_routes(app):
         #     print(f"A verification email has been sent to {value}.")
 
         # 调用update_user_profile方法并传入编辑后的字段和值
-        update_response = await SqliteData.update_userinfo(data)
+        update_response = await PostgreSQLConnector.update_userinfo(data)
         # update_response = {"success": True}
 
         # 根据API返回的数据进行处理
@@ -459,5 +450,13 @@ async def process_robot_devices(device_list):
 app = create_app()
 
 if __name__ == '__main__':
-    asyncio.run(SqliteData.initialize())
+    async def init_db():
+        try:
+            await PostgreSQLConnector.initialize()
+        except Exception as e:
+            logging.critical(f"数据库初始化失败，应用将退出: {e}")
+            exit(1)
+
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(init_db())
     app.run(host='0.0.0.0', port=8080, debug=True)
