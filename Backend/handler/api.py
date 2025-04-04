@@ -167,10 +167,10 @@ async def sleep(time):
 
 async def check(device_id):
     res=await get_device_status(device_id)
-    status=res["data"]["deviceStatus"]["lockers"][1]["status"]
-    if status=="OPEN":
+    status=[res["data"]["deviceStatus"]["lockers"][0]["status"], res["data"]["deviceStatus"]["lockers"][1]["status"]]
+    if "OPEN" in status:
         return "open"
-    elif status=="CLOSE":
+    elif status==["CLOSE", "CLOSE"]:
         return "close"
 
 async def RUN(locations, device_id):
