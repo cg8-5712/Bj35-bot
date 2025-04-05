@@ -482,17 +482,18 @@ def log_token_expiry():
         logging.error(f"获取token过期时间失败：{str(e)}")
 # 创建应用实例
 app = create_app()
+loop = asyncio.get_event_loop()
+
+async def init_db():
+    try:
+        await PostgreSQLConnector.initialize()
+    except Exception as e:
+        logging.critical(f"数据库初始化失败，应用将退出: {e}")
+        exit(1)
+
+loop.run_until_complete(init_db())
 
 if __name__ == '__main__':
-    async def init_db():
-        try:
-            await PostgreSQLConnector.initialize()
-        except Exception as e:
-            logging.critical(f"数据库初始化失败，应用将退出: {e}")
-            exit(1)
-
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(init_db())
 
     log_token_expiry()
     loop.create_task(daily_check())
