@@ -90,6 +90,16 @@ class Config:
         return os.getenv("JWT_SECRET_KEY")
 
     @classmethod
+    def expire_time(cls):
+        """
+        expire time
+        :return: int
+        """
+        expire_time = os.getenv("EXPIRE_TIME")
+        return int(time.mktime(time.strptime(expire_time, '%Y-%m-%dT%H:%M:%S+08:00')))
+
+
+    @classmethod
     def target_list(cls):
         """
         返回教室位置

@@ -20,18 +20,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-
-
+import re
+import os
 import hashlib
 import hmac
 import base64
 import time
 import uuid
 import aiohttp
-import asyncio
+from dotenv import load_dotenv
+
+from config import Config
 
 # Function to generate signature asynchronously
-async def generate_signature_async(params, access_key_secret):
+async def generate_signature(params, access_key_secret):
     # Sort request parameters in dictionary order
     sorted_params = sorted(params.items())
 
@@ -53,9 +55,9 @@ async def generate_signature_async(params, access_key_secret):
 
 
 # Method to get accessToken
-async def get_access_token_async(access_key_id, access_key_secret):
+async def get_access_token(access_key_id, access_key_secret):
     # Current timestamp
-    timestamp = time.strftime('%Y-%m-%dT%H:%M:%S+08:00', time.gmtime())
+    timestamp = time.strftime('%Y-%m-%dT%H:%M:%S+08:00', time.localtime())
 
     print(f"Current timestamp: {timestamp}")
 
@@ -73,7 +75,7 @@ async def get_access_token_async(access_key_id, access_key_secret):
     }
 
     # Generate signature
-    signature = await generate_signature_async(params, access_key_secret)
+    signature = await generate_signature(params, access_key_secret)
 
     # Add signature to request parameters
     params["signature"] = signature
@@ -93,19 +95,51 @@ async def get_access_token_async(access_key_id, access_key_secret):
     # Parse response
     async with aiohttp.ClientSession() as session:
         async with session.post(url, json=params) as response:
-            response_data = await response.json()
-            print(response_data)
-            raise Exception(f"Error: {response_data['message']}")
+            response_json = await response.json()
+            if response_json["code"] == 0:
+                return response_json
+            else:
+                raise Exception(f"Failed to obtain accessToken: {response_json['msg']}")
 
 
-access_key_id = "6DkfdbFN1lrz1I1c"
-access_key_secret = "keH70VXm8Es1o3krnSsblpJu646FfciD"
 
-def get_access_token(access_key_id, access_key_secret):
-    return asyncio.run(get_access_token_async(access_key_id, access_key_secret))
 
-try:
-    access_token = get_access_token(access_key_id, access_key_secret)
-    print(f"Obtained accessToken: {access_token}")
-except Exception as e:
-    print(f"Failed to obtain accessToken: {e}")
+async def update_access_token():
+    access_key_id = Config.accessKeyId()
+    access_key_secret = Config.SECRET_KEY()
+    data = await get_access_token(access_key_id, access_key_secret)
+    if data["code"] == 0:
+        access_token = data["data"]["accessToken"]
+        expiration = data["data"]["expiration"]
+        env_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.env')
+
+        # 读取原始文件内容
+        try:
+            with open(env_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+        except Exception as e:
+            print(f"读取.env文件失败: {e}")
+            return
+
+        # 使用正则表达式更新accessToken和EXPIRE_TIME的值
+        new_content = re.sub(
+            r"(?i)^(accessToken\s*=\s*).*$",
+            f"accessToken = {access_token}",
+            content,
+            flags=re.MULTILINE
+        )
+        new_content = re.sub(
+            r"(?i)^(EXPIRE_TIME\s*=\s*).*$",
+            f"EXPIRE_TIME = {expiration}",
+            new_content,
+            flags=re.MULTILINE
+        )
+
+        # 写回更新后的内容到.env文件
+        try:
+            with open(env_file, 'w', encoding='utf-8') as f:
+                f.write(new_content)
+            load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.env'))
+            return True
+        except Exception as e:
+            return e
