@@ -97,8 +97,8 @@ class WeComAPI:
 # 使用示例
 if __name__ == "__main__":
     # 配置企业信息
-    CORP_ID = "wwf7b517dadde6fcc6"
-    CORP_SECRET = "hPUCEvAKMm3o8X6pWNLtF89dKQyDkJhuktiGefpKyjo"
+    CORP_ID = "ww8e4628d565c6588f"
+    CORP_SECRET = "f03d8WfJfKpgX3NG84pXMaN7a6G1xOY2QummZNZh_Xg"
 
     wecom = WeComAPI(CORP_ID, CORP_SECRET)
 
