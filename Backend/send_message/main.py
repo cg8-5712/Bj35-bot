@@ -3,7 +3,7 @@ import asyncio
 import json
 
 corp_id = "ww8e4628d565c6588f"  # 企业ID
-secret = "f03d8WfJfKpgX3NG84pXMaN7a6G1xOY2QummZNZh_Xg"  # 应用Secret
+secret = "f03d8WfJfKpgX3NG84pXMZOaZ0E_xW9NuaP68ImWtUE"  # 应用Secret
 agent_id = "1000166"  # 应用AgentId
 user_id = ""  # 接收消息的用户ID
 
