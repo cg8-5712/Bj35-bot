@@ -126,13 +126,14 @@ class WeComAPI:
             print(f"导出Excel失败: {str(e)}")
             return False
 
+CORP_ID = ""
+CORP_SECRET = ""
 
 # 修改后的使用示例
 if __name__ == "__main__":
     # 企业微信配置
-    CORP_ID = "ww8e4628d565c6588f"
-    CORP_SECRET = "f03d8WfJfKpgX3NG84pXMZOaZ0E_xW9NuaP68ImWtUE"
-
+    CORP_ID = input("请输入企业ID：")
+    CORP_SECRET = input("请输入应用Secret：")
     # 数据库配置（按实际情况修改）
     DB_CONFIG = {
         "host": "192.168.101.138",
