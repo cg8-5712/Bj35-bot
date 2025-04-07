@@ -2,19 +2,6 @@ import requests
 import pandas as pd
 from time import time
 
-'''
-35中企业：
-企业ID：ww8e4628d565c6588f
-应用Secret：f03d8WfJfKpgX3NG84pXMaN7a6G1xOY2QummZNZh_Xg
-应用AgentId：1000166
-
-我的企业：
-企业ID：wwf7b517dadde6fcc6
-应用Secret：hPUCEvAKMm3o8X6pWNLtF89dKQyDkJhuktiGefpKyjo
-应用AgentId：1000002
-'''
-
-
 class WeComAPI:
     def __init__(self, corpid, corpsecret):
         self.corpid = corpid
