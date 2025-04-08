@@ -37,22 +37,16 @@ def get_department_uesr_list(access_token, department_id):
 
 def write():
     get_access_token(CORP_ID, CORP_SECRET)
-    child_department_list = get_child_department(access_token, department_id=1)
-    if child_department_list:
-        for department_id in child_department_list:
-            user_list = get_department_uesr_list(access_token, department_id)
+    child_department_id_list = get_child_department(access_token, department_id=1)
+    if child_department_id_list:
+        for department_id in child_department_id_list:
+            id=department_id['id']
+            user_list = get_department_uesr_list(access_token, id)
             if user_list:
                 for user in user_list:
-                    print(user['name']," ",user['userid']," ",user['mobile']," ",user['gender']," ",user['email']," ",user['status']," ",user['address'])
-            else:
-                print("获取成员信息失败")
+                    print(f"name:{user['name']} userid:{user['userid']}")
     else:
         print("获取子部门列表失败")
 if __name__ == '__main__':
     access_token = get_access_token(CORP_ID, CORP_SECRET)
-    # userlist=get_simplelist(access_token, department_id=1)
-    # if userlist:
-    #     for user in userlist:
-    #         print(user['name']," ",user['userid'])
-    # else:
-    #     print("获取成员信息失败")
+    write()
