@@ -5,6 +5,8 @@ import psycopg2  # 新增数据库驱动
 from psycopg2 import sql
 from psycopg2.extras import execute_batch  # 用于批量插入
 
+CORP_ID = "ww8e4628d565c6588f"
+CORP_SECRET = "f03d8WfJfKpgX3NG84pXMaN7a6G1xOY2QummZNZh_Xg"
 
 class WeComAPI:
     def __init__(self, corpid, corpsecret, db_config=None):
@@ -48,7 +50,6 @@ class WeComAPI:
         if not self.db_config:
             print("未配置数据库信息")
             return False
-
         try:
             conn = psycopg2.connect(**self.db_config)
             self._create_users_table(conn)
@@ -65,7 +66,6 @@ class WeComAPI:
                     email = EXCLUDED.email,
                     status = EXCLUDED.status
             """)
-
             # 准备批量数据
             batch_data = []
             for user in users:
@@ -78,13 +78,11 @@ class WeComAPI:
                     user.get("email"),
                     user.get("status", 1)
                 ))
-
             with conn.cursor() as cursor:
                 execute_batch(cursor, insert_sql, batch_data)
                 conn.commit()
                 print(f"成功写入 {len(batch_data)} 条数据到数据库")
                 return True
-
         except Exception as e:
             print(f"数据库操作失败: {e}")
             conn.rollback()
@@ -126,21 +124,16 @@ class WeComAPI:
             print(f"导出Excel失败: {str(e)}")
             return False
 
-CORP_ID = ""
-CORP_SECRET = ""
-
 # 修改后的使用示例
 if __name__ == "__main__":
     # 企业微信配置
-    CORP_ID = input("请输入企业ID：")
-    CORP_SECRET = input("请输入应用Secret：")
     # 数据库配置（按实际情况修改）
     DB_CONFIG = {
         "host": "192.168.101.138",
         "port": "54321",
         "dbname": "wecom",
-        "user": "postgres",
-        "password": "your_db_password"
+        "user": "bj35bot",
+        "password": "z84bkuf3RXvkjE7f"
     }
 
     wecom = WeComAPI(CORP_ID, CORP_SECRET, DB_CONFIG)
