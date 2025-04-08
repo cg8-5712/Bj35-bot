@@ -6,7 +6,7 @@ from psycopg2 import sql
 from psycopg2.extras import execute_batch  # 用于批量插入
 
 CORP_ID = "ww8e4628d565c6588f"
-CORP_SECRET = "f03d8WfJfKpgX3NG84pXMaN7a6G1xOY2QummZNZh_Xg"
+CORP_SECRET = "f03d8WfJfKpgX3NG84pXMZOaZ0E_xW9NuaP68ImWtUE"
 
 class WeComAPI:
     def __init__(self, corpid, corpsecret, db_config=None):
