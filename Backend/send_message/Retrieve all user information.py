@@ -35,6 +35,17 @@ def get_department_uesr_list(access_token, department_id):
     else:
         raise Exception(f"获取成员信息失败: {data}")
 
+def get_user_all_info(access_token, user_id):
+    """获取企业微信的成员信息"""
+    url=f"https://qyapi.weixin.qq.com/cgi-bin/user/get?access_token={access_token}&userid={user_id}"
+    response = requests.get(url)
+    data = response.json()
+    if data.get('errcode') == 0:
+        return data
+    else:
+        raise Exception(f"获取成员信息失败: {data}")
+
+
 def write():
     get_access_token(CORP_ID, CORP_SECRET)
     child_department_id_list = get_child_department(access_token, department_id=1)
@@ -45,8 +56,9 @@ def write():
             if user_list:
                 for user in user_list:
                     print(f"name:{user['name']} userid:{user['userid']}")
-    else:
         print("获取子部门列表失败")
 if __name__ == '__main__':
     access_token = get_access_token(CORP_ID, CORP_SECRET)
-    write()
+    # write()
+    user_info = get_user_all_info(access_token, 1698)#刘继忠
+    print(user_info)
