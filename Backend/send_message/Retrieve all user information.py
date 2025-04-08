@@ -50,4 +50,3 @@ def write():
 if __name__ == '__main__':
     access_token = get_access_token(CORP_ID, CORP_SECRET)
     write()
-
