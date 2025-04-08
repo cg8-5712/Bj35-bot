@@ -57,6 +57,7 @@ def write():
                 for user in user_list:
                     print(f"name:{user['name']} userid:{user['userid']}")
         print("获取子部门列表失败")
+
 if __name__ == '__main__':
     access_token = get_access_token(CORP_ID, CORP_SECRET)
     # write()
