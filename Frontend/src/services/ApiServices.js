@@ -204,6 +204,23 @@ class ApiServices extends ApiPrefix {
         throw error;
       }
     }
+
+    async sendMessage(message, username) {
+      try {
+        const response = await this.post('/send-message', {
+          message,
+          username
+        });
+        
+        if (response.code !== 0) {
+          throw new Error(response.message);
+        }
+
+        return response;
+      } catch (error) {
+        throw error;
+      }
+    }
 }
 
 export default new ApiServices();

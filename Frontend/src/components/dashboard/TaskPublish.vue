@@ -439,63 +439,58 @@ async function publishTask() {
     return;
   }
 
-  console.log(taskNodes.value)
-//     {
-//         "id": "e5fdf3ee-a7de-4e4c-9b05-d29a79909108",
-//         "type": "move",
-//         "params": {
-//             "target": "C201",
-//             "user": "用户1",
-//             "message": "1234"
-//         }
-//     },
-//     {
-//         "id": "8e3a6d01-8686-45db-ac47-785e3b26acea",
-//         "type": "back",
-//         "params": {
-//             "charge_point": "1F"
-//         }
-//     },
-//     {
-//         "id": "0971d040-1314-4624-8cf0-d33898d53383",
-//         "type": "send",
-//         "params": {
-//             "user": "用户2",
-//             "message": "456"
-//         }
-//     }
-
   try {
-    // 将任务节点转换为位置列表
-    const locations = taskNodes.value.map(node => {
-      if (node.type === 'move') {
-        return node.params.target;
-      } else if (node.type === 'back') {
-        return node.params.charge_point;
+    // 处理所有任务节点
+    for (const node of taskNodes.value) {
+      if (node.type === 'send') {
+        // 发送消息节点
+        if (!node.params.user || !node.params.message) {
+          NotificationService.notify('发送消息需要指定用户和消息内容', 'warning');
+          continue;
+        }
+        
+        try {
+          await ApiServices.sendMessage(node.params.message, node.params.user);
+          NotificationService.notify(`消息已发送给 ${node.params.user}`, 'success');
+        } catch (error) {
+          NotificationService.notify(`发送消息失败: ${error.message}`, 'error');
+        }
       }
-      return null;
-    }).filter(Boolean);
-
-    // 调用新的RUN API
-
-    NotificationService.notify('任务已发布！', 'info');
-
-    const response = await ApiServices.post(`/run-task/${selectedRobot.value.id}`, {
-      locations: locations
-    });
-
-    if (!response) {
-      throw new Error('API响应为空');
     }
 
-    if (response.code === 0) {
-      NotificationService.notify('任务已执行成功', 'success');
-      // 返回结果已经是list格式
-      return response.data;
-    } else {
-      NotificationService.notify(`发布任务失败: ${response.message || '未知错误'}`, 'error');
-      return [];
+    // 将移动任务节点转换为位置列表
+    const locations = taskNodes.value
+      .filter(node => ['move', 'back'].includes(node.type))
+      .map(node => {
+        if (node.type === 'move') {
+          return node.params.target;
+        } else if (node.type === 'back') {
+          return node.params.charge_point;
+        }
+        return null;
+      })
+      .filter(Boolean);
+
+    // 如果有移动任务，调用RUN API
+    if (locations.length > 0) {
+      const response = await ApiServices.post(`/run-task/${selectedRobot.value.id}`, {
+        locations: locations
+      });
+
+      if (!response) {
+        throw new Error('API响应为空');
+      }
+
+      if (response.code === 0) {
+        NotificationService.notify('任务已执行成功', 'success');
+        return response.data;
+      } else {
+        throw new Error(response.message || '未知错误');
+      }
     }
+
+    NotificationService.notify('所有任务已处理完成', 'info');
+    return [];
   } catch (error) {
     console.error('发布任务失败:', error);
     NotificationService.notify(`发布任务失败: ${error.message || '未知错误'}`, 'error');
