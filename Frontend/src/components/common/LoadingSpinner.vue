@@ -5,7 +5,7 @@
  * @Link https://esaps.net/
  * @version 0.1.0
  * @license
- * 使用本代码需遵循 MIT 协议，以及 Tailwind Plus Personal 许可证
+ * 使用本代码需遵循 GPL3.0 协议，以及 Tailwind Plus Personal 许可证
 -->
 
 <template>
