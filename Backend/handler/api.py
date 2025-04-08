@@ -183,7 +183,6 @@ async def RUN(locations, device_id):
     Returns:
         dict: 包含执行结果的状态码和消息
     """
-    from time import sleep
     import logging
     logger = logging.getLogger(__name__)
 
@@ -206,6 +205,7 @@ async def RUN(locations, device_id):
 
                 # 执行任务
                 res = await make_task_flow_dock_cabin_and_move_target_with_wait_action(device_id, location, 300)
+
                 flag = False  # 标记是否完成一次开门关门 关门为 False 开门为 True
                 task_results.append(res)
                 logger.info(f'位置 {location} 任务执行结果: {res}')
@@ -213,9 +213,12 @@ async def RUN(locations, device_id):
                     res = await check(device_id)
                     if res == "open":
                         flag = True
+
                     if res == "close" and flag == True:
-                        break
+                        return {'code': 0, 'message': f'任务流执行成功，设备ID: {device_id}, 位置列表: {locations}'}
                     await asyncio.sleep(1)
+
+
 
             except Exception as e:
                 logger.error(f'位置 {location} 任务执行失败: {str(e)}')

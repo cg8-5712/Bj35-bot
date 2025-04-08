@@ -8,7 +8,7 @@ import hashlib
 import logging
 from functools import wraps
 import time
-import subprocess
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from send_message.main import send
 from handler import api
@@ -343,6 +343,14 @@ def register_routes(app):
         print(type(info))
         return jsonify(info), 200
 
+    @app.route(URI_PREFIX + '/send_message_to_user', methods=['POST'])
+    @jwt_required()
+    @error_handler
+    async def send_message_to_user():
+        data = request.json
+        user = data.get('user')
+        message = data.get('message')
+
     @app.route(URI_PREFIX + '/post_user_profile', methods=['POST'])
     @jwt_required()
     @error_handler
@@ -448,28 +456,23 @@ async def process_robot_devices(device_list):
 
     return robot_list
 
-async def daily_check():
-    while True:
-        now = datetime.datetime.now()
-        # 计算下一个0点时间
-        next_midnight = (now + datetime.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
-        delay = (next_midnight - now).total_seconds()
-        await asyncio.sleep(delay)
-        # 到达0点，检查是否会在当天过期
-        try:
-            expiration_ts = float(Config.expire_time())
-            expire_date = datetime.datetime.fromtimestamp(expiration_ts)
-            today = datetime.datetime.now().date()
-            if expire_date.date() == today:
-                logging.info("Access token将在今天过期，开始生成新的access token。")
-                result = await update_access_token()
-                if result:
-                    logging.info("新的access token生成成功。")
-                else:
-                    logging.error(f"生成新的access token失败：{result}")
-        except Exception as e:
-            logging.error(f"检查或更新access token时出错：{str(e)}")
-
+async def check_token():
+    """
+    检查access token是否在当天过期，如果是则更新。
+    """
+    try:
+        expiration_ts = float(Config.expire_time())
+        expire_date = datetime.datetime.fromtimestamp(expiration_ts)
+        today = datetime.datetime.now().date()
+        if expire_date.date() == today:
+            logging.info("Access token将在今天过期，开始生成新的access token。")
+            result = await update_access_token()
+            if result:
+                logging.info("新的access token生成成功。")
+            else:
+                logging.error(f"生成新的access token失败：{result}")
+    except Exception as e:
+        logging.error(f"检查或更新access token时出错：{str(e)}")
 
 def log_token_expiry():
     """启动时获取expiration并记录距离过期的天数"""
@@ -480,6 +483,7 @@ def log_token_expiry():
         logging.info(f"Access token将在 {days_remaining:.0f} 天后过期。")
     except Exception as e:
         logging.error(f"获取token过期时间失败：{str(e)}")
+
 # 创建应用实例
 app = create_app()
 loop = asyncio.get_event_loop()
@@ -496,6 +500,15 @@ loop.run_until_complete(init_db())
 if __name__ == '__main__':
 
     log_token_expiry()
-    loop.create_task(daily_check())
 
+    # 初始化AsyncIOScheduler，并指定使用当前事件循环
+    scheduler = AsyncIOScheduler(event_loop=loop)
+    # 设置任务：每天凌晨0点执行check_token任务
+    scheduler.add_job(check_token, trigger='cron', hour=0, minute=0, second=0)
+    scheduler.start()
+
+    # 启动时先执行一次检查任务
+    loop.create_task(check_token())
+
+    # 启动Web应用
     app.run(host='0.0.0.0', port=8080, debug=True)

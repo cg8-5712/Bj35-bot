@@ -97,6 +97,7 @@ async def get_access_token(access_key_id, access_key_secret):
         async with session.post(url, json=params) as response:
             response_json = await response.json()
             if response_json["code"] == 0:
+                print(response_json)
                 return response_json
             else:
                 raise Exception(f"Failed to obtain accessToken: {response_json['msg']}")

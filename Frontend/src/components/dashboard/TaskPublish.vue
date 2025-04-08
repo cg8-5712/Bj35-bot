@@ -344,7 +344,6 @@ const userOptions = ref([
   { value: '用户2', label: '用户2' },
   { value: '用户3', label: '用户3' }
 ]);
-console.log(typeof(userOptions))
 
 // 获取状态样式类
 function getStatusClass(status) {
@@ -440,6 +439,32 @@ async function publishTask() {
     return;
   }
 
+  console.log(taskNodes.value)
+//     {
+//         "id": "e5fdf3ee-a7de-4e4c-9b05-d29a79909108",
+//         "type": "move",
+//         "params": {
+//             "target": "C201",
+//             "user": "用户1",
+//             "message": "1234"
+//         }
+//     },
+//     {
+//         "id": "8e3a6d01-8686-45db-ac47-785e3b26acea",
+//         "type": "back",
+//         "params": {
+//             "charge_point": "1F"
+//         }
+//     },
+//     {
+//         "id": "0971d040-1314-4624-8cf0-d33898d53383",
+//         "type": "send",
+//         "params": {
+//             "user": "用户2",
+//             "message": "456"
+//         }
+//     }
+
   try {
     // 将任务节点转换为位置列表
     const locations = taskNodes.value.map(node => {
@@ -452,6 +477,9 @@ async function publishTask() {
     }).filter(Boolean);
 
     // 调用新的RUN API
+
+    NotificationService.notify('任务已发布！', 'info');
+
     const response = await ApiServices.post(`/run-task/${selectedRobot.value.id}`, {
       locations: locations
     });
@@ -461,7 +489,7 @@ async function publishTask() {
     }
 
     if (response.code === 0) {
-      NotificationService.notify('任务已成功发布', 'success');
+      NotificationService.notify('任务已执行成功', 'success');
       // 返回结果已经是list格式
       return response.data;
     } else {
