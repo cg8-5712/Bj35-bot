@@ -120,7 +120,13 @@ def error_handler(func):
     @wraps(func)
     async def wrapper(*args, **kwargs):
         try:
-            return await func(*args, **kwargs)
+            response = await func(*args, **kwargs)
+            response_json = response.get_json()
+            if response_json.get('code') == 11013:
+                logging.error(f"Authentication failed in {func.__name__}: {response_json}")
+                await update_access_token()
+                return jsonify(response_json), response.status_code
+            return response
         except Exception as e:
             logging.error(f"Error in {func.__name__}: {str(e)}")
             return jsonify({'code': 1, 'message': str(e), 'data': []}), 500
@@ -498,14 +504,7 @@ async def init_db():
 loop.run_until_complete(init_db())
 
 if __name__ == '__main__':
-
     log_token_expiry()
-
-    # 初始化AsyncIOScheduler，并指定使用当前事件循环
-    scheduler = AsyncIOScheduler(event_loop=loop)
-    # 设置任务：每天凌晨0点执行check_token任务
-    scheduler.add_job(check_token, trigger='cron', hour=0, minute=0, second=0)
-    scheduler.start()
 
     # 启动时先执行一次检查任务
     loop.create_task(check_token())
