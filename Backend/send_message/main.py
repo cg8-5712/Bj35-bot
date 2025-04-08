@@ -22,6 +22,12 @@ async def get_access_token(corp_id, secret):
 
 # 发送消息
 async def send_message(access_token, user_id, message_content):
+
+    """
+        send_message/main.py send()(无assessToken)->send_message()(有assessToken)
+        
+    """
+
     url = f"https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token={access_token}"
     data = {
         "touser": user_id,  # 接收消息的用户ID

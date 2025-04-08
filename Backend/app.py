@@ -10,6 +10,7 @@ from functools import wraps
 import time
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
+from handler.PostgreSQLConnector import PostgreSQLConnector
 from send_message.main import send
 from handler import api
 from handler.config import Config
@@ -313,9 +314,17 @@ def register_routes(app):
     async def send_message():
         data = request.json
         message = data.get('message')
-        user_id = data.get('userId')
+        username = data.get('username')  # 获取用户名
 
-        await send(user_id, message)
+        # 从数据库中获取用户信息
+        user_info = await PostgreSQLConnector.get_userinfo_by_username(username, 'name')
+
+        if user_info and 'wecom_id' in user_info:
+            user_id = user_info['wecom_id']  # 获取 wecom_id 作为 user_id
+            await send(user_id, message)  # 发送消息 
+            return jsonify({'code': 0, 'message': '消息发送成功'}), 200
+        else:
+            return jsonify({'code': 1, 'message': '未找到用户或用户信息不完整'}), 404
 
     @app.route(URI_PREFIX + '/run-task/<device_id>', methods=['POST'])
     @jwt_required()
