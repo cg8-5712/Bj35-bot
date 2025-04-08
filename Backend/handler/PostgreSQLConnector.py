@@ -1,3 +1,8 @@
+"""
+@Author: AptS-1547
+LICENSE UNDER GPL3.0
+"""
+
 import asyncio
 import asyncpg
 import logging
