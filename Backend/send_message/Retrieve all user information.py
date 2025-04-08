@@ -62,15 +62,6 @@ try:
     all_users = get_all_users(access_token)
     userids = [user['userid'] for user in all_users]
 
-    # 查询并打印第一个用户的详细信息
-    if userids:
-        first_user_detail = get_user_detail(access_token, userids[0])
-        print("\n首个用户详细信息：")
-        print(f"姓名：{first_user_detail['name']}")
-        print(f"UserID：{first_user_detail['userid']}")
-        print(f"手机号：{first_user_detail['mobile']}")
-        print(f"邮箱：{first_user_detail['email']}")
-
     # 查询所有用户的详细信息（示例遍历）
     all_details = []
     for uid in userids:
@@ -82,6 +73,7 @@ try:
 
     # 打印统计信息
     print(f"\n成功获取 {len(all_details)}/{len(userids)} 个用户的详细信息")
-
+    for detail in all_details:
+        print(f"用户 {detail['name']}({detail['userid']}) 手机号码: {detail['mobile']} 邮箱: {detail['email']}")
 except Exception as e:
     print(f"程序执行出错: {e}")
