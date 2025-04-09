@@ -1,11 +1,12 @@
 """
-@Author: AptS-1547
+@Author: AptS-1547 & Cg8-5712
 LICENSE UNDER GPL3.0
 """
 
 import asyncio
 import asyncpg
 import logging
+import hashlib
 from typing import Dict, List, Optional, Any, Union
 
 class PostgreSQLConnector:
@@ -114,7 +115,46 @@ class PostgreSQLConnector:
         except Exception as e:
             logging.error(f"创建表失败: {e}")
             raise
-    
+
+    async def add_user(cls, data: Dict[str, Any]) -> Dict[str, bool]:
+        """添加用户信息"""
+        if not cls.pool:
+            raise ValueError("数据库连接池尚未初始化")
+
+        wecom = data.get('wecom', 'None')
+        wecom_id = data.get('wecom_id', 0)
+        name = data.get('name', 'None')
+        password = data.get('password')
+        if password is None:
+            password = hashlib.md5((str(name) + str(wecom_id)).encode()).hexdigest()
+        else:
+            password = hashlib.md5(password.encode()).hexdigest()
+        department = data.get('department', 'None')
+        position = data.get('position', 'B312')
+        mobile = data.get('mobile', 'None')
+        email = data.get('email', 'None')
+        language = data.get('language', 'zh')
+        avatar_text = data.get('avatar', 'None')
+
+        try:
+            async with cls.pool.acquire() as conn:
+                await conn.execute('''
+                    INSERT INTO userinfo (wecom, wecom_id, name, password, department, position, mobile, language, email, avatar_text)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                ''', wecom, wecom_id, name, password, department, position, mobile, language, email, avatar_text)
+
+                logging.info(f"用户 {name} 添加成功")
+                return {'success': True}
+        except asyncpg.PostgresError as e:
+            logging.error(f"添加用户失败: {e}")
+            return {'success': False}
+        except Exception as e:
+            logging.error(f"添加用户时发生未知错误: {e}")
+            return {'success': False}
+
+
+
+
     @classmethod
     async def verify_user_credentials(cls, username: str, password: str) -> Optional[tuple]:
         """
