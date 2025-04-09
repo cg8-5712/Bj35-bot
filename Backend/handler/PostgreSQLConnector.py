@@ -116,6 +116,7 @@ class PostgreSQLConnector:
             logging.error(f"创建表失败: {e}")
             raise
 
+    @classmethod
     async def add_user(cls, data: Dict[str, Any]) -> Dict[str, bool]:
         """添加用户信息"""
         if not cls.pool:
@@ -131,8 +132,8 @@ class PostgreSQLConnector:
             password = hashlib.md5(password.encode()).hexdigest()
         department = data.get('department', 'None')
         position = data.get('position', 'B312')
-        mobile = data.get('mobile', 'None')
-        email = data.get('email', 'None')
+        mobile = "None"
+        email = data.get('email', f"{wecom_id}@bj35.com")
         language = data.get('language', 'zh')
         avatar_text = data.get('avatar', 'None')
 
