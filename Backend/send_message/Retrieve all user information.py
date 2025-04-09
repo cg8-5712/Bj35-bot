@@ -57,7 +57,7 @@ def write():
             if user_list:
                 for user in user_list:
                     # print(f"name:{user['name']} userid:{user['userid']}")
-                    user_info = get_user_all_info(access_token, user)
+                    user_info = get_user_all_info(access_token, user['userid'])
                     all_users_info.append(user_info)
     else:
         return
