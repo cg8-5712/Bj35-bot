@@ -1,6 +1,6 @@
 from urllib import response
 
-from config import Config
+from .config import Config
 import aiohttp
 import asyncio
 import uuid

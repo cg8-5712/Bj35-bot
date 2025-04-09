@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
-from quart import Quart, jsonify, request  # 替换 Flask 为 Quart
-from quart_cors import cors  # 替换 flask_cors
-from quart_jwt_extended import JWTManager, create_access_token, jwt_required  # 替换 flask_jwt_extended
+import asyncio
+from flask import Flask, jsonify, request
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 import datetime
+import hashlib
 import logging
 from functools import wraps
 import time
 
 from handler.PostgreSQLConnector import PostgreSQLConnector
 from send_message.main import send
-
 from handler import api
 from handler.config import Config
+from handler.PostgreSQLConnector import PostgreSQLConnector
 from handler.accessToken import update_access_token
 
 # 配置日志
@@ -54,12 +56,13 @@ async def get_user_info(username, kind):
 
 
 def create_app():
-    """应用工厂函数，创建并配置Quart应用"""
-    app = Quart(__name__)
+    """应用工厂函数，创建并配置Flask应用"""
+    app = Flask(__name__)
 
     # 配置CORS和JWT
-    app = cors(app, allow_origin="*")
-
+    CORS(app, resources={
+        r"/api/*": {"origins": ["http://localhost:5173"], "methods": ["GET", "POST", "PUT", "DELETE"]}
+    })
     app.config["JWT_SECRET_KEY"] = Config.jwt_secret_key()
     jwt = JWTManager(app)
 
@@ -161,10 +164,9 @@ def register_routes(app):
     # 认证相关路由
     @app.route(URI_PREFIX + '/login', methods=['POST'])
     async def login():
-        data = await request.json
-        username = data.get('username', None)
-        password = data.get('password', None)
-        remember_me = data.get('rememberMe', False)
+        username = request.json.get('username', None)
+        password = request.json.get('password', None)
+        remember_me = request.json.get('rememberMe', False)
 
         if not username or not password:
             return jsonify(code=1, message="Missing username or password"), 422
@@ -178,7 +180,7 @@ def register_routes(app):
             access_token = create_access_token(
                 identity=user[0],
                 expires_delta=expires_delta,
-                user_claims={
+                additional_claims={
                     'username': user_info['name'],
                     'role': user_info['department'],  # 在实际应用中，角色应从数据库获取
                 }
@@ -191,7 +193,7 @@ def register_routes(app):
 
     # 设备和机器人相关路由
     @app.route(URI_PREFIX + '/robot_list', methods=['GET'])
-    @jwt_required
+    @jwt_required()
     @error_handler
     async def fetch_robot_list():
         """获取格式化的机器人列表及其状态"""
@@ -216,7 +218,7 @@ def register_routes(app):
         })
 
     @app.route(URI_PREFIX + '/device_status/<device_id>', methods=['GET'])
-    @jwt_required
+    @jwt_required()
     @error_handler
     async def fetch_device_status(device_id):
         """获取单个设备的状态"""
@@ -224,7 +226,7 @@ def register_routes(app):
         return jsonify(device_status)
 
     @app.route(URI_PREFIX + '/device_task/<device_id>', methods=['GET'])
-    @jwt_required
+    @jwt_required()
     @error_handler
     async def fetch_device_task(device_id):
         """获取单个设备的任务"""
@@ -232,7 +234,7 @@ def register_routes(app):
         return jsonify(device_task)
 
     @app.route(URI_PREFIX + '/cabin-position/<device_id>', methods=['GET'])
-    @jwt_required
+    @jwt_required()
     @error_handler
     async def fetch_cabin_position(device_id):
         """获取机柜位置"""
@@ -241,7 +243,7 @@ def register_routes(app):
 
     @app.route(URI_PREFIX +
                '/reset-cabin-position/<device_id>/<position>', methods=['PUT'])
-    @jwt_required
+    @jwt_required()
     @error_handler
     async def reset_cabin_position(device_id, position):
         """重置机柜位置"""
@@ -251,7 +253,7 @@ def register_routes(app):
     # 任务相关路由
     @app.route(URI_PREFIX + '/school-tasks/<pagesize>/<currentpage>',
                methods=['GET'])
-    @jwt_required
+    @jwt_required()
     @error_handler
     async def fetch_school_tasks(pagesize, currentpage):
         """获取学校任务"""
@@ -263,7 +265,7 @@ def register_routes(app):
         return jsonify(school_tasks)
 
     @app.route(URI_PREFIX + '/running-task', methods=['GET'])
-    @jwt_required
+    @jwt_required()
     @error_handler
     async def fetch_running_task():
         """获取正在运行的任务"""
@@ -272,7 +274,7 @@ def register_routes(app):
 
     @app.route(URI_PREFIX +
                '/task/move-lift-down/<device_id>/<docking_marker>/<target>', methods=['POST'])
-    @jwt_required
+    @jwt_required()
     @error_handler
     async def task_move_and_lift(device_id, docking_marker, target):
         """创建移动和升降任务"""
@@ -281,7 +283,7 @@ def register_routes(app):
 
     @app.route(URI_PREFIX +
                '/task/docking-cabin-move/<device_id>/<target>', methods=['POST'])
-    @jwt_required
+    @jwt_required()
     @error_handler
     async def task_dock_and_move(device_id, target):
         """创建对接机柜和移动任务"""
@@ -290,7 +292,7 @@ def register_routes(app):
 
     @app.route(URI_PREFIX +
                '/task/docking-cabin-move/<device_id>/<target>', methods=['POST'])
-    @jwt_required
+    @jwt_required()
     @error_handler
     async def task_dock_and_back(device_id, target):
         """创建back任务"""
@@ -298,7 +300,7 @@ def register_routes(app):
         return jsonify(result)
 
     @app.route(URI_PREFIX + '/goto-charge/<device_id>', methods=['POST'])
-    @jwt_required
+    @jwt_required()
     @error_handler
     async def goto_charge(device_id):
         """让机器人去充电"""
@@ -306,10 +308,10 @@ def register_routes(app):
         return jsonify(result)
 
     @app.route(URI_PREFIX + '/send-message', methods=['POST'])
-    @jwt_required
+    @jwt_required()
     @error_handler
     async def send_message():
-        data = await request.json
+        data = request.json
         message = data.get('message')
         username = data.get('username')  # 获取用户名
 
@@ -324,11 +326,11 @@ def register_routes(app):
             return jsonify({'code': 1, 'message': '未找到用户或用户信息不完整'}), 404
 
     @app.route(URI_PREFIX + '/run-task/<device_id>', methods=['POST'])
-    @jwt_required
+    @jwt_required()
     @error_handler
     async def run_task(device_id):
         """执行任务流"""
-        data = await request.json
+        data = request.json
         locations = data.get('locations', [])
 
         # 调用RUN函数
@@ -338,14 +340,14 @@ def register_routes(app):
         return jsonify(run_result)
 
     @app.route(URI_PREFIX + '/target-list', methods=['GET'])
-    @jwt_required
+    @jwt_required()
     @error_handler
     async def fetch_target_list():
         target_list = Config.target_list()
         return target_list
 
     @app.route(URI_PREFIX + '/get_user_profile', methods=['GET'])
-    @jwt_required
+    @jwt_required()
     @error_handler
     async def get_user_profile():
         username = request.args.get('username')
@@ -356,18 +358,18 @@ def register_routes(app):
         return jsonify(info), 200
 
     @app.route(URI_PREFIX + '/send_message_to_user', methods=['POST'])
-    @jwt_required
+    @jwt_required()
     @error_handler
     async def send_message_to_user():
-        data = await request.json
+        data = request.json
         user = data.get('user')
         message = data.get('message')
 
     @app.route(URI_PREFIX + '/post_user_profile', methods=['POST'])
-    @jwt_required
+    @jwt_required()
     @error_handler
     async def post_user_profile():
-        data = await request.json
+        data = request.json
 
         # # 验证邮箱地址，如果需要
         # if key.lower() == "email address":
@@ -390,10 +392,10 @@ def register_routes(app):
                 {'success': False, 'message': update_response['message']}), 400
 
     @app.route(URI_PREFIX + '/post_user_avatar', methods=['POST'])
+    @jwt_required()
     @error_handler
-    @jwt_required
     async def post_user_avatar():
-        data = await request.json
+        data = request.json
         print(data)
         update_response = {"success": True}
 
@@ -498,6 +500,7 @@ def log_token_expiry():
 
 # 创建应用实例
 app = create_app()
+loop = asyncio.get_event_loop()
 
 async def init_db():
     try:
@@ -506,12 +509,13 @@ async def init_db():
         logging.critical(f"数据库初始化失败，应用将退出: {e}")
         exit(1)
 
-@app.before_serving
-async def before_serving():
-    await init_db()
-    log_token_expiry()
-    await check_token()
-
+loop.run_until_complete(init_db())
 
 if __name__ == '__main__':
+    log_token_expiry()
+
+    # 启动时先执行一次检查任务
+    loop.create_task(check_token())
+
+    # 启动Web应用
     app.run(host='0.0.0.0', port=8080, debug=True)
