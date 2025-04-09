@@ -1,5 +1,6 @@
 import requests
 import time
+import json
 
 CORP_ID = "ww8e4628d565c6588f"
 CORP_SECRET = "f03d8WfJfKpgX3NG84pXMZOaZ0E_xW9NuaP68ImWtUE"
@@ -55,11 +56,19 @@ def write():
             user_list = get_department_uesr_list(access_token, id)
             if user_list:
                 for user in user_list:
-                    print(f"name:{user['name']} userid:{user['userid']}")
-        print("获取子部门列表失败")
+                    # print(f"name:{user['name']} userid:{user['userid']}")
+                    user_info = get_user_all_info(access_token, user)
+                    all_users_info.append(user_info)
+    else:
+        return
+    all_users_json = json.dumps(all_users_info, ensure_ascii=False, indent=4)
+    with open('all_users_info.json', 'w', encoding='utf-8') as f:
+        f.write(all_users_json)
+
+
+all_users_info = []
 
 if __name__ == '__main__':
     access_token = get_access_token(CORP_ID, CORP_SECRET)
-    # write()
-    user_info = get_user_all_info(access_token, 1698)#刘继忠
-    print(user_info)
+    write()
+
