@@ -94,7 +94,7 @@ class PostgreSQLConnector:
 
         try:
             async with cls.pool.acquire() as conn:
-                await conn.execute(''' 
+                await conn.execute('''
                     CREATE TABLE IF NOT EXISTS userinfo (
                         wecom TEXT,
                         wecom_id INTEGER,
@@ -138,7 +138,7 @@ class PostgreSQLConnector:
 
             try:
                 async with cls.pool.acquire() as conn:
-                    await conn.execute(''' 
+                    await conn.execute('''
                         INSERT INTO userinfo (wecom, wecom_id, name, password, department, position, mobile, language, email, avatar_text)
                         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
                     ''', wecom, wecom_id, name, password, department, position, mobile, language, email, avatar_text)
@@ -163,15 +163,15 @@ class PostgreSQLConnector:
             try:
                 async with cls.pool.acquire() as conn:
                     row = await conn.fetchrow("""
-                        SELECT 
-                            CASE 
+                        SELECT
+                            CASE
                                 WHEN wecom = $1 THEN 'wecom'
                                 WHEN name = $1 THEN 'name'
                                 WHEN email = $1 THEN 'email'
                                 WHEN mobile = $1 THEN 'mobile'
-                            END as kind, 
+                            END as kind,
                             password
-                        FROM userinfo 
+                        FROM userinfo
                         WHERE wecom = $1 OR name = $1 OR email = $1 OR mobile = $1
                         LIMIT 1
                     """, username)
@@ -182,6 +182,25 @@ class PostgreSQLConnector:
             except Exception as e:
                 logging.error(f"验证用户凭据失败: {e}")
                 raise
+
+    @classmethod
+    async def check_user_exists_by_wecom(cls, wecom_id: str) -> bool:
+        """检查企业微信用户是否存在"""
+        if not cls.pool:
+            raise ValueError("数据库连接池尚未初始化")
+
+        # 使用锁保证同一时间只有一个线程进行数据库操作
+        async with cls.lock:
+            try:
+                async with cls.pool.acquire() as conn:
+                    row = await conn.fetchrow("""
+                        SELECT 1 FROM userinfo WHERE wecom_id = $1 LIMIT 1
+                    """, int(wecom_id))
+
+                    return bool(row)
+            except Exception as e:
+                logging.error(f"检查企业微信用户是否存在失败: {e}")
+                return False
 
     @classmethod
     async def get_password_by_username(cls, username: str, kind: str) -> Optional[str]:

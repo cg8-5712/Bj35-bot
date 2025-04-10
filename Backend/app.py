@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-from quart import Quart, jsonify, request  # 替换 Flask 为 Quart
+from quart import Quart, jsonify, request, redirect  # 替换 Flask 为 Quart
 from quart_cors import cors  # 替换 flask_cors
 from quart_jwt_extended import JWTManager, create_access_token, jwt_required  # 替换 flask_jwt_extended
 import datetime
 import logging
 from functools import wraps
 import time
+import os
 
 from handler.PostgreSQLConnector import PostgreSQLConnector
 from send_message.main import send
@@ -13,6 +14,7 @@ from send_message.main import send
 from handler import api
 from handler.config import Config
 from handler.accessToken import update_access_token
+from handler.wecom_oauth import WeComOAuth
 
 # 配置日志
 logging.basicConfig(
@@ -191,6 +193,65 @@ def register_routes(app):
             app.logger.error(f"User {username} login failed")
             return jsonify(code=1, message="Invalid username or password")
 
+    # 企业微信OAuth相关路由
+    @app.route(URI_PREFIX + '/wecom/auth', methods=['GET'])
+    async def wecom_auth():
+        """获取企业微信OAuth授权URL"""
+        oauth_url = WeComOAuth.get_oauth_url()
+        return jsonify(code=0, oauth_url=oauth_url)
+
+    @app.route(URI_PREFIX + '/wecom/callback', methods=['GET'])
+    async def wecom_callback():
+        """处理企业微信OAuth回调"""
+        code = request.args.get('code')
+        state = request.args.get('state')
+
+        if not code:
+            app.logger.error("Missing code in WeChat Work OAuth callback")
+            return redirect(os.getenv('FRONTEND_URL', 'http://localhost:5173') + '/login?error=missing_code')
+
+        # 获取用户信息
+        user_info = await WeComOAuth.get_user_info(code)
+
+        if not user_info or not user_info.get('userid'):
+            app.logger.error("Failed to get user info from WeChat Work")
+            return redirect(os.getenv('FRONTEND_URL', 'http://localhost:5173') + '/login?error=auth_failed')
+
+        # 检查用户是否存在，如果不存在则创建
+        user_exists = await PostgreSQLConnector.check_user_exists_by_wecom(user_info.get('userid'))
+
+        if not user_exists:
+            # 添加用户到数据库
+            await PostgreSQLConnector.add_user({
+                'wecom': user_info.get('wecom', ''),
+                'wecom_id': user_info.get('userid'),
+                'name': user_info.get('name'),
+                'department': ','.join(map(str, user_info.get('department', []))),
+                'position': user_info.get('position', ''),
+                'mobile': user_info.get('mobile', ''),
+                'email': user_info.get('email', ''),
+                'avatar_text': user_info.get('avatar', '')
+            })
+
+        # 创建JWT令牌
+        expires_delta = JWT_EXPIRY_REMEMBER  # 使用记住我的过期时间
+        access_token = create_access_token(
+            identity=user_info.get('userid'),
+            expires_delta=expires_delta,
+            user_claims={
+                'username': user_info.get('name'),
+                'role': user_info.get('department'),
+                'avatar': user_info.get('avatar')
+            }
+        )
+
+        # 重定向到前端，带上token
+        frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+        redirect_url = f"{frontend_url}/login/callback?token={access_token}"
+
+        app.logger.info(f"User {user_info.get('name')} logged in via WeChat Work OAuth")
+        return redirect(redirect_url)
+
     # 设备和机器人相关路由
     @app.route(URI_PREFIX + '/robot_list', methods=['GET'])
     @jwt_required
@@ -320,7 +381,7 @@ def register_routes(app):
 
         if user_info and 'wecom_id' in user_info:
             user_id = user_info['wecom_id']  # 获取 wecom_id 作为 user_id
-            await send(user_id, message)  # 发送消息 
+            await send(user_id, message)  # 发送消息
             return jsonify({'code': 0, 'message': '消息发送成功'}), 200
         else:
             return jsonify({'code': 1, 'message': '未找到用户或用户信息不完整'}), 404

@@ -7,7 +7,7 @@ class AuthService {
   login(username, password, rememberMe) {
     // 对密码进行SHA-256哈希处理
     const hashedPassword = MD5(password).toString();
-  
+
     return axios
       .post(`${import.meta.env.VITE_APP_API_URL}/login`, {
         username,
@@ -35,7 +35,7 @@ class AuthService {
     if (!token) {
       return false;
     }
-    
+
     try {
       const decoded = jwtDecode(token);
       const currentTime = Date.now() / 1000;
@@ -54,7 +54,7 @@ class AuthService {
   getUserInfo() {
     const token = this.getToken();
     if (!token) return null;
-    
+
     try {
       // 解码JWT获取用户信息
       const decoded = jwtDecode(token);
@@ -76,6 +76,26 @@ class AuthService {
     console.log(userInfo);
     console.log(userInfo.avatar);
     return userInfo ? userInfo.avatar : null;
+  }
+
+  // 企业微信 OAuth 相关方法
+  async getWeComAuthUrl() {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_APP_API_URL}/wecom/auth`);
+      return response.data.oauth_url;
+    } catch (error) {
+      console.error('Failed to get WeChat Work auth URL:', error);
+      throw error;
+    }
+  }
+
+  // 处理企业微信OAuth回调
+  handleOAuthCallback(token) {
+    if (token) {
+      localStorage.setItem('access_token', token);
+      return true;
+    }
+    return false;
   }
 }
 
