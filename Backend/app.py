@@ -7,9 +7,11 @@ from quart_cors import cors
 from quart_jwt_extended import JWTManager
 
 from handler.PostgreSQLConnector import PostgreSQLConnector
-from utils.config import Config
 from handler.accessToken import update_access_token
 from routes import register_all_routes
+
+from utils.config import Config
+from utils.jwt_handlers import configure_jwt_handlers
 
 # 配置日志
 logging.basicConfig(
@@ -34,45 +36,6 @@ def create_app():
     
     return app
 
-
-def configure_jwt_handlers(jwt):
-    """配置JWT错误处理器"""
-
-    @jwt.expired_token_loader
-    def expired_token_callback(jwt_header, jwt_payload):
-        return jsonify({
-            'code': 401,
-            'message': '令牌已过期，请重新登录'
-        }), 401
-
-    @jwt.invalid_token_loader
-    def invalid_token_callback(error_string):
-        return jsonify({
-            'code': 401,
-            'message': '无效的令牌'
-        }), 401
-
-    @jwt.unauthorized_loader
-    def missing_token_callback(error_string):
-        return jsonify({
-            'code': 401,
-            'message': '未提供令牌，请先登录'
-        }), 401
-
-    @jwt.needs_fresh_token_loader
-    def token_not_fresh_callback(jwt_header, jwt_payload):
-        return jsonify({
-            'code': 401,
-            'message': '需要新的令牌，请重新登录'
-        }), 401
-
-    @jwt.revoked_token_loader
-    def revoked_token_callback(jwt_header, jwt_payload):
-        return jsonify({
-            'code': 401,
-            'message': '令牌已被撤销'
-        }), 401
-
 async def check_token():
     """
     检查access token是否在当天过期，如果是则更新。
@@ -95,7 +58,7 @@ def log_token_expiry():
     """启动时获取expiration并记录距离过期的天数"""
     try:
         expiration_ts = float(Config.expire_time())
-        current_ts = time.time()
+        current_ts = datetime.datetime.now().timestamp()
         days_remaining = (expiration_ts - current_ts) / (60 * 60 * 24)
         logging.info(f"Access token将在 {days_remaining:.0f} 天后过期。")
     except Exception as e:
