@@ -113,6 +113,14 @@ class Config:
         :return: str
         """
         return os.getenv("SECRET")
+    
+    @classmethod
+    def agent_id(cls):
+        """
+        agent id
+        :return: str
+        """
+        return os.getenv("AGENT_ID")
 
     @classmethod
     def app_id(cls):
