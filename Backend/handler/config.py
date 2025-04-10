@@ -98,6 +98,30 @@ class Config:
         expire_time = os.getenv("EXPIRE_TIME")
         return int(time.mktime(time.strptime(expire_time, '%Y-%m-%dT%H:%M:%S+08:00')))
 
+    @classmethod
+    def crop_id(cls):
+        """
+        crop id
+        :return: str
+        """
+        return os.getenv("CROP_ID")
+
+    @classmethod
+    def secret(cls):
+        """
+        secret key
+        :return: str
+        """
+        return os.getenv("SECRET")
+
+    @classmethod
+    def app_id(cls):
+        """
+        app id
+        :return: str
+        """
+        return os.getenv("AGENT_ID")
+
 
     @classmethod
     def target_list(cls):

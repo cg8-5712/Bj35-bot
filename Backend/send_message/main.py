@@ -1,10 +1,16 @@
 import aiohttp
 import asyncio
 import json
+import sys
+import os
 
-corp_id = "ww8e4628d565c6588f"  # 企业ID
-secret = "f03d8WfJfKpgX3NG84pXMZOaZ0E_xW9NuaP68ImWtUE"  # 应用Secret
-agent_id = "1000166"  # 应用AgentId
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from handler.config import Config
+
+corp_id = Config.crop_id()  # 企业ID
+secret = Config.secret()  # 应用Secret
+agent_id = Config.agent_id()  # 应用AgentId
 user_id = ""  # 接收消息的用户ID
 
 # 获取access_token
