@@ -2,7 +2,7 @@ from quart import jsonify, request
 from quart_jwt_extended import jwt_required
 
 import handler.api as api
-from handler.config import Config
+from utils.config import Config
 
 from utils.decorators import error_handler
 

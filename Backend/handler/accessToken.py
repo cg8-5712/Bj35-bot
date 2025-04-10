@@ -30,7 +30,7 @@ import uuid
 import aiohttp
 from dotenv import load_dotenv
 
-from .config import Config
+from utils.config import Config
 
 # Function to generate signature asynchronously
 async def generate_signature(params, access_key_secret):

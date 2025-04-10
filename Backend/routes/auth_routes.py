@@ -5,7 +5,7 @@ from quart_jwt_extended import create_access_token
 
 from handler.PostgreSQLConnector import PostgreSQLConnector
 from handler.wecom_oauth import WeComOAuth
-from handler.config import Config
+from utils.config import Config
 
 URI_PREFIX = Config.URI_PREFIX
 JWT_EXPIRY_REMEMBER = datetime.timedelta(weeks=1)

@@ -4,7 +4,7 @@ from quart_jwt_extended import jwt_required
 from handler.PostgreSQLConnector import PostgreSQLConnector
 from utils.decorators import error_handler
 
-from handler.config import Config
+from utils.config import Config
 
 URI_PREFIX = Config.URI_PREFIX
 

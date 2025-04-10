@@ -1,7 +1,8 @@
 import requests
 import logging
 from urllib.parse import quote
-from handler.config import Config
+
+from utils.config import Config
 
 class WeComOAuth:
     """企业微信 OAuth 认证处理类"""

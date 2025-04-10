@@ -19,7 +19,7 @@ class PostgreSQLConnector:
 
         if config is None:
             try:
-                from handler.config import Config
+                from utils.config import Config
                 config = Config.database_config()
             except (ImportError, AttributeError):
                 logging.warning("无法从Config获取数据库配置，使用默认配置")

@@ -6,7 +6,7 @@ import os
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from handler.config import Config
+from utils.config import Config
 
 corp_id = Config.crop_id()  # 企业ID
 secret = Config.secret()  # 应用Secret

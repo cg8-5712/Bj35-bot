@@ -7,7 +7,7 @@ from quart_cors import cors
 from quart_jwt_extended import JWTManager
 
 from handler.PostgreSQLConnector import PostgreSQLConnector
-from handler.config import Config
+from utils.config import Config
 from handler.accessToken import update_access_token
 from routes import register_all_routes
 
@@ -161,6 +161,7 @@ async def init_db():
         await PostgreSQLConnector.initialize()
     except Exception as e:
         logging.critical(f"数据库初始化失败，应用将退出: {e}")
+        exit(1)
 
 @app.before_serving
 async def before_serving():
