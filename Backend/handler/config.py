@@ -32,6 +32,7 @@ from dotenv import load_dotenv
 load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.env'))
 
 class Config:
+    URI_PREFIX = '/api/v1'
 
     @classmethod
     def database_config(cls):
