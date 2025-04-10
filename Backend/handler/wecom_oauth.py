@@ -1,7 +1,7 @@
-import os
 import requests
 import logging
 from urllib.parse import quote
+from handler.config import Config
 
 class WeComOAuth:
     """企业微信 OAuth 认证处理类"""
@@ -9,10 +9,10 @@ class WeComOAuth:
     @classmethod
     def get_oauth_url(cls):
         """获取企业微信 OAuth 授权 URL"""
-        corp_id = os.getenv('CORP_ID')
-        redirect_uri = quote(os.getenv('REDIRECT_URI', ''), safe='')
-        agent_id = os.getenv('AGENT_ID')
-        
+        corp_id = Config.corp_id()
+        redirect_uri = quote(Config.redirect_uri(), safe='')
+        agent_id = Config.agent_id()
+
         # 构建授权URL
         # 参考文档: https://developer.work.weixin.qq.com/document/path/96440
         oauth_url = (
@@ -22,7 +22,7 @@ class WeComOAuth:
             f"&redirect_uri={redirect_uri}"
             f"&state=STATE"  # 可以使用随机字符串防止CSRF攻击
         )
-        
+
         return oauth_url
 
     @classmethod
@@ -34,17 +34,17 @@ class WeComOAuth:
             if not access_token:
                 logging.error("Failed to get access token")
                 return None
-                
+
             # 2. 使用授权码获取用户身份
             user_info = await cls.get_user_id(access_token, code)
             if not user_info:
                 logging.error("Failed to get user ID")
                 return None
-                
+
             # 3. 获取用户详细信息
             user_detail = await cls.get_user_detail(access_token, user_info.get('userid'))
             return user_detail
-            
+
         except Exception as e:
             logging.error(f"Error getting user info: {e}")
             return None
@@ -52,15 +52,15 @@ class WeComOAuth:
     @classmethod
     async def get_access_token(cls):
         """获取企业微信访问令牌"""
-        corp_id = os.getenv('CORP_ID')
-        corp_secret = os.getenv('CORP_SECRET')
-        
+        corp_id = Config.corp_id()
+        corp_secret = Config.corp_secret()
+
         url = f"https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={corp_id}&corpsecret={corp_secret}"
-        
+
         try:
             response = requests.get(url)
             data = response.json()
-            
+
             if data.get('errcode') == 0:
                 return data.get('access_token')
             else:
@@ -74,11 +74,11 @@ class WeComOAuth:
     async def get_user_id(cls, access_token, code):
         """通过授权码获取用户ID"""
         url = f"https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo?access_token={access_token}&code={code}"
-        
+
         try:
             response = requests.get(url)
             data = response.json()
-            
+
             if data.get('errcode') == 0:
                 return {
                     'userid': data.get('userid'),
@@ -96,11 +96,11 @@ class WeComOAuth:
     async def get_user_detail(cls, access_token, userid):
         """获取用户详细信息"""
         url = f"https://qyapi.weixin.qq.com/cgi-bin/user/get?access_token={access_token}&userid={userid}"
-        
+
         try:
             response = requests.get(url)
             data = response.json()
-            
+
             if data.get('errcode') == 0:
                 return {
                     'userid': data.get('userid'),

@@ -208,14 +208,14 @@ def register_routes(app):
 
         if not code:
             app.logger.error("Missing code in WeChat Work OAuth callback")
-            return redirect(os.getenv('FRONTEND_URL', 'http://localhost:5173') + '/login?error=missing_code')
+            return redirect(Config.frontend_url() + '/login?error=missing_code')
 
         # 获取用户信息
         user_info = await WeComOAuth.get_user_info(code)
 
         if not user_info or not user_info.get('userid'):
             app.logger.error("Failed to get user info from WeChat Work")
-            return redirect(os.getenv('FRONTEND_URL', 'http://localhost:5173') + '/login?error=auth_failed')
+            return redirect(Config.frontend_url() + '/login?error=auth_failed')
 
         # 检查用户是否存在，如果不存在则创建
         user_exists = await PostgreSQLConnector.check_user_exists_by_wecom(user_info.get('userid'))
@@ -246,7 +246,7 @@ def register_routes(app):
         )
 
         # 重定向到前端，带上token
-        frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+        frontend_url = Config.frontend_url()
         redirect_url = f"{frontend_url}/login/callback?token={access_token}"
 
         app.logger.info(f"User {user_info.get('name')} logged in via WeChat Work OAuth")
@@ -332,33 +332,6 @@ def register_routes(app):
         """获取正在运行的任务"""
         running_task = await api.get_running_task()
         return jsonify(running_task)
-
-    @app.route(URI_PREFIX +
-               '/task/move-lift-down/<device_id>/<docking_marker>/<target>', methods=['POST'])
-    @jwt_required
-    @error_handler
-    async def task_move_and_lift(device_id, docking_marker, target):
-        """创建移动和升降任务"""
-        result = await api.make_task_flow_move_and_lift_down(device_id, docking_marker, target)
-        return jsonify(result)
-
-    @app.route(URI_PREFIX +
-               '/task/docking-cabin-move/<device_id>/<target>', methods=['POST'])
-    @jwt_required
-    @error_handler
-    async def task_dock_and_move(device_id, target):
-        """创建对接机柜和移动任务"""
-        result = await api.make_task_flow_docking_cabin_and_move_target(device_id, target)
-        return jsonify(result)
-
-    @app.route(URI_PREFIX +
-               '/task/docking-cabin-move/<device_id>/<target>', methods=['POST'])
-    @jwt_required
-    @error_handler
-    async def task_dock_and_back(device_id, target):
-        """创建back任务"""
-        result = await api.make_task_flow_dock_cabin_and_move_target_with_wait_action(device_id, target)
-        return jsonify(result)
 
     @app.route(URI_PREFIX + '/goto-charge/<device_id>', methods=['POST'])
     @jwt_required

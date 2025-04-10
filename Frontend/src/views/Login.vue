@@ -51,26 +51,6 @@
             <div>
               <button type="submit" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">登录</button>
             </div>
-
-            <div class="relative mt-6">
-              <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                <div class="w-full border-t border-gray-200"></div>
-              </div>
-              <div class="relative flex justify-center text-sm font-medium leading-6">
-                <span class="bg-white px-6 text-gray-500">或者</span>
-              </div>
-            </div>
-
-            <div class="mt-6">
-              <button
-                type="button"
-                @click="handleWeComLogin"
-                class="flex w-full justify-center items-center gap-3 rounded-md bg-green-500 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-green-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-500"
-              >
-                <img src="https://wwcdn.weixin.qq.com/node/wework/images/WeComlogo_215x20.png" alt="WeChat Work" class="h-4" />
-                使用企业微信登录
-              </button>
-            </div>
           </form>
         </div>
       </div>
@@ -79,30 +59,19 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 import AuthService from '@/services/AuthService'
 import NotificationService from '@/services/NotificationService'
 
 const router = useRouter()
-const route = useRoute()
 
 const username = ref('')
 const password = ref('')
 const rememberMe = ref(Boolean)
 
 rememberMe.value = true
-
-// 检查URL中是否有错误信息
-onMounted(() => {
-  const error = route.query.error
-  if (error === 'missing_code') {
-    NotificationService.notify('企业微信登录失败：缺少授权码', 'error')
-  } else if (error === 'auth_failed') {
-    NotificationService.notify('企业微信登录失败：认证失败', 'error')
-  }
-})
 
 async function handleLogin() {
   try {
@@ -118,17 +87,6 @@ async function handleLogin() {
   } catch (error) {
     console.error('Failed to login:', error.message)
     NotificationService.notify('系统错误：' + error.message, 'error')
-  }
-}
-
-async function handleWeComLogin() {
-  try {
-    NotificationService.notify('正在跳转到企业微信登录……', 'info')
-    const authUrl = await AuthService.getWeComAuthUrl()
-    window.location.href = authUrl
-  } catch (error) {
-    console.error('Failed to get WeChat Work auth URL:', error)
-    NotificationService.notify('获取企业微信登录链接失败：' + error.message, 'error')
   }
 }
 </script>

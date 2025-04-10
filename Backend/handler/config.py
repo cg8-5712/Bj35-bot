@@ -80,7 +80,7 @@ class Config:
         :return: str
         """
         return os.getenv("SECRET_KEY")
-    
+
     @classmethod
     def jwt_secret_key(cls):
         """
@@ -121,6 +121,22 @@ class Config:
         :return: str
         """
         return os.getenv("AGENT_ID")
+
+    @classmethod
+    def redirect_uri(cls):
+        """
+        企业微信 OAuth 重定向 URI
+        :return: str
+        """
+        return os.getenv("REDIRECT_URI")
+
+    @classmethod
+    def frontend_url(cls):
+        """
+        前端 URL
+        :return: str
+        """
+        return os.getenv("FRONTEND_URL", "http://localhost:5173")
 
 
     @classmethod
