@@ -118,11 +118,13 @@ def error_handler(func):
     async def wrapper(*args, **kwargs):
         try:
             response = await func(*args, **kwargs)
-            response_json = response.get_json()
-            if response_json.get('code') == 11013:
-                logging.error(f"Authentication failed in {func.__name__}: {response_json}")
-                await update_access_token()
-                return jsonify(response_json), response.status_code
+            if type(response) is dict:
+                response_json = response.get_json()
+                response_json = await func(*args, **kwargs)
+                if response_json.get('code') == 11013:
+                    logging.error(f"Authentication failed in {func.__name__}: {response_json}")
+                    await update_access_token()
+                    return jsonify(response_json), response.status_code
             return response
         except Exception as e:
             logging.error(f"Error in {func.__name__}: {str(e)}")
@@ -346,12 +348,13 @@ def register_routes(app):
 
     @app.route(URI_PREFIX + '/get_user_profile', methods=['GET'])
     @jwt_required
-    @error_handler
+    # @error_handler
     async def get_user_profile():
         username = request.args.get('username')
-        print(username)
+        print(f"username: {username}")
         info = await PostgreSQLConnector.get_userinfo_by_username(username, 'name')
-        print(info)
+
+        print(f'info: {info}')
         print(type(info))
         return jsonify(info), 200
 

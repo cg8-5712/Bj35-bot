@@ -230,8 +230,8 @@ async def RUN(locations, device_id):
 
 
 if __name__ == '__main__':
-    device_bot1_cabin = 1309143264909201408
-    print(asyncio.run(get_device_list()))
+    # device_bot1_cabin = 1309143264909201408
+    # print(asyncio.run(get_device_list()))
     # print("位置在:\n",asyncio.run(get_cabin_position(device_bot1_cabin)))
     # res = asyncio.run(make_task_flow_dock_cabin_and_move_target_with_wait_action(device_bot1_cabin, "Y103", 200))
     # print("请求结果:\n",res)
@@ -273,8 +273,8 @@ if __name__ == '__main__':
     # print(device_bot1_cabin)
     # res = asyncio.run(get_cabin_position(device_bot1_cabin))
     # print(res)
-    # res = asyncio.run(get_device_list())
-    # print(res)
+    res = asyncio.run(get_device_list())
+    print(res)
     # print(asyncio.run(get_school_tasks()))
     # print(asyncio.run(reset_cabin_position(device_bot1_cabin, "charge_point_1F_40300716")))
     # res = asyncio.run(make_task_flow())

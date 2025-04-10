@@ -103,8 +103,6 @@ async def get_access_token(access_key_id, access_key_secret):
                 raise Exception(f"Failed to obtain accessToken: {response_json['msg']}")
 
 
-
-
 async def update_access_token():
     access_key_id = Config.accessKeyId()
     access_key_secret = Config.SECRET_KEY()

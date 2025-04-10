@@ -58,6 +58,7 @@ class AuthService {
     try {
       // 解码JWT获取用户信息
       const decoded = jwtDecode(token);
+      console.log(decoded);
       return decoded;
     } catch (error) {
       console.error('解码token失败:', error);

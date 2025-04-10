@@ -147,7 +147,8 @@ class ApiServices extends ApiPrefix {
   async getUserInfo() {
   try {
     const user = AuthService.getUserInfo();
-    const info = await this.get('/get_user_profile', { username: user.username });
+    const info = await this.get('/get_user_profile', { username: user.user_claims.username });
+    console.log(info);
     // console.log(info);
     // if (info.code !== 0) {
     //   throw new Error(info.message);

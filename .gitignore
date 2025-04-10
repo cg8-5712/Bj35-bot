@@ -35,3 +35,5 @@ dist-ssr
 tree.txt
 doc.md
 /Backend/.env
+/Backend/send_message/all_users_info.json
+/Backend/send_message/users_dev.json
