@@ -1,0 +1,27 @@
+# Web 框架
+quart~=0.18.4
+quart-cors~=0.7.0
+quart-jwt-extended~=0.1.0
+werkzeug<3.0.0
+
+# 异步支持
+aiohttp~=3.11.8
+asyncpg~=0.30.0
+asyncio
+
+# 任务调度
+APScheduler~=3.10.4
+
+# 环境与配置
+python-dotenv~=1.0.1
+
+# 工具库
+PyJWT~=2.8.0
+requests~=2.32.3
+pandas~=2.2.3
+
+# 生产环境
+uvicorn~=0.24.0
+
+# 加密支持
+pycryptodome~=3.19.0
