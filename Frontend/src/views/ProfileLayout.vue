@@ -210,11 +210,11 @@ const mobileMenuOpen = ref(false)
 const automaticTimezoneEnabled = ref(true)
 
 const profile = ref({
-  name: "Cg8-5712",
-  Email: "5712.cg8@gmail.com",
-  Title: "Administartor",
-  Wecom: "cg8@bj35",
-  avatar: "https://avatars.githubusercontent.com/u/163859507?s=256",
+  name: "",
+  Email: "",
+  Title: "",
+  Wecom: "",
+  avatar: "",
 })
 
 const profileData = ref({
