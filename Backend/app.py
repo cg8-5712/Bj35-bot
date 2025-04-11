@@ -19,20 +19,20 @@ logging.basicConfig(
 
 def create_app():
     """应用工厂函数"""
-    app = Quart(__name__)
+    quart_app = Quart(__name__)
 
     # 配置CORS和JWT
-    app = cors(app, allow_origin="*")
-    app.config["JWT_SECRET_KEY"] = Config.jwt_secret_key()
-    jwt = JWTManager(app)
+    quart_app = cors(quart_app, allow_origin="*")
+    quart_app.config["JWT_SECRET_KEY"] = Config.jwt_secret_key()
+    jwt = JWTManager(quart_app)
 
     # 配置JWT错误处理器
     configure_jwt_handlers(jwt)
 
     # 注册所有路由
-    register_all_routes(app)
+    register_all_routes(quart_app)
 
-    return app
+    return quart_app
 
 async def check_token():
     """
