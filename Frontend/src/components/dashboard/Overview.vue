@@ -87,8 +87,8 @@
     
     <!-- 机器人详情模态框 -->
     <RobotDetail 
-      v-model:isOpen="isDetailOpen" 
-      :robot="selectedRobot" 
+      v-model:isOpen="isDetailOpen"
+      :robot="selectedRobot"
       class="bg-opacity-50"
       @control-robot="handleControlRobot"
     />
