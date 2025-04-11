@@ -28,8 +28,9 @@ class WeComOAuth:
             f"?appid={corp_id}"
             f"&redirect_uri={redirect_uri}"
             f"&response_type=code"
-            f"&scope=snsapi_base"
+            f"&scope=snsapi_privateinfo"
             f"&state={state}"
+            f"&agentid={agent_id}"
             f"#wechat_redirect"
         )
 

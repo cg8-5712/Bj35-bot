@@ -7,7 +7,6 @@ werkzeug<3.0.0
 # 异步支持
 aiohttp~=3.11.8
 asyncpg~=0.30.0
-asyncio
 
 # 任务调度
 APScheduler~=3.10.4
