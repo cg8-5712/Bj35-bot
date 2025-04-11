@@ -161,7 +161,11 @@
           <LoadingSpinner v-if="loading" message="加载中..." />
           <Suspense v-else>
             <template #default>
-              <component :is="currentComponent" />
+              <component
+                :is="currentComponent"
+                :robot="selectedRobotForControl"
+                @control-robot="switchToTaskPublish"
+              />
             </template>
             <template #fallback>
               <LoadingSpinner message="正在渲染组件..." color="indigo" />
@@ -209,6 +213,7 @@ const username = ref("")
 const useravatar = ref("")
 
 const currentComponent = shallowRef(null)
+const selectedRobotForControl = ref(null)
 
 function logout() {
   AuthService.logout()
@@ -233,17 +238,24 @@ const componentMap = {
 }
 const activeView = ref(navigation[0])
 
-async function setActiveView(item) {
+async function setActiveView(item, robotData = null) {
   loading.value = true
 
   try {
     // 更新导航项的当前状态
     navigation.forEach(nav => {
-      nav.current = nav === item
+      nav.current = nav === item || nav.componentName === item.componentName
     })
 
     // 设置活动视图
     activeView.value = item
+
+    // 存储选中的机器人（如果有）
+    if (robotData) {
+      selectedRobotForControl.value = robotData
+    } else {
+      selectedRobotForControl.value = null
+    }
 
     // 异步加载新组件
     const AsyncComponent = defineAsyncComponent(componentMap[item.componentName])
@@ -255,13 +267,14 @@ async function setActiveView(item) {
   }
 }
 
-// // 新增：处理用户菜单点击事件，根据是否有 action 决定是否阻止默认行为
-// function handleUserNavClick(item, event) {
-//   if (item.action) {
-//     event.preventDefault()
-//     item.action()
-//   }
-// }
+// 提供切换到任务发布界面的方法
+function switchToTaskPublish(robotData) {
+  const taskPublishItem = navigation.find(item => item.componentName === 'TaskPublish')
+  if (taskPublishItem) {
+    setActiveView(taskPublishItem, robotData)
+  }
+}
+
 
 // 监听窗口大小变化
 function handleResize() {

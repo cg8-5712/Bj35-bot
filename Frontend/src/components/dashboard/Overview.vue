@@ -90,6 +90,7 @@
       v-model:isOpen="isDetailOpen" 
       :robot="selectedRobot" 
       class="bg-opacity-50"
+      @control-robot="handleControlRobot"
     />
   </div>
 </template>
@@ -118,6 +119,8 @@ const loading = ref(true)
 // 模态框状态
 const isDetailOpen = ref(false)
 const selectedRobot = ref({})
+
+const emit = defineEmits(['control-robot'])
 
 // 显示机器人详情
 function showRobotDetail(robot) {
@@ -149,6 +152,14 @@ async function fetchRobots() {
   } finally {
     loading.value = false
   }
+}
+
+function handleControlRobot(robot) {
+  // 关闭详情模态框
+  isDetailOpen.value = false
+  
+  // 向父组件发送控制机器人事件
+  emit('control-robot', robot)
 }
 
 function startAutoRefresh() {

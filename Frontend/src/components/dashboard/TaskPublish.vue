@@ -553,8 +553,16 @@ watch(
   () => props.robot,
   (newRobot) => {
     if (newRobot && newRobot.id) {
-      selectedRobot.value = newRobot
-      // 如果传递的机器人不为空，添加一个默认的任务节点
+      // 在机器人列表中找到匹配的机器人并选中它
+      const matchedRobot = robots.value.find(r => r.id === newRobot.id)
+      if (matchedRobot) {
+        selectedRobot.value = matchedRobot
+      } else {
+        // 如果在列表中找不到，直接使用传入的机器人
+        selectedRobot.value = newRobot
+      }
+
+      // 如果没有任务节点，添加一个默认节点
       if (taskNodes.value.length === 0) {
         addTaskNode()
       }

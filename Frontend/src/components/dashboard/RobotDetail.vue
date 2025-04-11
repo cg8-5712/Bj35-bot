@@ -191,6 +191,7 @@ function closeModal() {
 
 function control() {
   emit('controlRobot', props.robot)
+  closeModal()
 }
 
 function formatDate(date) {
