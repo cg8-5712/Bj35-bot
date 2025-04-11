@@ -31,6 +31,8 @@ from pydantic import Field
 from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
 
+load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.env'))
+
 class Settings(BaseSettings):
     """Pydantic 类型检查和验证"""
 
@@ -65,9 +67,7 @@ class Settings(BaseSettings):
     CABINS: Dict[str, str] = Field(default=dict())
     CHASSIS: Dict[str, str] = Field(default=dict())
 
-load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env'))
-env_vars = {key: os.getenv(key) for key in os.environ if key in Settings.model_fields}
-settings = Settings(**env_vars)
+settings = Settings()
 
 class Config:
     """Config 兼容之前方法"""
