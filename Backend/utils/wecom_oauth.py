@@ -53,7 +53,8 @@ class WeComOAuth:
 
             # 2. 使用授权码获取用户身份
             user_info = await cls.get_user_id(access_token, code)
-            if not user_info:
+            if not user_info or user_info.get('userid') is None:
+                # 判断非企业成员 / 接口错误
                 logging.error("Failed to get user ID")
                 return None
 
