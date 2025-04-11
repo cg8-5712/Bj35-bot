@@ -67,12 +67,12 @@ def register_routes(app):
         code = request.args.get('code')
         state = request.args.get('state')
 
-        if not code:
-            app.logger.error("Missing code in WeChat Work OAuth callback")
-            return redirect(os.getenv('FRONTEND_URL', 'http://localhost:5173') + '/login?error=missing_code')
+        if not code or not state:
+            app.logger.error("Missing code or state in WeChat Work OAuth callback")
+            return redirect(os.getenv('FRONTEND_URL', 'http://localhost:5173') + '/login?error=missing_parameters')
 
         # 获取用户信息
-        user_info = await WeComOAuth.get_user_info(code)
+        user_info = await WeComOAuth.get_user_info(code, state)
 
         if not user_info or not user_info.get('userid'):
             app.logger.error("Failed to get user info from WeChat Work")

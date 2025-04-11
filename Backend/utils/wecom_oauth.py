@@ -1,8 +1,8 @@
 import logging
+import random
 from urllib.parse import quote
 
-import requests
-import random
+import aiohttp
 from utils.config import Config
 
 class WeComOAuth:
@@ -34,8 +34,14 @@ class WeComOAuth:
         return oauth_url
 
     @classmethod
-    async def get_user_info(cls, code):
+    async def get_user_info(cls, code: str, state: str):
         """通过授权码获取用户信息"""
+
+        if state not in cls.state:
+            logging.error("State mismatch")
+            return None
+        cls.state.remove(state)
+
         try:
             # 1. 获取访问令牌
             access_token = await cls.get_access_token()
@@ -50,7 +56,7 @@ class WeComOAuth:
                 return None
 
             # 3. 获取用户详细信息
-            user_detail = await cls.get_user_detail(access_token, user_info.get('userid'))
+            user_detail = await cls.get_user_detail(access_token, user_info.get('user_ticket'))
             return user_detail
 
         except Exception as e:
@@ -60,37 +66,20 @@ class WeComOAuth:
     @classmethod
     async def get_access_token(cls):
         """获取企业微信访问令牌"""
-        corp_id = Config.corp_id()
-        corp_secret = Config.corp_secret()
-
-        url = f"https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={corp_id}&corpsecret={corp_secret}"
-
-        try:
-            response = requests.get(url)
-            data = response.json()
-
-            if data.get('errcode') == 0:
-                return data.get('access_token')
-            else:
-                logging.error(f"Failed to get access token: {data}")
-                return None
-        except Exception as e:
-            logging.error(f"Error getting access token: {e}")
-            return None
+        return Config.accessToken()
 
     @classmethod
     async def get_user_id(cls, access_token, code):
         """通过授权码获取用户ID"""
-        url = f"https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo?access_token={access_token}&code={code}"
+        url = f"https://qyapi.weixin.qq.com/cgi-bin/auth/getuserinfo?access_token={access_token}&code={code}"
 
         try:
-            response = requests.get(url)
-            data = response.json()
+            response = await aiohttp.ClientSession().get(url)
+            data = await response.json()
 
-            if data.get('errcode') == 0:
+            if data is not None and data.get('errcode') == 0:
                 return {
                     'userid': data.get('userid'),
-                    'openid': data.get('openid'),
                     'user_ticket': data.get('user_ticket')
                 }
             else:
@@ -106,8 +95,8 @@ class WeComOAuth:
         url = f"https://qyapi.weixin.qq.com/cgi-bin/user/get?access_token={access_token}&userid={userid}"
 
         try:
-            response = requests.get(url)
-            data = response.json()
+            response = await aiohttp.ClientSession().get(url)
+            data = await response.json()
 
             if data.get('errcode') == 0:
                 return {
