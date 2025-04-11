@@ -63,7 +63,7 @@
     <main class="px-4 py-16 sm:px-0 lg:px-0 lg:py-20">
       <div class="flex justify-end mb-8">
         <div class="relative inline-block">
-          <img :src="profile.avatar" alt="Avatar" class="w-64 h-64 rounded-full obj ect-cover" />
+          <img :src="profile.avatar" alt="Avatar" class="w-64 h-64 rounded-full object-cover" />
           <button
             class="absolute bottom-4 right-4 bg-white p-2 rounded-full shadow hover:bg-gray-100"
             @click="openCropper"
@@ -87,9 +87,11 @@
                       @keyup.enter="saveField(key)"
                       class="border border-gray-300 rounded p-1"
                     />
+                    <span v-if="key === 'Wecom'" class="ml-2 text-gray-400">@北京三十五中</span>
                   </template>
                   <template v-else>
                     {{ value }}
+                    <span v-if="key === 'Wecom'" class="ml-2 text-gray-400">@北京三十五中</span>
                   </template>
                 </div>
                 <div class="flex items-center gap-x-2">
@@ -141,7 +143,7 @@
               <dd class="flex flex-auto items-center justify-end">
                 <Switch
                   v-model="automaticTimezoneEnabled"
-                  :class="[automaticTimezoneEnabled ? 'bg-indigo-600' : 'bg-gray-200', 'flex w-8 cursor-pointer rounded-full p-px ring-1 ring-gray-900/5 transition-colors duration-200 ease-in-out ring-inset focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600']"
+                  :class="[automaticTimezoneEnabled ? 'bg-indigo-600' : 'bg-gray-200', 'flex w-8 cursor-pointer rounded-full p-1 ring-1 ring-gray-900/5 transition-colors duration-200 ease-in-out ring-inset focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600']"
                 >
                   <span
                     aria-hidden="true"
@@ -216,7 +218,7 @@ const profile = ref({
     name: "None",
     Email: "None",
     role: "None",
-    Wecom: "None",
+    Wecom: "",
     avatar: ""
 })
 
@@ -224,7 +226,7 @@ const profileData = computed(() => ({
   "Name": profile.value.name || "None",
   "Email address": profile.value.Email || "None",
   "Title": profile.value.role || "None",
-  "Wecom": profile.value.Wecom + "@北京三十五中" || "None"
+  "Wecom": profile.value.Wecom ? `${profile.value.Wecom.split('@')[0]}` : "None"
 }))
 
 const editingField = ref(null)
@@ -232,7 +234,11 @@ const editingValue = ref('')
 
 function updateField(key) {
   editingField.value = key
-  editingValue.value = profileData.value[key]
+  if (key === "Wecom") {
+    editingValue.value = profile.value.Wecom.split('@')[0] || ""
+  } else {
+    editingValue.value = profileData.value[key]
+  }
 }
 
 async function saveField(key) {
@@ -249,8 +255,10 @@ async function saveField(key) {
     // 使用原始的 key 而不是 key.toLowerCase()
     profile.value[key.replace(/\s+/g, '')] = editingValue.value;
     // 调用 updateUserProfile 方法并传入编辑后的字段和值
-    const updateResponse = await ApiServices.updateUserProfile({ "name_old": profile.value.name ,[key.replace(/\s+/g, '').toLowerCase()]: editingValue.value });
-
+    const updateResponse = await ApiServices.updateUserProfile({
+      "name_old": profile.value.name,
+      [key.replace(/\s+/g, '').toLowerCase()]: editingValue.value
+    })
     // 根据 API 返回的数据进行处理
     if (updateResponse.success) {
       alert('Profile updated successfully!');
@@ -269,8 +277,6 @@ async function saveField(key) {
     editingValue.value = '';
   }
 }
-
-
 
 function validateEmail(email) {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -351,10 +357,9 @@ const getUserInfo = async () => {
       name: data.name || "None",
       Email: data.email || "None",
       role: data.department || "None",
-      Wecom: data.wecom || "None",
-      avatar: data.avatar_text || "https://avatars.githubusercontent.com/u/163859507?v=4",
+      Wecom: data.wecom || "",
+      avatar: data.avatar || "",
     };
-    console.log(profile.mobile);
   } catch (error) {
     console.error('获取任务数据失败:', error);
   }
