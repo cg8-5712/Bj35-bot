@@ -100,12 +100,12 @@ class Config:
         return int(time.mktime(time.strptime(expire_time, '%Y-%m-%dT%H:%M:%S+08:00')))
 
     @classmethod
-    def crop_id(cls):
+    def corp_id(cls):
         """
-        crop id
+        corp id
         :return: str
         """
-        return os.getenv("CROP_ID")
+        return os.getenv("CORP_ID")
 
     @classmethod
     def secret(cls):

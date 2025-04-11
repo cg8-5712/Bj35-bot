@@ -1,11 +1,14 @@
-import requests
 import logging
 from urllib.parse import quote
 
+import requests
+import random
 from utils.config import Config
 
 class WeComOAuth:
     """企业微信 OAuth 认证处理类"""
+
+    state = []
 
     @classmethod
     def get_oauth_url(cls):
@@ -14,6 +17,10 @@ class WeComOAuth:
         redirect_uri = quote(Config.redirect_uri(), safe='')
         agent_id = Config.agent_id()
 
+        # 生成随机字符串作为 state 参数
+        state = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz0123456789', k=16))
+        cls.state.append(state)
+
         # 构建授权URL
         # 参考文档: https://developer.work.weixin.qq.com/document/path/96440
         oauth_url = (
@@ -21,7 +28,7 @@ class WeComOAuth:
             f"?appid={corp_id}"
             f"&agentid={agent_id}"
             f"&redirect_uri={redirect_uri}"
-            f"&state=STATE"  # 可以使用随机字符串防止CSRF攻击
+            f"&state={state}"  # 可以使用随机字符串防止CSRF攻击
         )
 
         return oauth_url

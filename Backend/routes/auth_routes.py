@@ -4,7 +4,7 @@ from quart import jsonify, request, redirect
 from quart_jwt_extended import create_access_token
 
 from handler.PostgreSQLConnector import PostgreSQLConnector
-from handler.wecom_oauth import WeComOAuth
+from utils.wecom_oauth import WeComOAuth
 from utils.config import Config
 
 URI_PREFIX = Config.URI_PREFIX
@@ -54,14 +54,14 @@ def register_routes(app):
 
 
     # 企业微信OAuth路由
-    @app.route(URI_PREFIX + '/wecom/auth', methods=['GET'])
+    @app.route(URI_PREFIX + '/auth/wecom/get', methods=['GET'])
     async def wecom_auth():
         """获取企业微信OAuth授权URL"""
         oauth_url = WeComOAuth.get_oauth_url()
-        return jsonify(code=0, oauth_url=oauth_url)
+        return jsonify({'code': 0, 'message': 'Success', 'url': oauth_url })
 
 
-    @app.route(URI_PREFIX + '/wecom/callback', methods=['GET'])
+    @app.route(URI_PREFIX + '/auth/wecom/callback', methods=['GET'])
     async def wecom_callback():
         """处理企业微信OAuth回调"""
         code = request.args.get('code')

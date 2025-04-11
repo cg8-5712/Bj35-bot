@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 from utils.config import Config
 
-corp_id = Config.crop_id()  # 企业ID
+corp_id = Config.corp_id()  # 企业ID
 secret = Config.secret()  # 应用Secret
 agent_id = Config.agent_id()  # 应用AgentId
 user_id = ""  # 接收消息的用户ID
