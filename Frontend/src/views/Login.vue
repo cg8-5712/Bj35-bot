@@ -48,8 +48,11 @@
               </div>
             </div>
 
-            <div>
-              <button type="submit" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">登录</button>
+            <div class="space-y-4">
+              <button type="submit" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">账号密码登录</button>
+              <button @click="handleWeComLogin" type="button" class="flex w-full justify-center rounded-md bg-green-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-green-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600">
+                企业微信登录
+              </button>
             </div>
           </form>
         </div>
@@ -72,6 +75,10 @@ const password = ref('')
 const rememberMe = ref(Boolean)
 
 rememberMe.value = true
+
+async function handleWeComLogin() {
+  window.location.href = `${import.meta.env.VITE_APP_API_URL}/auth/wecom`
+}
 
 async function handleLogin() {
   try {
