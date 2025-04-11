@@ -18,10 +18,10 @@ def register_routes(app):
     async def fetch_school_tasks(pagesize, currentpage):
         """获取学校任务"""
         school_tasks = await api.get_school_tasks(pagesize, currentpage)
-        no = 100
+        no = 1
         for task in school_tasks.get('data', []):
             task['no'] = no
-            no -= 1
+            no += 1
         return jsonify(school_tasks)
 
     @app.route(URI_PREFIX + '/running-task', methods=['GET'])
