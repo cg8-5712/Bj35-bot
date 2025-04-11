@@ -26,7 +26,7 @@ User can get some necessary params from this file.
 
 import os
 import time
-from typing import Dict, List, Any, Optional, ClassVar
+from typing import Dict, List, Any, ClassVar
 from pydantic import Field
 from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
@@ -41,27 +41,27 @@ class Settings(BaseSettings):
     # 数据库配置
     DB_HOST: str = Field(default="localhost")
     DB_PORT: int = Field(default=5432)
-    DB_NAME: str = Field(default="userdata") 
+    DB_NAME: str = Field(default="userdata")
     DB_USER: str = Field(default="postgres")
     DB_PASSWORD: str = Field(default="password")
     DB_POOL_MIN_SIZE: int = Field(default=5)
     DB_POOL_MAX_SIZE: int = Field(default=10)
     DB_SSL: bool = Field(default=False)
-    
+
     # 接口认证相关
-    ACCESS_TOKEN: Optional[str] = None
-    ACCESS_KEY_ID: Optional[str] = None
-    STORE_ID: Optional[str] = None
-    SECRET_KEY: Optional[str] = None
-    JWT_SECRET_KEY: Optional[str] = None
-    EXPIRE_TIME: Optional[str] = None
-    
+    ACCESS_TOKEN: str = Field(default="access_token")
+    ACCESS_KEY_ID: str = Field(default="access_key_id")
+    STORE_ID: str = Field(default="store_id")
+    SECRET_KEY: str = Field(default="secret_key")
+    JWT_SECRET_KEY: str = Field(default="jwt_secret_key")
+    EXPIRE_TIME: str = Field(default="1900-01-01T00:00:00+08:00")
+
     # 企业微信相关配置
-    CORP_ID: Optional[str] = None
-    SECRET: Optional[str] = None
-    AGENT_ID: Optional[str] = None
-    REDIRECT_URI: Optional[str] = None
-    FRONTEND_URL: str = Field(default="http://localhost:5173")
+    WECOM_CORP_ID: str = Field(default="corp_id")
+    WECOM_SECRET: str = Field(default="secret")
+    WECOM_AGENT_ID: str = Field(default="agent_id")
+    WECOM_REDIRECT_URI: str = Field(default="http://localhost:8000/api/v1/auth/wechat")
+    WECOM_FRONTEND_URL: str = Field(default="http://localhost:5173")
 
 settings = Settings()
 
@@ -199,7 +199,7 @@ class Config:
         }
 
     @classmethod
-    def accessToken(cls) -> Optional[str]:
+    def accessToken(cls) -> str:
         """access Token"""
         return settings.ACCESS_TOKEN
 
@@ -209,17 +209,17 @@ class Config:
         return str(settings.ACCESS_KEY_ID)
 
     @classmethod
-    def store_Id(cls) -> Optional[str]:
+    def store_Id(cls) -> str:
         """store id"""
         return settings.STORE_ID
 
     @classmethod
-    def SECRET_KEY(cls) -> Optional[str]:
+    def SECRET_KEY(cls) -> str:
         """secret key"""
         return settings.SECRET_KEY
 
     @classmethod
-    def jwt_secret_key(cls) -> Optional[str]:
+    def jwt_secret_key(cls) -> str:
         """jwt secret key"""
         return settings.JWT_SECRET_KEY
 
@@ -231,34 +231,34 @@ class Config:
         return int(time.mktime(time.strptime(settings.EXPIRE_TIME, '%Y-%m-%dT%H:%M:%S+08:00')))
 
     @classmethod
-    def corp_id(cls) -> Optional[str]:
+    def corp_id(cls) -> str:
         """corp id"""
-        return settings.CORP_ID
+        return settings.WECOM_CORP_ID
 
     @classmethod
-    def secret(cls) -> Optional[str]:
+    def secret(cls) -> str:
         """secret key"""
-        return settings.SECRET
-    
+        return settings.WECOM_SECRET
+
     @classmethod
-    def agent_id(cls) -> Optional[str]:
+    def agent_id(cls) -> str:
         """agent id"""
-        return settings.AGENT_ID
+        return settings.WECOM_AGENT_ID
 
     @classmethod
-    def app_id(cls) -> Optional[str]:
+    def app_id(cls) -> str:
         """app id (same as agent id)"""
-        return settings.AGENT_ID
+        return settings.WECOM_AGENT_ID
 
     @classmethod
-    def redirect_uri(cls) -> Optional[str]:
+    def redirect_uri(cls) -> str:
         """企业微信 OAuth 重定向 URI"""
-        return settings.REDIRECT_URI
+        return settings.WECOM_REDIRECT_URI
 
     @classmethod
     def frontend_url(cls) -> str:
         """前端 URL"""
-        return settings.FRONTEND_URL
+        return settings.WECOM_FRONTEND_URL
 
     @classmethod
     def target_list(cls) -> List[Dict[str, str]]:
