@@ -1,4 +1,8 @@
 from urllib import response
+import sys
+import os
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from utils.config import Config
 import aiohttp
@@ -46,23 +50,24 @@ async def get_school_tasks(pageSize, current):
     async with aiohttp.ClientSession(headers=headers) as session:
         params = {'storeIds': Config.store_Id(),
                   'pageSize': pageSize,
-                  'current': current}
+                  'current': current
+                  }
         async with session.get(f'https://open-api.yunjiai.cn/v3/rcs/task/list', params=params) as response:
             return json.loads(await response.text())
 
-async def get_cabin_position(device_id):
+async def get_cabin_position(cabin_id):
     # 异步获取指定设备的仓位位置
     headers = create_headers()
     async with aiohttp.ClientSession(headers=headers) as session:
-        async with session.get(f'https://open-api.yunjiai.cn/v3/robot/{device_id}/position') as response:
+        async with session.get(f'https://open-api.yunjiai.cn/v3/robot/{cabin_id}/position') as response:
             return json.loads(await response.text())
 
-async def reset_cabin_position(device_id, position):
+async def reset_cabin_position(cabin_id, position):
     # 异步重置指定设备的仓位位置
     headers = create_headers()
     data = {"marker": position}
     async with aiohttp.ClientSession(headers=headers) as session:
-        async with session.put(f'https://open-api.yunjiai.cn/v3/robot/up/cabin/{device_id}/reset-position', json=data) as response:
+        async with session.put(f'https://open-api.yunjiai.cn/v3/robot/up/cabin/{cabin_id}/reset-position', json=data) as response:
             return json.loads(await response.text())
 
 async def get_running_task():
@@ -73,14 +78,7 @@ async def get_running_task():
         async with session.get(f'https://open-api.yunjiai.cn/v3/rcs/task/running-task/list', json={'storeId': storeId}) as response:
             return json.loads(await response.text())
 
-# async def get_running_task_list(storeId):
-#     # 异步获取指定storeId的正在运行的任务列表
-#     headers = create_headers()
-#     async with aiohttp.ClientSession(headers=headers) as session:
-#         async with session.get(f'https://open-api.yunjiai.cn/v3/rcs/task/running-task/list', json={'storeId': storeId}) as response:
-#             return json.loads(await response.text())
-
-async def make_task_flow_move_target_and_lift_down(device_id, target):
+async def make_task_flow_move_target_and_lift_down(cabin_id, target):
     # 异步创建任务流，移动到指定目标并放下货柜
     headers = create_headers()
     data = {
@@ -88,15 +86,15 @@ async def make_task_flow_move_target_and_lift_down(device_id, target):
           "templateId": "dock_cabin_and_move_target_and_lift_down",
           "storeId": Config.store_Id(),
           "params": {
-            "dockCabinId": device_id,
+            "dockCabinId": cabin_id,
             "target": target
-  }
-}
+        }
+    }
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.post(f'https://open-api.yunjiai.cn/v3/rcs/task/flow/execute', json=data) as response:
             return json.loads(await response.text())
 
-async def make_task_flow_docking_cabin_and_move_target(device_id,target):
+async def make_task_flow_docking_cabin_and_move_target(cabin_id,device_id,target):
     # 异步创建任务流，对接货柜并移动到指定目标
     headers = create_headers()
     data = {
@@ -104,8 +102,8 @@ async def make_task_flow_docking_cabin_and_move_target(device_id,target):
               "templateId": "docking_cabin_and_move_target",
               "storeId": Config.store_Id(),
               "params": {
-                "dockCabinId": device_id,
-                # "chassisId": "3949399854845849594854",
+                "dockCabinId": cabin_id,
+                "chassisId": device_id,
                 "target": target
               }
             }
@@ -113,16 +111,20 @@ async def make_task_flow_docking_cabin_and_move_target(device_id,target):
         async with session.post(f'https://open-api.yunjiai.cn/v3/rcs/task/flow/execute', json=data) as response:
             return json.loads(await response.text())
 
-async def make_task_flow_dock_cabin_and_move_target_with_wait_action(device_id,target,overtime):
+async def make_task_flow_dock_cabin_and_move_target_with_wait_action(cabin_id,device_id,target,overtime):
     # 异步创建任务流，对接货柜并移动到指定目标，支持等待操作
+    #cabin_id 上仓ID
+    #device_id 底盘ID
+    #target 目标位置
+    #overttime 等待时间
     headers = create_headers()
     data = {
               "outTaskId": str(uuid.uuid4()),
               "templateId": "dock_cabin_and_move_target_with_wait_action",
               "storeId": Config.store_Id(),
               "params": {
-                "dockCabinId": device_id,
-                # "chassisId": "3949399854845849594854",
+                "dockCabinId": cabin_id,
+                "chassisId": device_id,
                 "target": target,
                 "overtime": overtime,
                 "overtimeEvent": "back"
@@ -132,7 +134,7 @@ async def make_task_flow_dock_cabin_and_move_target_with_wait_action(device_id,t
         async with session.post(f'https://open-api.yunjiai.cn/v3/rcs/task/flow/execute', json=data) as response:
             return json.loads(await response.text())
 
-async def make_task_flow_move_and_lift_down(device_id,dockingMarker, target):
+async def make_task_flow_move_and_lift_down(cabin_id,device_id,dockingMarker, target):
     # 异步创建任务流，移动到指定目标并放下货柜
     headers = create_headers()
     data = {
@@ -140,45 +142,39 @@ async def make_task_flow_move_and_lift_down(device_id,dockingMarker, target):
               "templateId": "dock_cabin_to_move_and_lift_down",
               "storeId": Config.store_Id(),
               "params": {
-              "dockCabinId": device_id,
+              "dockCabinId": cabin_id,
+              "chassisId": device_id,
               "target": target
               }
-}
+    }
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.post(f'https://open-api.yunjiai.cn/v3/rcs/task/flow/execute', json=data) as response:
             return json.loads(await response.text())
 
-async def get_device_by_id(device_id):
+async def get_device_by_id(cabin_id):
     """根据设备ID获取设备对象"""
      # 实现略，可从数据库或设备管理服务获取
-    return {"id": device_id, "type": "robot"}
-
-async def goto_charge(device_id):
-    # 异步发送指令使设备移动到充电站
-    headers = create_headers()
-    data = {"chargeId": ""}
-    async with aiohttp.ClientSession(headers=headers) as session:
-        async with session.post(f'https://open-api.yunjiai.cn/v3/robot/{device_id}/goto-charge', json=data) as response:
-            return json.loads(await response.text())
+    return {"id": cabin_id, "type": "robot"}
 
 async def sleep(time):
     # 异步休眠指定时间
     await asyncio.sleep(time)
 
-async def check(device_id):
-    res=await get_device_status(device_id)
+async def check(cabin_id):
+    res=await get_device_status(cabin_id)
     status=[res["data"]["deviceStatus"]["lockers"][0]["status"], res["data"]["deviceStatus"]["lockers"][1]["status"]]
     if "OPEN" in status:
         return "open"
     elif status==["CLOSE", "CLOSE"]:
         return "close"
 
-async def RUN(locations, device_id):
+async def RUN(locations, cabin_id,device_id):
+    print("开始执行")
     """执行任务流
 
     Args:
         locations: 位置列表，包含机器人需要到达的目标位置
-        device_id: 需要执行任务的机器人设备ID
+        cabin_id: 需要执行任务的上仓设备ID
 
     Returns:
         dict: 包含执行结果的状态码和消息
@@ -190,36 +186,31 @@ async def RUN(locations, device_id):
         if not locations:
             return {'code': 1, 'message': '位置列表不能为空'}
 
-        logger.info(f'开始执行任务流，设备ID: {device_id}, 位置列表: {locations}')
-
+        logger.info(f'开始执行任务流，设备ID: {cabin_id}, 位置列表: {locations}')
         # 执行每个位置的任务
         task_results = []
         for idx, location in enumerate(locations):
             logger.info(f'执行第 {idx + 1} 个任务，目标位置: {location}')
-
+            print(f'执行第 {idx + 1} 个任务，目标位置: {location}')
             try:
                 # 获取设备对象
-                device = await get_device_by_id(device_id)
+                device = await get_device_by_id(cabin_id)
                 if not device:
-                    raise ValueError(f"找不到设备ID: {device_id}")
-
+                    raise ValueError(f"找不到设备ID: {cabin_id}")
                 # 执行任务
-                res = await make_task_flow_dock_cabin_and_move_target_with_wait_action(device_id, location, 300)
-
+                res = await make_task_flow_dock_cabin_and_move_target_with_wait_action(cabin_id,device_id, location, 100)
                 flag = False  # 标记是否完成一次开门关门 关门为 False 开门为 True
                 task_results.append(res)
                 logger.info(f'位置 {location} 任务执行结果: {res}')
                 while True:
-                    res = await check(device_id)
+                    res = await check(cabin_id)
+                    print(f'flag:{flag} res:{res}')
                     if res == "open":
                         flag = True
-
                     if res == "close" and flag == True:
-                        return {'code': 0, 'message': f'任务流执行成功，设备ID: {device_id}, 位置列表: {locations}'}
+                        break
                     await asyncio.sleep(1)
-
-
-
+                print(f'code: 0, message: 任务{idx + 1}执行成功 设备ID: {cabin_id}, 位置: {location}')
             except Exception as e:
                 logger.error(f'位置 {location} 任务执行失败: {str(e)}')
                 return {'code': 1, 'message': f'任务执行失败: {str(e)}'}
@@ -228,9 +219,32 @@ async def RUN(locations, device_id):
         logger.error(f'任务流执行失败: {str(e)}')
         return {'code': 1, 'message': f'任务流执行失败: {str(e)}'}
 
+    await make_task_flow_dock_cabin_and_move_target_with_wait_action(cabin_id,device_id, "charge_point_1F_40300716", 100)
+
+#送物上舱
+device_bot1_cabin = 1309143264909201408#Y楼上仓
+device_bot2_cabin = 1309097125891674112#B楼上仓
+#分体底盘
+device_bot1 = 1309143200526635008#Y楼分体底盘
+device_bot2 = 1309097274332286976#B楼分体底盘
+#务必保证上仓与底盘对应
 
 if __name__ == '__main__':
-    # device_bot1_cabin = 1309143264909201408
+    list=['Y102','Y103']
+    res=asyncio.run(RUN(list,device_bot1_cabin,device_bot1))
+    print(res)
+
+    # res=asyncio.run(get_school_tasks(100,1))
+    # print(res)
+
+    # print(asyncio.run(check(device_bot2_cabin)))
+    # print(asyncio.run(get_device_status(device_bot2_cabin)))
+    # asyncio.run(sleep(15))
+    # res = asyncio.run(make_task_flow_dock_cabin_and_move_target_with_wait_action(device_bot2_cabin, "B2", 10))
+    # print(res)
+    #
+    # res=asyncio.run(get_school_tasks(100,1))
+    # print(res)
     # print(asyncio.run(get_device_list()))
     # print("位置在:\n",asyncio.run(get_cabin_position(device_bot1_cabin)))
     # res = asyncio.run(make_task_flow_dock_cabin_and_move_target_with_wait_action(device_bot1_cabin, "Y103", 200))
@@ -273,8 +287,8 @@ if __name__ == '__main__':
     # print(device_bot1_cabin)
     # res = asyncio.run(get_cabin_position(device_bot1_cabin))
     # print(res)
-    res = asyncio.run(get_device_list())
-    print(res)
+    # res = asyncio.run(get_device_list())
+    # print(res)
     # print(asyncio.run(get_school_tasks()))
     # print(asyncio.run(reset_cabin_position(device_bot1_cabin, "charge_point_1F_40300716")))
     # res = asyncio.run(make_task_flow())
