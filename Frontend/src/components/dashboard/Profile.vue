@@ -1,5 +1,5 @@
 <template>
-  <header class="absolute inset-x-0 top-0 z-50 flex h-16 border-b border-gray-900/10">
+  <header class="fixed inset-x-0 top-0 z-50 flex h-16 border-b border-gray-900/10">
     <div class="mx-auto flex w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
       <div class="flex flex-1 items-center gap-x-6">
         <button type="button" class="-m-3 p-3 md:hidden" @click="mobileMenuOpen = true">
@@ -7,7 +7,8 @@
           <Bars3Icon class="size-5 text-gray-900" aria-hidden="true" />
         </button>
       </div>
-      <nav class="hidden md:flex md:gap-x-11 md:text-sm/6 md:font-semibold">
+      <!-- 在桌面环境下，增加了 overflow-x-auto 和 whitespace-nowrap -->
+      <nav class="hidden md:flex md:overflow-x-auto md:whitespace-nowrap md:gap-x-11 md:text-sm/6 md:font-semibold">
         <a
           v-for="(item, itemIdx) in navigation"
           :key="itemIdx"
@@ -15,11 +16,17 @@
           class="text-gray-700 hover:text-indigo-600"
           @click.prevent="item.action ? item.action() : null"
         >
-          <component v-if="item.icon" :is="item.icon" class="size-6 mr-1" aria-hidden="false" />
+          <component
+            v-if="item.icon"
+            :is="item.icon"
+            class="size-6 mr-1"
+            aria-hidden="false"
+          />
           {{ item.name }}
         </a>
       </nav>
       <div class="flex flex-1 items-center justify-end gap-x-8">
+        <!-- 这里可以添加额外的右侧元素 -->
       </div>
     </div>
     <Dialog class="lg:hidden" @close="mobileMenuOpen = false" :open="mobileMenuOpen">
@@ -58,7 +65,7 @@
     </Dialog>
   </header>
 
-  <div class="max-w-7xl lg:px-16">
+  <div class="max-w-7xl lg:px-16 pt-16">
     <h1 class="sr-only">General Settings</h1>
     <main class="px-4 py-16 sm:px-0 lg:px-0 lg:py-20">
       <div class="flex justify-end mb-8">
@@ -218,6 +225,7 @@ const profile = ref({
     name: "None",
     Email: "None",
     role: "None",
+    mobile: "None",
     Wecom: "",
     avatar: ""
 })
@@ -225,7 +233,8 @@ const profile = ref({
 const profileData = computed(() => ({
   "Name": profile.value.name || "None",
   "Email address": profile.value.Email || "None",
-  "Title": profile.value.role || "None",
+  "Mobile": profile.value.mobile || "None",
+  "Department": profile.value.role || "None",
   "Wecom": profile.value.Wecom ? `${profile.value.Wecom.split('@')[0]}` : "None"
 }))
 
@@ -252,20 +261,20 @@ async function saveField(key) {
 
   try {
     // 将已编辑的值保存到本地 profile 对象中
-    // 使用原始的 key 而不是 key.toLowerCase()
     profile.value[key.replace(/\s+/g, '')] = editingValue.value;
     // 调用 updateUserProfile 方法并传入编辑后的字段和值
     const updateResponse = await ApiServices.updateUserProfile({
       "name_old": profile.value.name,
       [key.replace(/\s+/g, '').toLowerCase()]: editingValue.value
     })
-    // 根据 API 返回的数据进行处理
     if (updateResponse.success) {
       alert('Profile updated successfully!');
+      await getUserInfo();
       if (key.replace(/\s+/g, '').toLowerCase() === "name") {
         AuthService.logout()
         await router.push('/login')
       }
+
     } else {
       alert(`Failed to update profile. Reason: ${updateResponse.message}`);
     }
@@ -344,7 +353,7 @@ const editingLanguage = ref(false)
 function toggleLanguageEdit() {
   if (editingLanguage.value) {
     alert(`Language updated to ${currentLanguage.value}`)
-    ApiServices.updateUserLanguage(currentLanguage.value) // 假设这是更新语言的API函数
+    ApiServices.updateUserLanguage(currentLanguage.value)
   }
   editingLanguage.value = !editingLanguage.value
 }
@@ -357,6 +366,7 @@ const getUserInfo = async () => {
       name: data.name || "None",
       Email: data.email || "None",
       role: data.department || "None",
+      mobile: data.mobile || "None",
       Wecom: data.wecom || "",
       avatar: data.avatar || "",
     };
@@ -365,10 +375,9 @@ const getUserInfo = async () => {
   }
 }
 
-onMounted( () => {
+onMounted(() => {
   getUserInfo();
 });
-
 </script>
 
 <style>

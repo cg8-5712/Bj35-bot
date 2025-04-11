@@ -9,7 +9,7 @@ class AuthService {
     const hashedPassword = MD5(password).toString();
 
     return axios
-      .post(`${import.meta.env.VITE_APP_API_URL}/login`, {
+      .post(`${import.meta.env.VITE_APP_API_URL}/auth/login`, {
         username,
         password: hashedPassword,
         rememberMe

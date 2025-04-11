@@ -292,50 +292,48 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { TransitionGroup } from 'vue';
-import { v4 as uuidv4 } from 'uuid';
-import ApiServices from '@/services/ApiServices';
-import NotificationService from '@/services/NotificationService';
+import { ref, computed, onMounted, watch } from 'vue'
+import { TransitionGroup } from 'vue'
+import { v4 as uuidv4 } from 'uuid'
+import ApiServices from '@/services/ApiServices'
+import NotificationService from '@/services/NotificationService'
 
 import {
   ArrowUpIcon,
   ArrowDownIcon,
   TrashIcon
-} from '@heroicons/vue/20/solid';
+} from '@heroicons/vue/20/solid'
 
 // 状态样式映射
 const statusClasses = {
-  '空闲': 'bg-green-50 text-green-700',
+  '空闲': 'bg-green-50 text-text-700',
   '执行任务中': 'bg-yellow-50 text-yellow-600',
   '未知': 'bg-gray-50 text-gray-600',
   '错误': 'bg-red-50 text-red-700'
-};
+}
 
 // 状态数据
-const robots = ref([]);
-const loading = ref(true);
-const selectedRobot = ref(null);
+const robots = ref([])
+const loading = ref(true)
+const selectedRobot = ref(null)
 
 // 任务节点
-const taskNodes = ref([]);
+const taskNodes = ref([])
 
-// A mock data for target and user options
-// Reqire api data
 // 教室列表
-const targetOptions = ref([]);
+const targetOptions = ref([])
 
-const fetchtargets = async () => {
+const fetchTargets = async () => {
   try {
-    const data = await ApiServices.gettargetlist();
+    const data = await ApiServices.getTargetList()
     // 假设 data 是数组格式
-    targetOptions.value = data;
+    targetOptions.value = data
     // 可选：打印结果确认赋值
-    console.log(targetOptions.value);
+    console.log(targetOptions.value)
   } catch (error) {
-    console.error('获取任务数据失败:', error);
+    console.error('获取任务数据失败:', error)
   } finally {
-    loading.value = false;
+    loading.value = false
   }
 }
 
@@ -343,85 +341,85 @@ const userOptions = ref([
   { value: '用户1', label: '用户1' },
   { value: '用户2', label: '用户2' },
   { value: '用户3', label: '用户3' }
-]);
+])
 
 // 获取状态样式类
 function getStatusClass(status) {
-  return statusClasses[status] || statusClasses['未知'];
+  return statusClasses[status] || statusClasses['未知']
 }
 
 // 获取电量颜色
 function getBatteryColorClass(power) {
-  if (power > 50) return 'bg-green-600';
-  if (power > 20) return 'bg-yellow-600';
-  return 'bg-red-600';
+  if (power > 50) return 'bg-green-600'
+  if (power > 20) return 'bg-yellow-600'
+  return 'bg-red-600'
 }
 
 // 选择机器人
 function selectRobot(robot) {
-  selectedRobot.value = robot;
+  selectedRobot.value = robot
 }
 
 // 添加任务节点，默认类型为 move，新格式的参数结构
 function addTaskNode() {
   console.log(selectedRobot.value)
   if (!selectedRobot.value) {
-    showNotification('请先选择一个机器人', 'warning');
-    return;
+    showNotification('请先选择一个机器人', 'warning')
+    return
   }
   taskNodes.value.push({
     id: uuidv4(),
     type: 'move',
     params: {
-      target: "",
-      user: "",
-      message: ""
+      target: '',
+      user: '',
+      message: ''
     }
-  });
+  })
 }
 
 // 移除任务节点
 function removeTaskNode(index) {
-  taskNodes.value.splice(index, 1);
+  taskNodes.value.splice(index, 1)
 }
 
 // 节点上移
 function moveNodeUp(index) {
   if (index > 0) {
-    const temp = taskNodes.value[index];
-    taskNodes.value[index] = taskNodes.value[index - 1];
-    taskNodes.value[index - 1] = temp;
+    const temp = taskNodes.value[index]
+    taskNodes.value[index] = taskNodes.value[index - 1]
+    taskNodes.value[index - 1] = temp
   }
 }
 
 // 节点下移
 function moveNodeDown(index) {
   if (index < taskNodes.value.length - 1) {
-    const temp = taskNodes.value[index];
-    taskNodes.value[index] = taskNodes.value[index + 1];
-    taskNodes.value[index + 1] = temp;
+    const temp = taskNodes.value[index]
+    taskNodes.value[index] = taskNodes.value[index + 1]
+    taskNodes.value[index + 1] = temp
   }
 }
 
 // 重置任务节点
 function resetTaskNodes() {
-  taskNodes.value = [];
+  taskNodes.value = []
 }
 
 // 根据任务节点类型切换，重置对应的参数数据
 function updateNodeParams(node) {
   switch (node.type) {
     case 'move':
-      node.params = { target: "", user: "", message: "" };
-      break;
+      node.params = { target: '', user: '', message: '' }
+      break
     case 'back':
-      node.params = { charge_point: "" };
-      break;
+      node.params = { charge_point: '' }
+      break
     case 'send':
-      node.params = { user: "", message: "" };
-      break;
+      node.params = { user: '', message: '' }
+      break
     default:
-      node.params = {};
+      node.params = {}
   }
 }
 
@@ -429,14 +427,14 @@ function updateNodeParams(node) {
 const canPublish = computed(() => {
   return selectedRobot.value &&
          selectedRobot.value.status.isOnline &&
-         taskNodes.value.length > 0;
-});
+         taskNodes.value.length > 0
+})
 
 // 发布任务
 async function publishTask() {
   if (!canPublish.value) {
-    NotificationService.notify('无法发布任务，请检查机器人状态和任务配置', 'error');
-    return;
+    NotificationService.notify('无法发布任务，请检查机器人状态和任务配置', 'error')
+    return
   }
 
   try {
@@ -445,15 +443,15 @@ async function publishTask() {
       if (node.type === 'send') {
         // 发送消息节点
         if (!node.params.user || !node.params.message) {
-          NotificationService.notify('发送消息需要指定用户和消息内容', 'warning');
-          continue;
+          NotificationService.notify('发送消息需要指定用户和消息内容', 'warning')
+          continue
         }
-        
+
         try {
-          await ApiServices.sendMessage(node.params.message, node.params.user);
-          NotificationService.notify(`消息已发送给 ${node.params.user}`, 'success');
+          await ApiServices.sendMessage(node.params.message, node.params.user)
+          NotificationService.notify(`消息已发送给 ${node.params.user}`, 'success')
         } catch (error) {
-          NotificationService.notify(`发送消息失败: ${error.message}`, 'error');
+          NotificationService.notify(`发送消息失败: ${error.message}`, 'error')
         }
       }
     }
@@ -463,47 +461,47 @@ async function publishTask() {
       .filter(node => ['move', 'back'].includes(node.type))
       .map(node => {
         if (node.type === 'move') {
-          return node.params.target;
+          return node.params.target
         } else if (node.type === 'back') {
-          return node.params.charge_point;
+          return node.params.charge_point
         }
-        return null;
+        return null
       })
-      .filter(Boolean);
+      .filter(Boolean)
 
     // 如果有移动任务，调用RUN API
     if (locations.length > 0) {
       const response = await ApiServices.post(`/run-task/${selectedRobot.value.id}`, {
         locations: locations
-      });
+      })
 
       if (!response) {
-        throw new Error('API响应为空');
+        throw new Error('API响应为空')
       }
 
       if (response.code === 0) {
-        NotificationService.notify('任务已执行成功', 'success');
-        return response.data;
+        NotificationService.notify('任务已执行成功', 'success')
+        return response.data
       } else {
-        throw new Error(response.message || '未知错误');
+        throw new Error(response.message || '未知错误')
       }
     }
 
-    NotificationService.notify('所有任务已处理完成', 'info');
-    return [];
+    NotificationService.notify('所有任务已处理完成', 'info')
+    return []
   } catch (error) {
-    console.error('发布任务失败:', error);
-    NotificationService.notify(`发布任务失败: ${error.message || '未知错误'}`, 'error');
+    console.error('发布任务失败:', error)
+    NotificationService.notify(`发布任务失败: ${error.message || '未知错误'}`, 'error')
   }
 }
 
 // 获取所有设备
 async function fetchRobots() {
   try {
-    loading.value = true;
+    loading.value = true
 
     // 调用API获取机器人列表
-    const response = await ApiServices.get('/robot_list');
+    const response = await ApiServices.get('/robot_list')
 
     if (response.code === 0) {
       // 格式化数据以匹配前端结构
@@ -518,30 +516,50 @@ async function fetchRobots() {
           status: robot.status.status,
           location: robot.status.location
         }
-      }));
+      }))
     } else {
-      NotificationService.notify(`获取机器人列表失败: ${response.message}`, 'error');
-      robots.value = [];
+      NotificationService.notify(`获取机器人列表失败: ${response.message}`, 'error')
+      robots.value = []
     }
   } catch (error) {
-    console.error('获取机器人列表失败:', error);
-    NotificationService.notify(`获取机器人列表失败: ${error.message || '未知错误'}`, 'error');
+    console.error('获取机器人列表失败:', error)
+    NotificationService.notify(`获取机器人列表失败: ${error.message || '未知错误'}`, 'error')
   } finally {
-    loading.value = false;
+    loading.value = false
   }
 }
 
 // 提示方法
 function showNotification(message, type) {
-  NotificationService.notify(message, type);
+  NotificationService.notify(message, type)
 }
 
 // 组件挂载时获取机器人列表
 onMounted(() => {
-  fetchRobots();
-  fetchtargets();
-});
+  fetchRobots()
+  fetchTargets()
+})
+
+// 监听传递的机器人信息并设置为选中的机器人
+watch(
+  () => props.robot,
+  (newRobot, oldRobot) => {
+    if (newRobot && newRobot.id) {
+      selectedRobot.value = newRobot
+    }
+  },
+  { immediate: true }
+)
+
+const props = defineProps({
+  isOpen: Boolean,
+  robot: {
+    type: Object,
+    default: () => ({})
+  }
+})
 </script>
+
 
 
 <style scoped>
