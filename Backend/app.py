@@ -72,7 +72,6 @@ async def init_db():
         await PostgreSQLConnector.initialize()
     except Exception as e:
         logging.critical(f"数据库初始化失败，应用将退出: {e}")
-        exit(1)
 
 @app.before_serving
 async def before_serving():

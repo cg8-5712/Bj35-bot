@@ -54,7 +54,7 @@ def register_routes(app):
 
 
     # 企业微信OAuth路由
-    @app.route(URI_PREFIX + '/auth/wecom/get', methods=['GET'])
+    @app.route(URI_PREFIX + '/auth/wecom', methods=['GET'])
     async def wecom_auth():
         """获取企业微信OAuth授权URL"""
         oauth_url = WeComOAuth.get_oauth_url()
