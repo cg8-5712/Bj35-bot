@@ -281,7 +281,6 @@
         <button
           class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           @click="publishTask"
-          :disabled="!canPublish"
         >
           发布任务
         </button>
@@ -479,6 +478,7 @@ async function publishTask() {
 
     // 如果有移动任务，调用RUN API
     if (locations.length > 0) {
+      NotificationService.notify('任务已发布！', 'info');
       const response = await ApiServices.post(`/run-task/${selectedRobot.value.id}`, {
         locations: locations
       })
