@@ -5,7 +5,7 @@ import asyncio
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from handler.PostgreSQLConnector import PostgreSQLConnector
+from utils.PostgreSQLConnector import PostgreSQLConnector
 
 async def main():
     try:

@@ -1,10 +1,8 @@
 from quart import jsonify, request
 from quart_jwt_extended import jwt_required
 
-from handler.PostgreSQLConnector import PostgreSQLConnector
-from utils.decorators import error_handler
-
-from utils.config import Config
+from utils import Config, PostgreSQLConnector
+from utils import error_handler
 
 from send_message.main import send
 

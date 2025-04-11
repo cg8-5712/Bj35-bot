@@ -3,9 +3,7 @@ import datetime
 from quart import jsonify, request, redirect
 from quart_jwt_extended import create_access_token
 
-from handler.PostgreSQLConnector import PostgreSQLConnector
-from utils.wecom_oauth import WeComOAuth
-from utils.config import Config
+from utils import Config, PostgreSQLConnector, WeComOAuth
 
 URI_PREFIX = Config.uri_prefix()
 JWT_EXPIRY_REMEMBER = datetime.timedelta(weeks=1)

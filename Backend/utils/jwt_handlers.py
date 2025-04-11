@@ -5,6 +5,7 @@ def configure_jwt_handlers(jwt):
 
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header, jwt_payload):
+        del jwt_header, jwt_payload
         return jsonify({
             'code': 401,
             'message': '令牌已过期，请重新登录'
@@ -12,6 +13,7 @@ def configure_jwt_handlers(jwt):
 
     @jwt.invalid_token_loader
     def invalid_token_callback(error_string):
+        del error_string
         return jsonify({
             'code': 401,
             'message': '无效的令牌'
@@ -19,6 +21,7 @@ def configure_jwt_handlers(jwt):
 
     @jwt.unauthorized_loader
     def missing_token_callback(error_string):
+        del error_string
         return jsonify({
             'code': 401,
             'message': '未提供令牌，请先登录'
@@ -26,6 +29,7 @@ def configure_jwt_handlers(jwt):
 
     @jwt.needs_fresh_token_loader
     def token_not_fresh_callback(jwt_header, jwt_payload):
+        del jwt_header, jwt_payload
         return jsonify({
             'code': 401,
             'message': '需要新的令牌，请重新登录'
@@ -33,6 +37,7 @@ def configure_jwt_handlers(jwt):
 
     @jwt.revoked_token_loader
     def revoked_token_callback(jwt_header, jwt_payload):
+        del jwt_header, jwt_payload
         return jsonify({
             'code': 401,
             'message': '令牌已被撤销'

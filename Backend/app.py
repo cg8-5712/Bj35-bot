@@ -6,12 +6,10 @@ from quart import Quart
 from quart_cors import cors
 from quart_jwt_extended import JWTManager
 
-from handler.PostgreSQLConnector import PostgreSQLConnector
-from handler.accessToken import update_access_token
-from routes import register_all_routes
+from utils import Config, PostgreSQLConnector
+from utils import configure_jwt_handlers, update_access_token
 
-from utils.config import Config
-from utils.jwt_handlers import configure_jwt_handlers
+from routes import register_all_routes
 
 # 配置日志
 logging.basicConfig(

@@ -1,10 +1,8 @@
 from quart import jsonify
 from quart_jwt_extended import jwt_required
 
-import handler.api as api
-from utils.config import Config
-
-from utils.decorators import error_handler
+from utils import Config, api
+from utils import error_handler
 
 URI_PREFIX = Config.uri_prefix()
 

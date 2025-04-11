@@ -1,16 +1,16 @@
-from urllib import response
+# -*- coding: utf-8 -*-
 import sys
 import os
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from utils.config import Config
-import logging
-import aiohttp
-import asyncio
 import uuid
 import time
 import json
+import logging
+import asyncio
+import aiohttp
+
+from utils.config import Config
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 access_token = Config.accessToken()
 logger = logging.getLogger(__name__)

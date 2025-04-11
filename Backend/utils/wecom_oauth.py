@@ -3,7 +3,7 @@ import random
 from urllib.parse import quote
 
 import aiohttp
-from utils.config import Config
+from .config import Config
 
 class WeComOAuth:
     """企业微信 OAuth 认证处理类"""

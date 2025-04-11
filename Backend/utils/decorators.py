@@ -1,8 +1,8 @@
+import logging
 from functools import wraps
 from quart import jsonify
-import logging
 
-from handler.accessToken import update_access_token
+from utils.accessToken import update_access_token
 
 def error_handler(func):
     """异常处理装饰器"""
