@@ -49,12 +49,12 @@ class Settings(BaseSettings):
     DB_SSL: bool = Field(default=False)
 
     # 接口认证相关
-    ACCESS_TOKEN: str = Field(default="access_token")
-    ACCESS_KEY_ID: str = Field(default="access_key_id")
-    STORE_ID: str = Field(default="store_id")
-    SECRET_KEY: str = Field(default="secret_key")
-    JWT_SECRET_KEY: str = Field(default="jwt_secret_key")
-    EXPIRE_TIME: str = Field(default="1900-01-01T00:00:00+08:00")
+    AUTH_ACCESS_TOKEN: str = Field(default="access_token")
+    AUTH_ACCESS_KEY_ID: str = Field(default="access_key_id")
+    AUTH_STORE_ID: str = Field(default="store_id")
+    AUTH_SECRET_KEY: str = Field(default="secret_key")
+    AUTH_JWT_SECRET_KEY: str = Field(default="jwt_secret_key")
+    AUTH_EXPIRE_TIME: str = Field(default="1900-01-01T00:00:00+08:00")
 
     # 企业微信相关配置
     WECOM_CORP_ID: str = Field(default="corp_id")
@@ -201,34 +201,34 @@ class Config:
     @classmethod
     def accessToken(cls) -> str:
         """access Token"""
-        return settings.ACCESS_TOKEN
+        return settings.AUTH_ACCESS_TOKEN
 
     @classmethod
     def accessKeyId(cls) -> str:
         """access key id"""
-        return str(settings.ACCESS_KEY_ID)
+        return str(settings.AUTH_ACCESS_KEY_ID)
 
     @classmethod
     def store_Id(cls) -> str:
         """store id"""
-        return settings.STORE_ID
+        return settings.AUTH_STORE_ID
 
     @classmethod
     def SECRET_KEY(cls) -> str:
         """secret key"""
-        return settings.SECRET_KEY
+        return settings.AUTH_SECRET_KEY
 
     @classmethod
     def jwt_secret_key(cls) -> str:
         """jwt secret key"""
-        return settings.JWT_SECRET_KEY
+        return settings.AUTH_JWT_SECRET_KEY
 
     @classmethod
     def expire_time(cls) -> int:
         """expire time as timestamp"""
-        if not settings.EXPIRE_TIME:
+        if not settings.AUTH_EXPIRE_TIME:
             return 0
-        return int(time.mktime(time.strptime(settings.EXPIRE_TIME, '%Y-%m-%dT%H:%M:%S+08:00')))
+        return int(time.mktime(time.strptime(settings.AUTH_EXPIRE_TIME, '%Y-%m-%dT%H:%M:%S+08:00')))
 
     @classmethod
     def corp_id(cls) -> str:
