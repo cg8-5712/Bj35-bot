@@ -303,6 +303,15 @@ import {
   TrashIcon
 } from '@heroicons/vue/20/solid'
 
+// 定义组件的 props
+const props = defineProps({
+  isOpen: Boolean,
+  robot: {
+    type: Object,
+    default: () => ({})
+  }
+})
+
 // 状态样式映射
 const statusClasses = {
   '空闲': 'bg-green-50 text-text-700',
@@ -324,7 +333,7 @@ const targetOptions = ref([])
 
 const fetchTargets = async () => {
   try {
-    const data = await ApiServices.getTargetList()
+    const data = await ApiServices.getTargetlist()
     // 假设 data 是数组格式
     targetOptions.value = data
     // 可选：打印结果确认赋值
@@ -553,15 +562,8 @@ watch(
   },
   { immediate: true }
 )
-
-const props = defineProps({
-  isOpen: Boolean,
-  robot: {
-    type: Object,
-    default: () => ({})
-  }
-})
 </script>
+
 
 <style scoped>
 .task-list-move,

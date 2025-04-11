@@ -169,7 +169,7 @@ class ApiServices extends ApiPrefix {
     }
   }
 
-  async gettargetlist() {
+  async getTargetlist() {
     try {
       const targetlist = await this.get('/target-list');
       return targetlist;
