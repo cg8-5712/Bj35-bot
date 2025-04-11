@@ -552,24 +552,48 @@ onMounted(() => {
 watch(
   () => props.robot,
   (newRobot) => {
-    if (newRobot && newRobot.id) {
-      // 在机器人列表中找到匹配的机器人并选中它
-      const matchedRobot = robots.value.find(r => r.id === newRobot.id)
-      if (matchedRobot) {
-        selectedRobot.value = matchedRobot
-      } else {
-        // 如果在列表中找不到，直接使用传入的机器人
-        selectedRobot.value = newRobot
+    console.log('[Watch] props.robot changed:', newRobot)
+    if (newRobot && newRobot.cabinId) {
+      // 封装绑定逻辑
+      const bindRobot = () => {
+        console.log('[bindRobot] robots array:', robots.value)
+        const matchedRobot = robots.value.find(r => r.id === newRobot.id)
+        if (matchedRobot) {
+          console.log('[bindRobot] Matched robot found:', matchedRobot)
+        } else {
+          console.log('[bindRobot] No matching robot found, using newRobot:', newRobot)
+        }
+        selectedRobot.value = matchedRobot || newRobot
+        if (taskNodes.value.length === 0) {
+          console.log('[bindRobot] taskNodes empty, adding default task node')
+          addTaskNode()
+        }
       }
 
-      // 如果没有任务节点，添加一个默认节点
-      if (taskNodes.value.length === 0) {
-        addTaskNode()
+      // 定义等待 robots 数组加载的函数，每隔 500 毫秒检查一次
+      const waitForRobots = () => {
+        console.log('[waitForRobots] robots.length:', robots.value.length)
+        if (robots.value.length > 0) {
+          console.log('[waitForRobots] robots list loaded, proceeding to bind')
+          bindRobot()
+        } else {
+          console.log('[waitForRobots] robots not loaded yet, retrying in 500ms...')
+          setTimeout(waitForRobots, 500)
+        }
+      }
+
+      if (robots.value.length === 0) {
+        console.log('[Watch] robots array is empty at the moment, starting waitForRobots()')
+        waitForRobots()
+      } else {
+        console.log('[Watch] robots array already loaded')
+        bindRobot()
       }
     }
   },
   { immediate: true }
 )
+
 </script>
 
 
