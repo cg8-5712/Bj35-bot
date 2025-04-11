@@ -22,7 +22,7 @@ def register_routes(app):
     """注册认证相关路由"""
 
     # 登录路由
-    @app.route(URI_PREFIX + '/login', methods=['POST'])
+    @app.route(URI_PREFIX + '/auth/login', methods=['POST'])
     async def login():
         data = await request.json
         username = data.get('username', None)
