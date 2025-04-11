@@ -2,7 +2,7 @@
 
 import logging
 import datetime
-from quart import Quart, jsonify
+from quart import Quart
 from quart_cors import cors
 from quart_jwt_extended import JWTManager
 
@@ -22,18 +22,18 @@ logging.basicConfig(
 def create_app():
     """应用工厂函数"""
     app = Quart(__name__)
-    
+
     # 配置CORS和JWT
     app = cors(app, allow_origin="*")
     app.config["JWT_SECRET_KEY"] = Config.jwt_secret_key()
     jwt = JWTManager(app)
-    
+
     # 配置JWT错误处理器
     configure_jwt_handlers(jwt)
-    
+
     # 注册所有路由
     register_all_routes(app)
-    
+
     return app
 
 async def check_token():
@@ -50,9 +50,9 @@ async def check_token():
             if result:
                 logging.info("新的access token生成成功。")
             else:
-                logging.error(f"生成新的access token失败：{result}")
+                logging.error("生成新的access token失败：%s", result)
     except Exception as e:
-        logging.error(f"检查或更新access token时出错：{str(e)}")
+        logging.error("检查或更新access token时出错：%s", str(e))
 
 def log_token_expiry():
     """启动时获取expiration并记录距离过期的天数"""
@@ -60,9 +60,9 @@ def log_token_expiry():
         expiration_ts = float(Config.expire_time())
         current_ts = datetime.datetime.now().timestamp()
         days_remaining = (expiration_ts - current_ts) / (60 * 60 * 24)
-        logging.info(f"Access token将在 {days_remaining:.0f} 天后过期。")
+        logging.info("Access token将在 %i 天后过期。", days_remaining)
     except Exception as e:
-        logging.error(f"获取token过期时间失败：{str(e)}")
+        logging.error("获取token过期时间失败：%s", str(e))
 
 # 创建应用实例
 app = create_app()
@@ -71,7 +71,12 @@ async def init_db():
     try:
         await PostgreSQLConnector.initialize()
     except Exception as e:
-        logging.critical(f"数据库初始化失败，应用将退出: {e}")
+        if Config.get_env() == 'development':
+            logging.error("数据库初始化失败: %s", e)
+            return
+
+        logging.critical("数据库初始化失败，应用将退出: %s", e)
+        exit(1)
 
 @app.before_serving
 async def before_serving():

@@ -36,6 +36,8 @@ load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.env
 class Settings(BaseSettings):
     """Pydantic 类型检查和验证"""
 
+    ENV: str = Field(default="production")
+
     URI_PREFIX: ClassVar[str] = '/api/v1'
 
     # 数据库配置
@@ -182,6 +184,11 @@ class Config:
         {"value": "二楼作业柜", "label": "二楼作业柜"},
         {"value": "三楼作业柜", "label": "三楼作业柜"}
     ]
+
+    @classmethod
+    def get_env(cls) -> str:
+        """环境变量"""
+        return settings.ENV
 
     @classmethod
     def uri_prefix(cls) -> str:
