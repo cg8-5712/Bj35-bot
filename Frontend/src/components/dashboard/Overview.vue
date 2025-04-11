@@ -33,7 +33,7 @@
             <img :src="robot.imageUrl" :alt="robot.name" class="size-12 flex-none rounded-lg bg-white object-cover ring-1 ring-gray-900/10" />
             <div class="flex flex-col min-w-0 flex-1">
               <div class="text-sm font-medium text-gray-900">{{ robot.name }}</div>
-              <div class="text-xs text-gray-500 truncate" :title="robot.id">ID: {{ robot.id }}</div>
+              <div class="text-xs text-gray-500 truncate" :title="robot.deviceId">ID: {{ robot.deviceId }}</div>
             </div>
             <div class="flex-shrink-0 p-2 rounded-full" :class="robot.status.isOnline ? 'bg-green-50' : 'bg-red-50'">
               <div class="w-3 h-3 rounded-full" :class="robot.status.isOnline ? 'bg-green-500' : 'bg-red-500'"></div>
@@ -142,6 +142,7 @@ async function fetchRobots() {
     loading.value = true
     const response = await ApiServices.getRobotList()
     robots.value = response.data
+    console.log(robots.value)
   } catch (error) {
     console.error('获取机器人列表失败:', error)
     NotificationService.notify('获取机器人列表失败: ' + error.message, 'error')
