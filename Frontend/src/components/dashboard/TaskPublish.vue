@@ -1,4 +1,3 @@
-
 <template>
   <div class="task-publish-container">
     <!-- 页面标题 -->
@@ -543,9 +542,13 @@ onMounted(() => {
 // 监听传递的机器人信息并设置为选中的机器人
 watch(
   () => props.robot,
-  (newRobot, oldRobot) => {
+  (newRobot) => {
     if (newRobot && newRobot.id) {
       selectedRobot.value = newRobot
+      // 如果传递的机器人不为空，添加一个默认的任务节点
+      if (taskNodes.value.length === 0) {
+        addTaskNode()
+      }
     }
   },
   { immediate: true }
@@ -559,8 +562,6 @@ const props = defineProps({
   }
 })
 </script>
-
-
 
 <style scoped>
 .task-list-move,
