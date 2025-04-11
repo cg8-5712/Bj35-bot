@@ -24,14 +24,10 @@ This file is used to store the configuration of the project.
 User can get some necessary params from this file.
 """
 
-import os
 import time
 from typing import Dict, List, Any, ClassVar
 from pydantic import Field
 from pydantic_settings import BaseSettings
-from dotenv import load_dotenv
-
-load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.env'))
 
 class Settings(BaseSettings):
     """Pydantic 类型检查和验证"""
@@ -68,6 +64,11 @@ class Settings(BaseSettings):
     # 机器人相关配置
     CABINS: Dict[str, str] = Field(default=dict())
     CHASSIS: Dict[str, str] = Field(default=dict())
+
+    class Config:           # pylint: disable=too-few-public-methods
+        """Pydantic 配置"""
+        env_file = ".env"
+        env_file_encoding = "utf-8"
 
 settings = Settings()
 

@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 
+import os
 import logging
 import datetime
+from pathlib import Path
+
+from dotenv import load_dotenv
+
 from quart import Quart
 from quart_cors import cors
 from quart_jwt_extended import JWTManager
@@ -78,6 +83,18 @@ async def init_db():
 
 @app.before_serving
 async def before_serving():
+    env = os.getenv("ENV", "development")
+
+    # 使用 pathlib 替代 os.path
+    base_path = Path.cwd()  # 获取当前工作目录
+    env_specific_file = base_path / f".env.{env}"
+    default_env_file = base_path / ".env"
+
+    env_file = env_specific_file if env_specific_file.exists() else default_env_file
+
+    load_dotenv(env_file)
+    logging.info("加载环境变量文件: %s", env_file)
+
     await init_db()
     log_token_expiry()
     await check_token()
