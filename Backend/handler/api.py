@@ -189,13 +189,11 @@ async def RUN(locations, cabin_id):
             logger.info(f'找到匹配的CABIN: {value}, 对应的位置: {key}')
             try:
                 chassis_id = Config.chassis()[key]
-                if chassis_id == "" or chassis_id == None:
-                    return {'code': 1, 'message': f'找不到匹配的底盘ID'}
             except:
                 return {'code': 1, 'message': f'找不到匹配的底盘ID'}
 
-        else:
-            return {'code': 1, 'message': f'找不到匹配的CABIN通过前缀: {cabin_prefix}'}
+    if chassis_id == "" or chassis_id == None:
+        return {'code': 1, 'message': f'找不到匹配的CABIN通过前缀: {cabin_prefix}'}
 
 
     try:
