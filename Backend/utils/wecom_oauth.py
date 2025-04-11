@@ -28,7 +28,7 @@ class WeComOAuth:
             f"?appid={corp_id}"
             f"&redirect_uri={redirect_uri}"
             f"&response_type=code"
-            f"&scope=snsapi_userinfo"
+            f"&scope=snsapi_base"
             f"&state={state}"
             f"#wechat_redirect"
         )
