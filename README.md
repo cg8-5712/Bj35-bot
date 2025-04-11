@@ -43,9 +43,10 @@
 ### 后端
 
 1. 创建虚拟环境并激活：`python -m venv .venv && source .venv/bin/activate`
-2. 安装依赖：`pip install -r requirements.txt`
-3. 启动服务：`python Backend/python-backend/api/app.py`
-4. 访问 `http://localhost:8080/api/v1`
+2. 进入 `Backend` 目录
+3. 安装依赖：`pip install -r requirements.txt`
+4. 启动服务：`python ./app.py`
+5. 访问 `http://localhost:8080/api/v1`
 
 ## 相关文档
 
