@@ -26,141 +26,49 @@ User can get some necessary params from this file.
 
 import os
 import time
+from typing import Dict, List, Any, Optional, ClassVar
+from pydantic import Field
+from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
 
-# 加载.env文件，指定文件位置
 load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.env'))
 
-class Config:
-    URI_PREFIX = '/api/v1'
+class Settings(BaseSettings):
+    """Pydantic 类型检查和验证"""
 
-    @classmethod
-    def database_config(cls):
-        return {
-            'host': os.getenv('DB_HOST', 'localhost'),
-            'port': int(os.getenv('DB_PORT', '5432')),
-            'database': os.getenv('DB_NAME', 'userdata'),
-            'user': os.getenv('DB_USER', 'postgres'),
-            'password': os.getenv('DB_PASSWORD', 'password'),
-            'min_size': int(os.getenv('DB_POOL_MIN_SIZE', '5')),
-            'max_size': int(os.getenv('DB_POOL_MAX_SIZE', '10')),
-            'ssl': os.getenv('DB_SSL', 'false').lower() == 'true'
-        }
+    URI_PREFIX: ClassVar[str] = '/api/v1'
 
-
-    @classmethod
-    def accessToken(cls):
-        """
-        access Token
-        with no params
-        :return: access token -> str
-        """
-        # print(os.getenv("accessToken"))
-        return os.getenv("accessToken")  # 返回accessToken
-
-    @classmethod
-    def accessKeyId(cls):
-        """
-        access key id
-        :return: int
-        """
-        return str(os.getenv("accessKeyId"))  # 返回accessKeyId
-
-    @classmethod
-    def store_Id(cls):
-        """
-        store id
-        :return: str
-        """
-        return os.getenv("store_Id")
-
-    @classmethod
-    def SECRET_KEY(cls):
-        """
-        secret key
-        :return: str
-        """
-        return os.getenv("SECRET_KEY")
-
-    @classmethod
-    def jwt_secret_key(cls):
-        """
-        jwt secret key
-        :return: str
-        """
-        return os.getenv("JWT_SECRET_KEY")
-
-    @classmethod
-    def expire_time(cls):
-        """
-        expire time
-        :return: int
-        """
-        expire_time = os.getenv("EXPIRE_TIME")
-        return int(time.mktime(time.strptime(expire_time, '%Y-%m-%dT%H:%M:%S+08:00')))
-
-    @classmethod
-    def corp_id(cls):
-        """
-        corp id
-        :return: str
-        """
-        return os.getenv("CORP_ID")
-
-    @classmethod
-    def secret(cls):
-        """
-        secret key
-        :return: str
-        """
-        return os.getenv("SECRET")
+    # 数据库配置
+    DB_HOST: str = Field(default="localhost")
+    DB_PORT: int = Field(default=5432)
+    DB_NAME: str = Field(default="userdata") 
+    DB_USER: str = Field(default="postgres")
+    DB_PASSWORD: str = Field(default="password")
+    DB_POOL_MIN_SIZE: int = Field(default=5)
+    DB_POOL_MAX_SIZE: int = Field(default=10)
+    DB_SSL: bool = Field(default=False)
     
-    @classmethod
-    def agent_id(cls):
-        """
-        agent id
-        :return: str
-        """
-        return os.getenv("AGENT_ID")
+    # 接口认证相关
+    ACCESS_TOKEN: Optional[str] = None
+    ACCESS_KEY_ID: Optional[str] = None
+    STORE_ID: Optional[str] = None
+    SECRET_KEY: Optional[str] = None
+    JWT_SECRET_KEY: Optional[str] = None
+    EXPIRE_TIME: Optional[str] = None
+    
+    # 企业微信相关配置
+    CORP_ID: Optional[str] = None
+    SECRET: Optional[str] = None
+    AGENT_ID: Optional[str] = None
+    REDIRECT_URI: Optional[str] = None
+    FRONTEND_URL: str = Field(default="http://localhost:5173")
 
-    @classmethod
-    def app_id(cls):
-        """
-        app id
-        :return: str
-        """
-        return os.getenv("AGENT_ID")
+settings = Settings()
 
-    @classmethod
-    def redirect_uri(cls):
-        """
-        企业微信 OAuth 重定向 URI
-        :return: str
-        """
-        return os.getenv("REDIRECT_URI")
+class Config:
+    """Config 兼容之前方法"""
 
-    @classmethod
-    def frontend_url(cls):
-        """
-        前端 URL
-        :return: str
-        """
-        return os.getenv("FRONTEND_URL", "http://localhost:5173")
-
-
-    @classmethod
-    def target_list(cls):
-        """
-        返回教室位置
-        B101~B105、201~220、301~305、308~315、401~403
-        C101~C104、201~206、301~206
-        Y101~Y103、201~204、301~303、401~402
-        Q101、103、、201~203、205、301、302、304、401
-        S101、201~207、301~309、401~409
-        一楼作业柜、二楼作业柜、三楼作业柜
-        up to date on 2025-03-05 08:24:40.871318+00:00
-        """
-        targets_list =[
+    _targets_list: ClassVar[List[Dict[str, str]]] = [
             {"value": "B101", "label": "B101"},
             {"value": "B102", "label": "B102"},
             {"value": "B103", "label": "B103"},
@@ -270,4 +178,98 @@ class Config:
             {"value": "二楼作业柜", "label": "二楼作业柜"},
             {"value": "三楼作业柜", "label": "三楼作业柜"}
         ]
-        return targets_list
+
+    @classmethod
+    def uri_prefix(cls) -> str:
+        """URI前缀"""
+        return settings.URI_PREFIX
+
+    @classmethod
+    def database_config(cls) -> Dict[str, Any]:
+        """返回数据库配置字典"""
+        return {
+            'host': settings.DB_HOST,
+            'port': settings.DB_PORT,
+            'database': settings.DB_NAME,
+            'user': settings.DB_USER,
+            'password': settings.DB_PASSWORD,
+            'min_size': settings.DB_POOL_MIN_SIZE,
+            'max_size': settings.DB_POOL_MAX_SIZE,
+            'ssl': settings.DB_SSL
+        }
+
+    @classmethod
+    def accessToken(cls) -> Optional[str]:
+        """access Token"""
+        return settings.ACCESS_TOKEN
+
+    @classmethod
+    def accessKeyId(cls) -> str:
+        """access key id"""
+        return str(settings.ACCESS_KEY_ID)
+
+    @classmethod
+    def store_Id(cls) -> Optional[str]:
+        """store id"""
+        return settings.STORE_ID
+
+    @classmethod
+    def SECRET_KEY(cls) -> Optional[str]:
+        """secret key"""
+        return settings.SECRET_KEY
+
+    @classmethod
+    def jwt_secret_key(cls) -> Optional[str]:
+        """jwt secret key"""
+        return settings.JWT_SECRET_KEY
+
+    @classmethod
+    def expire_time(cls) -> int:
+        """expire time as timestamp"""
+        if not settings.EXPIRE_TIME:
+            return 0
+        return int(time.mktime(time.strptime(settings.EXPIRE_TIME, '%Y-%m-%dT%H:%M:%S+08:00')))
+
+    @classmethod
+    def corp_id(cls) -> Optional[str]:
+        """corp id"""
+        return settings.CORP_ID
+
+    @classmethod
+    def secret(cls) -> Optional[str]:
+        """secret key"""
+        return settings.SECRET
+    
+    @classmethod
+    def agent_id(cls) -> Optional[str]:
+        """agent id"""
+        return settings.AGENT_ID
+
+    @classmethod
+    def app_id(cls) -> Optional[str]:
+        """app id (same as agent id)"""
+        return settings.AGENT_ID
+
+    @classmethod
+    def redirect_uri(cls) -> Optional[str]:
+        """企业微信 OAuth 重定向 URI"""
+        return settings.REDIRECT_URI
+
+    @classmethod
+    def frontend_url(cls) -> str:
+        """前端 URL"""
+        return settings.FRONTEND_URL
+
+    @classmethod
+    def target_list(cls) -> List[Dict[str, str]]:
+        """
+        返回教室位置
+        B101~B105、201~220、301~305、308~315、401~403
+        C101~C104、201~206、301~206
+        Y101~Y103、201~204、301~303、401~402
+        Q101、103、、201~203、205、301、302、304、401
+        S101、201~207、301~309、401~409
+        一楼作业柜、二楼作业柜、三楼作业柜
+        up to date on 2025-03-05 08:24:40.871318+00:00
+        """
+        return cls._targets_list

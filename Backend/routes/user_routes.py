@@ -6,7 +6,7 @@ from utils.decorators import error_handler
 
 from utils.config import Config
 
-URI_PREFIX = Config.URI_PREFIX
+URI_PREFIX = Config.uri_prefix()
 
 def register_routes(app):
     """注册用户信息相关路由"""

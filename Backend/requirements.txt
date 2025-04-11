@@ -24,3 +24,7 @@ hypercorn~=0.14.4
 
 # 加密支持
 pycryptodome~=3.19.0
+
+# 类型提示
+pydantic~=2.11.3
+pydantic-settings~=2.8.1

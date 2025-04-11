@@ -7,7 +7,7 @@ from handler.PostgreSQLConnector import PostgreSQLConnector
 from utils.wecom_oauth import WeComOAuth
 from utils.config import Config
 
-URI_PREFIX = Config.URI_PREFIX
+URI_PREFIX = Config.uri_prefix()
 JWT_EXPIRY_REMEMBER = datetime.timedelta(weeks=1)
 JWT_EXPIRY_DEFAULT = datetime.timedelta(days=1)
 

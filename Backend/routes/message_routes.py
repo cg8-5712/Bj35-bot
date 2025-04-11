@@ -9,7 +9,7 @@ from utils.config import Config
 from send_message.main import send
 
 
-URI_PREFIX = Config.URI_PREFIX  
+URI_PREFIX = Config.uri_prefix()
 
 def register_routes(app):
     """注册消息相关路由"""
