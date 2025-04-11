@@ -62,19 +62,44 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 
 import AuthService from '@/services/AuthService'
 import NotificationService from '@/services/NotificationService'
 
 const router = useRouter()
+const route = useRoute()
 
 const username = ref('')
 const password = ref('')
 const rememberMe = ref(Boolean)
 
 rememberMe.value = true
+
+async function validateToken(token) {
+  try {
+    NotificationService.notify('验证登录凭据...', 'info')
+    const isValid = await AuthService.validateToken(token)
+    
+    if (isValid) {
+      NotificationService.notify('企业微信登录成功', 'success')
+      router.push('/')
+    } else {
+      NotificationService.notify('登录凭据无效或已过期', 'error')
+    }
+  } catch (error) {
+    console.error('Token validation failed:', error.message)
+    NotificationService.notify('验证失败：' + error.message, 'error')
+  }
+}
+
+onMounted(() => {
+  const token = route.query.token
+  if (token) {
+    validateToken(token)
+  }
+})
 
 async function handleWeComLogin() {
   window.location.href = `${import.meta.env.VITE_APP_API_URL}/auth/wecom`

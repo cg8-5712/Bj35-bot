@@ -77,6 +77,23 @@ class AuthService {
     console.log(userInfo.avatar);
     return userInfo ? userInfo.avatar : null;
   }
+
+  async validateToken(token) {
+    try {
+      localStorage.setItem('access_token', token)
+
+      if (this.isAuthenticated()) {
+        return true
+      } else {
+        this.logout()
+        return false
+      }
+    } catch (error) {
+      console.error('Error validating token:', error)
+      this.logout()
+      return false
+    }
+  }
 }
 
 export default new AuthService();

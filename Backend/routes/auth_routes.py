@@ -108,7 +108,7 @@ def register_routes(app):
 
         # 重定向到前端，带上token
         frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:5173')
-        redirect_url = f"{frontend_url}/login/callback?token={access_token}"
+        redirect_url = f"{frontend_url}/login?token={access_token}"
 
         app.logger.info(f"User {user_info.get('name')} logged in via WeChat Work OAuth")
         return redirect(redirect_url)
