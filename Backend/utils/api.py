@@ -8,11 +8,11 @@ import logging
 import asyncio
 import aiohttp
 
-from utils.config import Config
+from . import Config
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-access_token = Config.accessToken()
+access_token = Config.access_token_yunji()
 logger = logging.getLogger(__name__)
 # print(access_token)
 
@@ -21,7 +21,7 @@ def create_headers():
     signatureNonce = str(uuid.uuid4())
     headers = {'signatureNonce': signatureNonce,
                'timestamp': str(time.strftime('%Y-%m-%dT%H:%M:%S+08:00', time.gmtime())),
-               'accessKeyId': str(Config.accessKeyId()),
+               'accessKeyId': str(Config.access_key_id_yunji()),
                'token': str(access_token)}
     return headers
 
@@ -50,7 +50,7 @@ async def get_school_tasks(pageSize, current):
     # 异步获取学校任务列表，支持分页
     headers = create_headers()
     async with aiohttp.ClientSession(headers=headers) as session:
-        params = {'storeIds': Config.store_Id(),
+        params = {'storeIds': Config.store_id_yunji(),
                   'pageSize': pageSize,
                   'current': current
                   }
@@ -75,7 +75,7 @@ async def reset_cabin_position(cabin_id, position):
 async def get_running_task():
     # 异步获取正在运行的任务列表
     headers = create_headers()
-    storeId = Config.store_Id()
+    storeId = Config.store_id_yunji()
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.get(f'https://open-api.yunjiai.cn/v3/rcs/task/running-task/list', json={'storeId': storeId}) as response:
             return json.loads(await response.text())
@@ -86,7 +86,7 @@ async def make_task_flow_move_target_and_lift_down(cabin_id, target):
     data = {
           "outTaskId": str(uuid.uuid4()),
           "templateId": "dock_cabin_and_move_target_and_lift_down",
-          "storeId": Config.store_Id(),
+          "storeId": Config.store_id_yunji(),
           "params": {
             "dockCabinId": cabin_id,
             "target": target
@@ -102,7 +102,7 @@ async def make_task_flow_docking_cabin_and_move_target(cabin_id,chassis_id,targe
     data = {
               "outTaskId": str(uuid.uuid4()),
               "templateId": "docking_cabin_and_move_target",
-              "storeId": Config.store_Id(),
+              "storeId": Config.store_id_yunji(),
               "params": {
                 "dockCabinId": cabin_id,
                 "chassisId": chassis_id,
@@ -123,7 +123,7 @@ async def make_task_flow_dock_cabin_and_move_target_with_wait_action(cabin_id,ch
     data = {
               "outTaskId": str(uuid.uuid4()),
               "templateId": "dock_cabin_and_move_target_with_wait_action",
-              "storeId": Config.store_Id(),
+              "storeId": Config.store_id_yunji(),
               "params": {
                 "dockCabinId": cabin_id,
                 "chassisId": chassis_id,
@@ -142,7 +142,7 @@ async def make_task_flow_move_and_lift_down(cabin_id,chassis_id, dockingMarker, 
     data = {
               "outTaskId": str(uuid.uuid4()),
               "templateId": "dock_cabin_to_move_and_lift_down",
-              "storeId": Config.store_Id(),
+              "storeId": Config.store_id_yunji(),
               "params": {
               "dockCabinId": cabin_id,
               "chassisId": chassis_id,
@@ -304,7 +304,7 @@ async def RUN(locations, cabin_id):
     # print(res)
     # res = asyncio.run(make_task_flow())
     # print(res)
-    # print(Config.store_Id())
+    # print(Config.store_id_yunji())
     # res = asyncio.run(make_task_flow_move_target_with_wait_action(device_bot1_cabin, "Y103"))
     # print(res)
     # res = asyncio.run(get_device_status(device_bot1_cabin))

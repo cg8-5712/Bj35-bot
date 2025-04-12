@@ -104,8 +104,8 @@ async def get_access_token(access_key_id, access_key_secret):
 
 
 async def update_access_token():
-    access_key_id = Config.accessKeyId()
-    access_key_secret = Config.SECRET_KEY()
+    access_key_id = Config.access_key_id_yunji()
+    access_key_secret = Config.secret_key_yunji()
     data = await get_access_token(access_key_id, access_key_secret)
     if data["code"] == 0:
         access_token = data["data"]["accessToken"]

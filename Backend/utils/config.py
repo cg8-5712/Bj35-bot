@@ -211,22 +211,22 @@ class Config:
         }
 
     @classmethod
-    def accessToken(cls) -> str:
+    def access_token_yunji(cls) -> str:
         """access Token"""
         return settings.AUTH_ACCESS_TOKEN
 
     @classmethod
-    def accessKeyId(cls) -> str:
+    def access_key_id_yunji(cls) -> str:
         """access key id"""
         return settings.AUTH_ACCESS_KEY_ID
 
     @classmethod
-    def store_Id(cls) -> str:
+    def store_id_yunji(cls) -> str:
         """store id"""
         return settings.AUTH_STORE_ID
 
     @classmethod
-    def SECRET_KEY(cls) -> str:
+    def secret_key_yunji(cls) -> str:
         """secret key"""
         return settings.AUTH_SECRET_KEY
 
