@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import AuthService from '@/services/AuthService'
 
 const routes = [
-  { path: '/', name: 'Dashboard', component: () => import('@/views/dashboard.vue') },
+  { path: '/', name: 'Dashboard', component: () => import('@/views/Dashboard.vue') },
   { path: '/login', name: 'Login', component: () => import('@/views/Login.vue') },
 
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: () => import('@/views/NotFound.vue') }
