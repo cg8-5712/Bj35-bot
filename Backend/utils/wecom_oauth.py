@@ -1,4 +1,5 @@
-import os
+# -*- coding: utf-8 -*-
+
 import logging
 import random
 from urllib.parse import quote
@@ -14,9 +15,9 @@ class WeComOAuth:
     @classmethod
     def get_oauth_url(cls):
         """获取企业微信 OAuth 授权 URL"""
-        corp_id = Config.corp_id()
-        redirect_uri = quote(Config.redirect_uri(), safe='')
-        agent_id = Config.agent_id()
+        corp_id = Config.get_wecom_corp_id()
+        redirect_uri = quote(Config.get_wecom_redirect_uri(), safe='')
+        agent_id = Config.get_wecom_agent_id()
 
         # 生成随机字符串作为 state 参数
         state = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz0123456789', k=16))
@@ -79,8 +80,8 @@ class WeComOAuth:
     @classmethod
     async def get_access_token(cls):
         """获取企业微信访问令牌"""
-        corp_id = os.getenv('CORP_ID')
-        corp_secret = os.getenv('CORP_SECRET')
+        corp_id = Config.get_wecom_corp_id()
+        corp_secret = Config.get_wecom_secret()
 
         url = f"https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={corp_id}&corpsecret={corp_secret}"
 

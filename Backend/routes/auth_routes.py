@@ -67,14 +67,14 @@ def register_routes(app):
 
         if not code or not state:
             app.logger.error("Missing code or state in WeChat Work OAuth callback")
-            return redirect(os.getenv('FRONTEND_URL', 'http://localhost:5173') + '/login?error=missing_parameters')
+            return redirect(Config.get_wecom_frontend_url() + '/login?error=missing_parameters')
 
         # 获取用户信息
         user_info = await WeComOAuth.get_user_info(code, state)
 
         if not user_info or not user_info.get('userid'):
             app.logger.error("Failed to get user info from WeChat Work")
-            return redirect(os.getenv('FRONTEND_URL', 'http://localhost:5173') + '/login?error=auth_failed')
+            return redirect(Config.get_wecom_frontend_url() + '/login?error=auth_failed')
 
         # 检查用户是否存在，如果不存在则创建
         user_exists = await PostgreSQLConnector.check_user_exists_by_wecom(user_info.get('userid'))
@@ -105,9 +105,5 @@ def register_routes(app):
         )
 
         # 重定向到前端，带上token
-        frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:5173')
-        redirect_url = f"{frontend_url}/login?token={access_token}"
-
         app.logger.info(f"User {user_info.get('name')} logged in via WeChat Work OAuth")
-        return redirect(redirect_url)
-
+        return redirect(Config.get_wecom_frontend_url() + f"/login?token={access_token}")

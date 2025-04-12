@@ -10,7 +10,7 @@ from .jwt_handlers import configure_jwt_handlers
 
 from .decorators import error_handler
 
-from . import api
+from . import yunji_api
 
 __all__ = [
     'Config', 'Settings',
@@ -23,5 +23,5 @@ __all__ = [
 
     'generate_signature', 'get_access_token', 'update_access_token',
 
-    'api'
+    'yunji_api'
 ]

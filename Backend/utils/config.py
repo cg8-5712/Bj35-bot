@@ -243,32 +243,27 @@ class Config:
         return int(time.mktime(time.strptime(settings.AUTH_EXPIRE_TIME, '%Y-%m-%dT%H:%M:%S+08:00')))
 
     @classmethod
-    def corp_id(cls) -> str:
+    def get_wecom_corp_id(cls) -> str:
         """corp id"""
         return settings.WECOM_CORP_ID
 
     @classmethod
-    def secret(cls) -> str:
+    def get_wecom_secret(cls) -> str:
         """secret key"""
         return settings.WECOM_SECRET
 
     @classmethod
-    def agent_id(cls) -> str:
+    def get_wecom_agent_id(cls) -> str:
         """agent id"""
         return settings.WECOM_AGENT_ID
 
     @classmethod
-    def app_id(cls) -> str:
-        """app id (same as agent id)"""
-        return settings.WECOM_AGENT_ID
-
-    @classmethod
-    def redirect_uri(cls) -> str:
+    def get_wecom_redirect_uri(cls) -> str:
         """企业微信 OAuth 重定向 URI"""
         return settings.WECOM_REDIRECT_URI
 
     @classmethod
-    def frontend_url(cls) -> str:
+    def get_wecom_frontend_url(cls) -> str:
         """前端 URL"""
         return settings.WECOM_FRONTEND_URL
 
