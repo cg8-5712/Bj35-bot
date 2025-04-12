@@ -1,4 +1,3 @@
-import os
 import datetime
 from quart import jsonify, request, redirect
 from quart_jwt_extended import create_access_token
