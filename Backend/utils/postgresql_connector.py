@@ -99,7 +99,7 @@ class PostgreSQLConnector:
                 await conn.execute('''
                     CREATE TABLE IF NOT EXISTS userinfo (
                         wecom TEXT,
-                        wecom_id INTEGER,
+                        wecom_id TEXT,
                         name TEXT,
                         password TEXT,
                         department TEXT,
