@@ -1,3 +1,4 @@
+import os
 import logging
 import random
 from urllib.parse import quote
@@ -78,7 +79,23 @@ class WeComOAuth:
     @classmethod
     async def get_access_token(cls):
         """获取企业微信访问令牌"""
-        return Config.accessToken()
+        corp_id = os.getenv('CORP_ID')
+        corp_secret = os.getenv('CORP_SECRET')
+
+        url = f"https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={corp_id}&corpsecret={corp_secret}"
+
+        try:
+            response = await aiohttp.ClientSession().get(url)
+            data = await response.json()
+
+            if data.get('errcode') == 0:
+                return data.get('access_token')
+            else:
+                logging.error(f"Failed to get access token: {data}")
+                return None
+        except Exception as e:
+            logging.error(f"Error getting access token: {e}")
+            return None
 
     @classmethod
     async def get_user_id(cls, access_token, code):
