@@ -34,7 +34,7 @@ class Settings(BaseSettings):
 
     ENV: str = Field(default="production")
 
-    URI_PREFIX: ClassVar[str] = '/api/v1'
+    URI_PREFIX: str = Field(default='/api/v1')
 
     # 数据库配置
     DB_HOST: str = Field(default="localhost")
