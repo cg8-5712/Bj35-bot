@@ -12,7 +12,7 @@ asyncpg~=0.30.0
 APScheduler~=3.10.4
 
 # 环境与配置
-python-dotenv~=1.0.1
+python-dotenv~=1.1.0
 
 # 工具库
 PyJWT~=2.8.0
