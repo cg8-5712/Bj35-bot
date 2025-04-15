@@ -1,5 +1,5 @@
 # Web 框架
-quart~=0.18.4
+quart~=0.20.0
 quart-cors~=0.8.0
 quart-jwt-extended~=0.1.0
 werkzeug<4.0.0
