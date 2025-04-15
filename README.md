@@ -1,6 +1,24 @@
-# Bj35-bot
+<h1 align="center">
+  Bj35 Bot Web UI
+</h1>
 
-一个用于管理机器人的Web UI系统  
+<p align="center">
+  一个用于管理机器人的Web UI系统  
+</p>
+
+<p align="center">
+  <a href="https://www.codefactor.io/repository/github/cg8-5712/Bj35-bot/">
+    <img src="https://www.codefactor.io/repository/github/cg8-5712/Bj35-bot/badge" alt="CodeFactor" />
+  </a>
+
+  <a href="https://github.com/cg8-5712/Bj35-bot/activity">
+    <img src="https://img.shields.io/github/last-commit/cg8-5712/Bj35-bot/main" alt="Last Commit"/>
+  </a>
+
+  <a href="./LICENSE">
+    <img src="https://img.shields.io/github/license/cg8-5712/Bj35-bot" alt="GPL-3.0\"/>
+  </a>
+</p>
 
 ## 注意事项
 
