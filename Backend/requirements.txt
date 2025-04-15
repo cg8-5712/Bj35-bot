@@ -2,7 +2,7 @@
 quart~=0.18.4
 quart-cors~=0.7.0
 quart-jwt-extended~=0.1.0
-werkzeug<3.0.0
+werkzeug<4.0.0
 
 # 异步支持
 aiohttp~=3.11.8
