@@ -9,7 +9,7 @@ aiohttp~=3.11.16
 asyncpg~=0.30.0
 
 # 任务调度
-APScheduler~=3.10.4
+APScheduler~=3.11.0
 
 # 环境与配置
 python-dotenv~=1.1.0
