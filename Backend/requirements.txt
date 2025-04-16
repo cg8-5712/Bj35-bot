@@ -22,7 +22,7 @@ requests~=2.32.3
 hypercorn~=0.17.3
 
 # 加密支持
-pycryptodome~=3.19.0
+pycryptodome~=3.22.0
 
 # 类型提示
 pydantic~=2.11.3
