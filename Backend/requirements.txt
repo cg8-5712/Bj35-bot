@@ -27,3 +27,6 @@ pycryptodome~=3.22.0
 # 类型提示
 pydantic~=2.11.3
 pydantic-settings~=2.8.1
+
+# 姓名首字母设置
+pypinyin~=0.54.0
