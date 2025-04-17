@@ -1,4 +1,5 @@
 import datetime
+import logging
 from quart import jsonify, request, redirect
 from quart_jwt_extended import create_access_token
 
@@ -54,13 +55,16 @@ def register_routes(app):
     @app.route(URI_PREFIX + '/auth/wecom', methods=['GET'])
     async def wecom_auth():
         """获取企业微信OAuth授权URL"""
+        print("WeCom OAuth")
         oauth_url = WeComOAuth.get_oauth_url()
+        logging.info(f"Redirecting to WeCom OAuth URL: {oauth_url}")
         return redirect(oauth_url)
 
 
     @app.route(URI_PREFIX + '/auth/wecom/callback', methods=['GET'])
     async def wecom_callback():
         """处理企业微信OAuth回调"""
+        print("WeCom OAuth_callback")
         code = request.args.get('code')
         state = request.args.get('state')
 

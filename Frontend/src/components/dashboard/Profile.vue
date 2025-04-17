@@ -68,100 +68,103 @@
   <div class="max-w-7xl lg:px-16 pt-16">
     <h1 class="sr-only">General Settings</h1>
     <main class="px-4 py-16 sm:px-0 lg:px-0 lg:py-20">
-      <div class="flex justify-end mb-8">
-        <div class="relative inline-block">
-          <img :src="profile.avatar" alt="Avatar" class="w-64 h-64 rounded-full object-cover" />
-          <button
-            class="absolute bottom-4 right-4 bg-white p-2 rounded-full shadow hover:bg-gray-100"
-            @click="openCropper"
-          >
-            <PencilIcon class="w-5 h-5 text-gray-700" />
-          </button>
+      <div v-if="!showChangePassword">
+        <div class="flex justify-end mb-8">
+          <div class="relative inline-block">
+            <img :src="profile.avatar" alt="Avatar" class="w-64 h-66 rounded-full object-cover" />
+            <button
+              class="absolute bottom-4 right-4 bg-white p-2 rounded-full shadow hover:bg-gray-100"
+              @click="openCropper"
+            >
+              <PencilIcon class="w-5 h-5 text-gray-700" />
+            </button>
+          </div>
         </div>
-      </div>
-      <div class="mx-auto max-w-2xl space-y-16 sm:space-y-20">
-        <div>
-          <h2 class="text-base font-semibold text-gray-900">Profile</h2>
-          <dl class="mt-6 divide-y divide-gray-100 border-t border-gray-200 text-sm">
-            <div v-for="(value, key) in profileData" :key="key" class="py-6 sm:flex">
-              <dt class="font-medium text-gray-900 sm:w-64 sm:flex-none sm:pr-6">{{ key }}</dt>
-              <dd class="mt-1 flex justify-between gap-x-6 sm:mt-0 sm:flex-auto">
-                <div class="text-gray-900 flex items-center">
-                  <template v-if="editingField === key">
-                    <input
-                      type="text"
-                      v-model="editingValue"
-                      @keyup.enter="saveField(key)"
-                      class="border border-gray-300 rounded p-1"
-                    />
-                    <span v-if="key === 'Wecom'" class="ml-2 text-gray-400">@北京三十五中</span>
-                  </template>
-                  <template v-else>
-                    {{ value }}
-                    <span v-if="key === 'Wecom'" class="ml-2 text-gray-400">@北京三十五中</span>
-                  </template>
-                </div>
-                <div class="flex items-center gap-x-2">
-                  <button
-                    type="button"
-                    class="font-semibold text-indigo-600 hover:text-indigo-500"
-                    @click="editingField === key ? saveField(key) : updateField(key)"
-                  >
-                    {{ editingField === key ? "Save" : "Update" }}
+        <div class="mx-auto max-w-2xl space-y-16 sm:space-y-20">
+          <div>
+            <h2 class="text-base font-semibold text-gray-900">Profile</h2>
+            <dl class="mt-6 divide-y divide-gray-100 border-t border-gray-200 text-sm">
+              <div v-for="(value, key) in profileData" :key="key" class="py-6 sm:flex">
+                <dt class="font-medium text-gray-900 sm:w-64 sm:flex-none sm:pr-6">{{ key }}</dt>
+                <dd class="mt-1 flex justify-between gap-x-6 sm:mt-0 sm:flex-auto">
+                  <div class="text-gray-900 flex items-center">
+                    <template v-if="editingField === key">
+                      <input
+                        type="text"
+                        v-model="editingValue"
+                        @keyup.enter="saveField(key)"
+                        class="border border-gray-300 rounded p-1"
+                      />
+                      <span v-if="key === 'Wecom'" class="ml-2 text-gray-400">@北京三十五中</span>
+                    </template>
+                    <template v-else>
+                      {{ value }}
+                      <span v-if="key === 'Wecom'" class="ml-2 text-gray-400">@北京三十五中</span>
+                    </template>
+                  </div>
+                  <div class="flex items-center gap-x-2">
+                    <button
+                      type="button"
+                      class="font-semibold text-indigo-600 hover:text-indigo-500"
+                      @click="editingField === key ? saveField(key) : updateField(key)"
+                    >
+                      {{ editingField === key ? "Save" : "Update" }}
+                    </button>
+                  </div>
+                </dd>
+              </div>
+            </dl>
+          </div>
+          <div>
+            <h2 class="text-base font-semibold text-gray-900">Language and dates</h2>
+            <p class="mt-1 text-sm text-gray-500">Choose what language and date format to use throughout your account.</p>
+            <dl class="mt-6 divide-y divide-gray-100 border-t border-gray-200 text-sm">
+              <div class="py-6 sm:flex">
+                <dt class="font-medium text-gray-900 sm:w-64 sm:flex-none sm:pr-6">Language</dt>
+                <dd class="mt-1 flex justify-between gap-x-6 sm:mt-0 sm:flex-auto">
+                  <div class="text-gray-900">
+                    <template v-if="editingLanguage">
+                      <select v-model="currentLanguage" class="border border-gray-300 rounded p-1">
+                        <option v-for="option in languageOptions" :key="option" :value="option">{{ option }}</option>
+                      </select>
+                    </template>
+                    <template v-else>
+                      {{ currentLanguage }}
+                    </template>
+                  </div>
+                  <button type="button" @click="toggleLanguageEdit" class="font-semibold text-indigo-600 hover:text-indigo-500">
+                    {{ editingLanguage ? "Save" : "Update" }}
                   </button>
-                </div>
-              </dd>
-            </div>
-          </dl>
-        </div>
-        <div>
-          <h2 class="text-base font-semibold text-gray-900">Language and dates</h2>
-          <p class="mt-1 text-sm text-gray-500">Choose what language and date format to use throughout your account.</p>
-          <dl class="mt-6 divide-y divide-gray-100 border-t border-gray-200 text-sm">
-            <div class="py-6 sm:flex">
-              <dt class="font-medium text-gray-900 sm:w-64 sm:flex-none sm:pr-6">Language</dt>
-              <dd class="mt-1 flex justify-between gap-x-6 sm:mt-0 sm:flex-auto">
-                <div class="text-gray-900">
-                  <template v-if="editingLanguage">
-                    <select v-model="currentLanguage" class="border border-gray-300 rounded p-1">
-                      <option v-for="option in languageOptions" :key="option" :value="option">{{ option }}</option>
-                    </select>
-                  </template>
-                  <template v-else>
-                    {{ currentLanguage }}
-                  </template>
-                </div>
-                <button type="button" @click="toggleLanguageEdit" class="font-semibold text-indigo-600 hover:text-indigo-500">
-                  {{ editingLanguage ? "Save" : "Update" }}
-                </button>
-              </dd>
-            </div>
-            <div class="py-6 sm:flex">
-              <dt class="font-medium text-gray-900 sm:w-64 sm:flex-none sm:pr-6">Date format</dt>
-              <dd class="mt-1 flex justify-between gap-x-6 sm:mt-0 sm:flex-auto">
-                <div class="text-gray-900">DD-MM-YYYY</div>
-                <button type="button" class="font-semibold text-indigo-600 hover:text-indigo-500">Update</button>
-              </dd>
-            </div>
-            <SwitchGroup as="div" class="flex pt-6">
-              <SwitchLabel as="dt" class="flex-none pr-6 font-medium text-gray-900 sm:w-64" passive>
-                Automatic timezone
-              </SwitchLabel>
-              <dd class="flex flex-auto items-center justify-end">
-                <Switch
-                  v-model="automaticTimezoneEnabled"
-                  :class="[automaticTimezoneEnabled ? 'bg-indigo-600' : 'bg-gray-200', 'flex w-8 cursor-pointer rounded-full p-1 ring-1 ring-gray-900/5 transition-colors duration-200 ease-in-out ring-inset focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600']"
-                >
-                  <span
-                    aria-hidden="true"
-                    :class="[automaticTimezoneEnabled ? 'translate-x-3.5' : 'translate-x-0', 'size-4 transform rounded-full bg-white ring-1 shadow-xs ring-gray-900/5 transition duration-200 ease-in-out']"
-                  />
-                </Switch>
-              </dd>
-            </SwitchGroup>
-          </dl>
+                </dd>
+              </div>
+              <div class="py-6 sm:flex">
+                <dt class="font-medium text-gray-900 sm:w-64 sm:flex-none sm:pr-6">Date format</dt>
+                <dd class="mt-1 flex justify-between gap-x-6 sm:mt-0 sm:flex-auto">
+                  <div class="text-gray-900">DD-MM-YYYY</div>
+                  <button type="button" class="font-semibold text-indigo-600 hover:text-indigo-500">Update</button>
+                </dd>
+              </div>
+              <SwitchGroup as="div" class="flex pt-6">
+                <SwitchLabel as="dt" class="flex-none pr-6 font-medium text-gray-900 sm:w-64" passive>
+                  Automatic timezone
+                </SwitchLabel>
+                <dd class="flex flex-auto items-center justify-end">
+                  <Switch
+                    v-model="automaticTimezoneEnabled"
+                    :class="[automaticTimezoneEnabled ? 'bg-indigo-600' : 'bg-gray-200', 'flex w-8 cursor-pointer rounded-full p-1 ring-1 ring-gray-900/5 transition-colors duration-200 ease-in-out ring-inset focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600']"
+                  >
+                    <span
+                      aria-hidden="true"
+                      :class="[automaticTimezoneEnabled ? 'translate-x-3.5' : 'translate-x-0', 'size-4 transform rounded-full bg-white ring-1 shadow-xs ring-gray-900/5 transition duration-200 ease-in-out']"
+                    />
+                  </Switch>
+                </dd>
+              </SwitchGroup>
+            </dl>
+          </div>
         </div>
       </div>
+      <ChangePassword v-if="showChangePassword" @close="showChangePassword = false" />
     </main>
   </div>
 
@@ -198,8 +201,10 @@ import AuthService from '@/services/AuthService.js'
 import VueCropper from 'vue-cropperjs'
 import 'cropperjs/dist/cropper.css'
 import ApiServices from "@/services/ApiServices.js";
+import ChangePassword from '@/components/dashboard/profile/change_password.vue'
 
 const router = useRouter()
+const showChangePassword = ref(false)
 
 function logout() {
   AuthService.logout()
@@ -207,7 +212,7 @@ function logout() {
 }
 
 function goToSecurity() {
-  router.push('/profile/password')
+  showChangePassword.value = true
 }
 
 const navigation = [

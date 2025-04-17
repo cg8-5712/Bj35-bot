@@ -19,6 +19,10 @@ class WeComOAuth:
         redirect_uri = quote(Config.get_wecom_redirect_uri(), safe='')
         agent_id = Config.get_wecom_agent_id()
 
+        print(f"redirect_uri: {redirect_uri}")
+        print(f"agent_id: {agent_id}")
+        print(f"corp_id: {corp_id}")
+
         # 生成随机字符串作为 state 参数
         state = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz0123456789', k=16))
         cls.state.append(state)
@@ -27,7 +31,7 @@ class WeComOAuth:
         # 参考文档: https://developer.work.weixin.qq.com/document/path/98174
         oauth_url = (
             f"https://open.weixin.qq.com/connect/oauth2/authorize"
-            f"?appid={corp_id}"
+            f"?appid=ww8e4628d565c6588f"
             f"&redirect_uri={redirect_uri}"
             f"&response_type=code"
             f"&scope=snsapi_privateinfo"
