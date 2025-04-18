@@ -192,7 +192,7 @@ class TokenManager:
         获取有效的token，如果即将过期则自动更新
         
         Returns:
-            Optional[str]: 有效的token或None（如果获取失败）
+            bool: 如果获取成功返回True，发生错误返回False
         """
         try:
             # 检查确保有效token
