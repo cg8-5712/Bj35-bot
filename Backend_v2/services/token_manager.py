@@ -203,7 +203,7 @@ class TokenManager:
             if token_data and "access_token" in token_data:
                 settings.YUNJI_ACCESS_TOKEN = token_data["access_token"]
                 return True
-            
+
             return False
 
         except Exception as e:

@@ -8,6 +8,7 @@ Copyright (C) 2025 AptS:1547
 
 本文件定义了PostgreSQLConnector类，用于管理PostgreSQL数据库连接和操作。
 """
+
 import logging
 import asyncio
 from asyncio import Lock
