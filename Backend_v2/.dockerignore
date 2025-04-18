@@ -1,0 +1,46 @@
+# 忽略版本控制相关文件
+.git
+.gitignore
+.github
+
+# 忽略缓存文件和目录
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+.coverage
+htmlcov/
+
+# 忽略数据目录（与您的gitignore一致）
+data/
+
+# 忽略开发和部署相关文件
+.vscode/
+.idea/
+*.log
+logs/
+*.swp
+*.swo
+
+# 忽略文档和其他非必要文件
+docs/
+README.md
+LICENSE
+*.md
+
+# 忽略Docker相关文件（避免递归引用）
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# 忽略虚拟环境
+venv/
+env/
+ENV/
+
+# 忽略临时文件和备份
+*.bak
+*.tmp
+*~
