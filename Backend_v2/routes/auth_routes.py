@@ -5,6 +5,8 @@ from quart_jwt_extended import create_access_token
 
 from utils import PostgreSQLConnector, WeComOAuth
 
+from services import UserService
+
 from settings import settings
 
 URI_PREFIX = settings.URI_PREFIX
@@ -13,10 +15,10 @@ JWT_EXPIRY_DEFAULT = datetime.timedelta(days=1)
 
 async def get_user(username, password):
     """验证用户凭据"""
-    return await PostgreSQLConnector.verify_user_credentials(username, password)
+    return await UserService.verify_user_credentials(username, password)
 
 async def get_user_info(username, kind):
-    return await PostgreSQLConnector.get_userinfo_by_username(username, kind)
+    return await UserService.get_userinfo_by_username(username, kind)
 
 def register_routes(app):
     """注册认证相关路由"""
@@ -82,11 +84,11 @@ def register_routes(app):
             return redirect(settings.WECOM_FRONTEND_URL + '/login?error=auth_failed')
 
         # 检查用户是否存在，如果不存在则创建
-        user_exists = await PostgreSQLConnector.check_user_exists_by_wecom(user_info.get('userid'))
+        user_exists = await UserService.check_user_exists_by_wecom(user_info.get('userid'))
 
         if not user_exists:
             # 添加用户到数据库
-            await PostgreSQLConnector.add_user({
+            await UserService.add_user({
                 'wecom': user_info.get('wecom', ''),
                 'wecom_id': user_info.get('userid'),
                 'name': user_info.get('name'),
@@ -111,4 +113,4 @@ def register_routes(app):
 
         # 重定向到前端，带上token
         app.logger.info(f"User {user_info.get('name')} logged in via WeChat Work OAuth")
-        return redirect(Csettings.WECOM_FRONTEND_URL + f"/login?token={access_token}")
+        return redirect(settings.WECOM_FRONTEND_URL + f"/login?token={access_token}")

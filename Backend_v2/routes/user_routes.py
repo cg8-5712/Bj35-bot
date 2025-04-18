@@ -1,8 +1,9 @@
 from quart import jsonify, request
 from quart_jwt_extended import jwt_required
 
-from utils import PostgreSQLConnector
 from utils import error_handler
+
+from services import UserService
 
 from settings import settings
 
@@ -17,7 +18,7 @@ def register_routes(app):
     async def get_user_profile():
         username = request.args.get('username')
         print(f"username: {username}")
-        info = await PostgreSQLConnector.get_userinfo_by_username(username, 'name')
+        info = await UserService.get_userinfo_by_username(username, 'name')
 
         print(f'info: {info}')
         print(type(info))
@@ -36,7 +37,7 @@ def register_routes(app):
         #     print(f"A verification email has been sent to {value}.")
 
         # 调用update_user_profile方法并传入编辑后的字段和值
-        update_response = await PostgreSQLConnector.update_userinfo(data)
+        update_response = await UserService.update_userinfo(data)
         # update_response = {"success": True}
 
         # 根据API返回的数据进行处理
