@@ -3,8 +3,7 @@ from quart_jwt_extended import jwt_required
 
 from utils import error_handler
 
-from services import UserService
-from services.send_message import send
+from services import UserService, WeComService
 
 from settings import settings
 
@@ -27,7 +26,7 @@ def register_routes(app):
 
         if user_info and 'wecom_id' in user_info:
             user_id = user_info['wecom_id']  # 获取 wecom_id 作为 user_id
-            await send(user_id, message)  # 发送消息
+            await WeComService.send(user_id, message)  # 发送消息
             return jsonify({'code': 0, 'message': '消息发送成功'}), 200
 
         return jsonify({'code': 1, 'message': '未找到用户或用户信息不完整'}), 404

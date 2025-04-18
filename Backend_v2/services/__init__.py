@@ -10,11 +10,11 @@ Copyright (C) 2025 AptS:1547
 """
 
 from .token_manager import TokenManager
-from . import send_message
+from .wecom_service import WeComService
 from .user_service import UserService
 
 __all__ = [
     'TokenManager',
+    'WeComService',
     'UserService',
-    'send_message'
 ]
