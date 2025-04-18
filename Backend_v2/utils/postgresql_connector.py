@@ -6,6 +6,7 @@ from typing import Dict, Optional, Any
 
 import asyncpg
 
+from settings import settings
 
 class PostgreSQLConnector:
     """PostgreSQL 数据库连接管理类，提供数据库操作的各种方法。"""
@@ -13,35 +14,11 @@ class PostgreSQLConnector:
     lock: Lock = Lock()  # 创建一个全局锁
 
     @classmethod
-    async def initialize(cls, config=None) -> None:
+    async def initialize(cls) -> None:
         """初始化数据库连接池"""
         if cls.pool:
             logging.info("数据库连接池已存在，跳过初始化")
             return
-
-        if config is None:
-            try:
-                from settings import settings
-                config = {
-                    'host': settings.DB_HOST,
-                    'port': settings.DB_PORT,
-                    'database': settings.DB_NAME,
-                    'user': settings.DB_USER,
-                    'password': settings.DB_PASSWORD,
-                    'min_size': settings.DB_POOL_MIN_SIZE,
-                    'max_size': settings.DB_POOL_MAX_SIZE
-                }
-            except (ImportError, AttributeError):
-                logging.error("无法导入配置文件或缺少必要的属性，请检查 settings.py 文件")
-                raise
-
-        db_host = config.get('host', 'localhost')
-        db_port = config.get('port', 5432)
-        db_name = config.get('database', 'userdata')
-        db_user = config.get('user', 'postgres')
-        db_pass = config.get('password', 'password')
-        min_size = config.get('min_size', 5)
-        max_size = config.get('max_size', 10)
 
         max_retries = 3
         retry_count = 0
@@ -50,13 +27,18 @@ class PostgreSQLConnector:
             try:
                 # 创建连接池
                 cls.pool = await asyncpg.create_pool(
-                    host=db_host,
-                    port=db_port,
-                    database=db_name,
-                    user=db_user,
-                    password=db_pass,
-                    min_size=min_size,
-                    max_size=max_size
+                    user=settings.DB_USER,
+                    password=settings.DB_PASSWORD,
+                    database=settings.DB_NAME,
+                    host=settings.DB_HOST,
+                    port=settings.DB_PORT,
+                    min_size=settings.DB_POOL_MIN_SIZE,
+                    max_size=settings.DB_POOL_MAX_SIZE,
+                    ssl=settings.DB_SSL,
+                    timeout=60,  # 设置连接超时时间
+                    command_timeout=60,  # 设置命令超时时间
+                    max_inactive_connection_lifetime=300,  # 设置最大非活动连接生命周期
+                    max_lifetime=3600,  # 设置最大连接生命周期
                 )
 
                 # 测试连接
@@ -66,19 +48,20 @@ class PostgreSQLConnector:
                 # 创建必要的表
                 await cls.create_table()
 
-                logging.info(f"PostgreSQL 连接已建立 (主机: {db_host}, 数据库: {db_name})")
+                logging.info("PostgreSQL 连接已建立")
                 return
             except asyncpg.PostgresError as e:
                 retry_count += 1
                 if retry_count >= max_retries:
-                    logging.error(f"PostgreSQL 连接失败，已重试 {max_retries} 次: {e}")
-                    raise ConnectionError(f"无法连接到 PostgreSQL 数据库: {str(e)}")
+                    logging.error("PostgreSQL 连接失败，已重试 %d 次，退出", max_retries)
+                    raise ConnectionError(f"无法连接到 PostgreSQL 数据库: {str(e)}") from e
                 else:
                     wait_time = 2 ** retry_count  # 指数退避策略
-                    logging.warning(f"PostgreSQL 连接失败，{wait_time} 秒后重试 ({retry_count}/{max_retries}): {e}")
+                    logging.warning("PostgreSQL 连接失败，正在重试 %d/%d 次，等待 %d 秒: %s",
+                                    retry_count, max_retries, wait_time, str(e))
                     await asyncio.sleep(wait_time)
             except Exception as e:
-                logging.error(f"PostgreSQL 初始化失败: {e}")
+                logging.error("PostgreSQL 初始化失败: %s", str(e))
                 raise
 
     @classmethod
@@ -112,7 +95,7 @@ class PostgreSQLConnector:
                 ''')
                 logging.debug("用户信息表创建成功或已存在")
         except Exception as e:
-            logging.error(f"创建表失败: {e}")
+            logging.error("创建表失败: %s", str(e))
             raise
 
     @classmethod
@@ -145,13 +128,13 @@ class PostgreSQLConnector:
                         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
                     ''', wecom, wecom_id, name, password, department, position, mobile, language, email, avatar_text)
 
-                    logging.info(f"用户 {name} 添加成功")
+                    logging.info("用户信息已添加: %s", name)
                     return {'success': True}
             except asyncpg.PostgresError as e:
-                logging.error(f"添加用户失败: {e}")
+                logging.error("添加用户失败: %s", str(e))
                 return {'success': False}
             except Exception as e:
-                logging.error(f"添加用户时发生未知错误: {e}")
+                logging.error("添加用户时发生未知错误: %s", str(e))
                 return {'success': False}
 
     @classmethod
@@ -182,7 +165,7 @@ class PostgreSQLConnector:
                         return (username, row['kind'])
                     return None
             except Exception as e:
-                logging.error(f"验证用户凭据失败: {e}")
+                logging.error("验证用户凭据失败: %s", str(e))
                 raise
 
     @classmethod
@@ -201,7 +184,7 @@ class PostgreSQLConnector:
 
                     return bool(row)
             except Exception as e:
-                logging.error(f"检查企业微信用户是否存在失败: {e}")
+                logging.error("检查企业微信用户是否存在失败: %s", str(e))
                 return False
 
     @classmethod
@@ -214,7 +197,7 @@ class PostgreSQLConnector:
         async with cls.lock:
             allowed_columns = ['wecom', 'name', 'email', 'mobile']
             if kind not in allowed_columns:
-                logging.error(f"无效的列名: {kind}")
+                logging.error("无效的列名: %s", kind)
                 raise ValueError(f"无效的列名: {kind}")
 
             try:
@@ -223,7 +206,7 @@ class PostgreSQLConnector:
                     password_sha256 = await conn.fetchval(query, username)
                     return password_sha256
             except Exception as e:
-                logging.error(f"获取密码失败: {e}")
+                logging.error("获取密码失败: %s", str(e))
                 raise
 
     @classmethod
@@ -236,7 +219,7 @@ class PostgreSQLConnector:
         async with cls.lock:
             allowed_columns = ['wecom', 'name', 'email', 'mobile', 'wecom_id']
             if kind not in allowed_columns:
-                logging.error(f"无效的列名: {kind}")
+                logging.error("无效的列名: %s", kind)
                 raise ValueError(f"无效的列名: {kind}")
 
             try:
@@ -247,13 +230,13 @@ class PostgreSQLConnector:
                     if row:
                         # 将记录转换为字典
                         user_info_dict = dict(row)
-                        logging.debug(f"已获取用户信息: {user_info_dict.get('name', 'unknown')}")
+                        logging.debug("已获取用户信息: %s", user_info_dict)
                         return user_info_dict
-                    else:
-                        logging.debug(f"未找到用户: {username} (通过 {kind})")
-                        return None
+                    
+                    logging.debug("未找到用户: %s", username)
+                    return None
             except Exception as e:
-                logging.error(f"获取用户信息失败: {e}")
+                logging.error("获取用户信息失败: %s", str(e))
                 raise
 
     @classmethod
@@ -282,15 +265,15 @@ class PostgreSQLConnector:
             allowed_columns = ['wecom', 'wecom_id', 'name', 'password', 'department',
                                'position', 'mobile', 'language', 'email', 'avatar_text']
             if update_kind not in allowed_columns:
-                logging.error(f"无效的列名: {update_kind}")
+                logging.error("无效的列名: %s", update_kind)
                 raise ValueError(f"无效的列名: {update_kind}")
 
             try:
                 async with cls.pool.acquire() as conn:
                     query = f"UPDATE userinfo SET {update_kind} = $1 WHERE name = $2"
                     await conn.execute(query, value, name)
-                    logging.info(f"已更新用户 {name} 的 {update_kind} 字段")
+                    logging.info("已更新用户 信息: %s", {update_kind: value, 'name': name})
                     return {"success": True}
             except Exception as e:
-                logging.error(f"更新用户信息失败: {e}")
+                logging.error("更新用户信息失败: %s", str(e))
                 raise
