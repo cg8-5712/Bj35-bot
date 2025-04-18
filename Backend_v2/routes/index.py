@@ -1,5 +1,5 @@
 def register_routes(app):
-    """注测首页路由"""
+    """注册首页路由"""
 
     # 首页路由
     @app.route('/')
