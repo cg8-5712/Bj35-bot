@@ -18,6 +18,8 @@ import asyncpg
 
 from settings import settings
 
+from utils.exceptions import DatabaseConnectionError
+
 class PostgreSQLConnector:
     """PostgreSQL 数据库连接管理类，提供数据库操作的各种方法。"""
     pool: Optional[asyncpg.Pool] = None
@@ -48,7 +50,6 @@ class PostgreSQLConnector:
                     timeout=60,  # 设置连接超时时间
                     command_timeout=60,  # 设置命令超时时间
                     max_inactive_connection_lifetime=300,  # 设置最大非活动连接生命周期
-                    max_lifetime=3600,  # 设置最大连接生命周期
                 )
 
                 # 测试连接
@@ -64,15 +65,15 @@ class PostgreSQLConnector:
                 retry_count += 1
                 if retry_count >= max_retries:
                     logging.error("PostgreSQL 连接失败，已重试 %d 次，退出", max_retries)
-                    raise ConnectionError(f"无法连接到 PostgreSQL 数据库: {str(e)}") from e
-                else:
-                    wait_time = 2 ** retry_count  # 指数退避策略
-                    logging.warning("PostgreSQL 连接失败，正在重试 %d/%d 次，等待 %d 秒: %s",
-                                    retry_count, max_retries, wait_time, str(e))
-                    await asyncio.sleep(wait_time)
+                    raise DatabaseConnectionError(f"无法连接到 PostgreSQL 数据库: {str(e)}") from e
+
+                wait_time = 2 ** retry_count  # 指数退避策略
+                logging.warning("PostgreSQL 连接失败，正在重试 %d/%d 次，等待 %d 秒: %s",
+                                retry_count, max_retries, wait_time, str(e))
+                await asyncio.sleep(wait_time)
             except Exception as e:
                 logging.error("PostgreSQL 初始化失败: %s", str(e))
-                raise
+                raise DatabaseConnectionError(f"无法连接到 PostgreSQL 数据库: {str(e)}") from e
 
     @classmethod
     async def close(cls) -> None:

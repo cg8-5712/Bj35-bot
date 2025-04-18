@@ -24,6 +24,8 @@ from utils import PostgreSQLConnector
 from utils import configure_jwt_handlers
 from services import TokenManager
 
+from utils.exceptions import DatabaseConnectionError
+
 from routes import register_all_routes
 
 # 配置日志
@@ -53,18 +55,20 @@ def create_app():
 app = create_app()
 
 async def init_db():
+    """初始化数据库连接"""
     try:
         await PostgreSQLConnector.initialize()
-    except Exception as e:
+    except DatabaseConnectionError as e:
         if settings.ENV == 'development':
             logging.error("数据库初始化失败: %s", e)
             return
 
         logging.critical("数据库初始化失败，应用将退出: %s", e)
-        exit(1)
+        sys.exit(1)
 
 @app.before_serving
 async def before_serving():
+    """在应用启动前执行的函数"""
     env = settings.ENV
 
     # 使用 pathlib 替代 os.path
