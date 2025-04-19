@@ -1,3 +1,7 @@
+"""
+This file contains the routes for the robot devices.
+"""
+
 from quart import jsonify
 from quart_jwt_extended import jwt_required
 
@@ -118,8 +122,6 @@ async def process_robot_devices(device_list):
         # 提取相关数据并格式化
         data = device_status_response.get('data', {})
         device_status = data.get('deviceStatus', {})
-
-        print(device_status)
 
         robot_data = {
             'deviceId': cabin_id,

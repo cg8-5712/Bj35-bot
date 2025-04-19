@@ -10,12 +10,15 @@ Copyright (C) 2025 AptS:1547
 """
 
 import json
-from datetime import datetime
-
+import logging
 import aiohttp
+from datetime import datetime
 
 from settings import settings
 from utils.exceptions import GetWeComTokenError
+
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 class WeComService:
     """企业微信服务类，处理与企业微信相关的所有业务逻辑"""
@@ -27,7 +30,8 @@ class WeComService:
     async def get_access_token(cls, corp_id, secret):
         """获取企业微信的access_token"""
 
-        if cls.access_token and cls.token_expire_time > int(datetime.now().timestamp() + 60):
+        if (cls.access_token and
+                cls.token_expire_time > int(datetime.now().timestamp() + 60)):
             return cls.access_token
 
         url = f"https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={corp_id}&corpsecret={secret}"
@@ -62,9 +66,9 @@ class WeComService:
             async with session.post(url, headers=headers, data=json.dumps(data)) as response:
                 result = await response.json()
                 if result.get("errcode") == 0:
-                    print("消息发送成功！")
+                    logger.info("消息发送成功！")
                 else:
-                    print(f"消息发送失败: {result}")
+                    logger.error("消息发送失败: %s", result)
 
     @classmethod
     async def send(cls, user_id, message_content):

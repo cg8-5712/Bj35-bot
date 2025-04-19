@@ -79,7 +79,7 @@ class TokenManager:
 
             logging.info("Token数据已保存到文件: %s", cls.TOKEN_FILE)
             return True
-        except Exception as e:
+        except (IOError, yaml.YAMLError) as e:
             logging.error("保存token数据失败: %s", str(e))
             return False
 
@@ -107,7 +107,7 @@ class TokenManager:
 
             decrypted_data = cls._decrypt_data(data["encrypted"])
             return decrypted_data
-        except Exception as e:
+        except (IOError, yaml.YAMLError) as e:
             logging.error("加载token数据失败: %s", str(e))
             return None
 
@@ -172,7 +172,7 @@ class TokenManager:
                     return False
 
             return True
-        except Exception as e:
+        except (IOError, yaml.YAMLError) as e:
             logging.error("检查或更新access token时出错：%s", str(e))
             return False
 
@@ -189,7 +189,7 @@ class TokenManager:
             current_ts = datetime.now().timestamp()
             days_remaining = (expiration_ts - current_ts) / (60 * 60 * 24)
             logging.info("Access token将在 %.2f天后过期", days_remaining)
-        except Exception as e:
+        except (IOError, yaml.YAMLError) as e:
             logging.error("获取token过期时间失败：%s", str(e))
 
     @classmethod
@@ -212,6 +212,6 @@ class TokenManager:
 
             return False
 
-        except Exception as e:
-            logging.error("获取有效token失败: %s", str(e))
+        except (IOError, yaml.YAMLError) as e:
+            logging.error("读取token失败: %s", str(e))
             return False

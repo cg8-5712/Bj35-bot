@@ -9,11 +9,18 @@ Copyright (C) 2025 AptS:1547
 本文件定义了一些自定义异常类，用于处理不同的错误情况。
 """
 
+
 class DatabaseConnectionError(Exception):
     """自定义异常类，用于处理数据库连接错误"""
+
 
 class UpdateTokenError(Exception):
     """自定义异常类，用于处理更新token时的错误"""
 
+
 class GetWeComTokenError(Exception):
     """自定义异常类，用于处理获取企业微信token时的错误"""
+
+
+class InteractionWithDatabaseError(Exception):
+    """Self-defined exception class for database interaction errors"""

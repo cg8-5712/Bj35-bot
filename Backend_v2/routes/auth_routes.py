@@ -1,3 +1,11 @@
+"""
+Authentication routes module.
+Handles user authentication, including:
+- Local username/password login
+- WeChat Work (WeCom) OAuth authentication
+- JWT token generation and management
+"""
+
 import datetime
 import logging
 from quart import jsonify, request, redirect
@@ -18,6 +26,16 @@ async def get_user(username, password):
     return await UserService.verify_user_credentials(username, password)
 
 async def get_user_info(username, kind):
+    """
+    Get user information by username and authentication type.
+    
+    Args:
+        username (str): The username to look up
+        kind (str): The authentication type (e.g. 'local', 'wecom')
+    
+    Returns:
+        dict: User information including name, department, etc.
+    """
     return await UserService.get_userinfo_by_username(username, kind)
 
 def register_routes(app):
@@ -35,7 +53,7 @@ def register_routes(app):
             return jsonify(code=1, message="Missing username or password"), 422
 
         user = await get_user(username, password)
-        print(user)
+
         if user:
             user_info = await get_user_info(user[0], user[1])
             # 创建访问令牌，可选择添加更多声明
@@ -50,16 +68,14 @@ def register_routes(app):
             )
             app.logger.info(f"User {username} logged in successfully")
             return jsonify(code=0, access_token=access_token)
-        else:
-            app.logger.error(f"User {username} login failed")
-            return jsonify(code=1, message="Invalid username or password")
+        app.logger.error(f"User {username} login failed")
+        return jsonify(code=1, message="Invalid username or password")
 
 
     # 企业微信OAuth路由
     @app.route(URI_PREFIX + '/auth/wecom', methods=['GET'])
     async def wecom_auth():
         """获取企业微信OAuth授权URL"""
-        print("WeCom OAuth")
         oauth_url = WeComOAuth.get_oauth_url()
         logging.info('Redirecting to WeCom OAuth URL: %s', oauth_url)
         return redirect(oauth_url)
@@ -68,7 +84,6 @@ def register_routes(app):
     @app.route(URI_PREFIX + '/auth/wecom/callback', methods=['GET'])
     async def wecom_callback():
         """处理企业微信OAuth回调"""
-        print("WeCom OAuth_callback")
         code = request.args.get('code')
         state = request.args.get('state')
 

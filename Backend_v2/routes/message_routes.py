@@ -1,3 +1,7 @@
+"""
+This file contains the routes for sending messages.
+"""
+
 from quart import jsonify, request
 from quart_jwt_extended import jwt_required
 

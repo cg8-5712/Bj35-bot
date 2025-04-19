@@ -1,3 +1,7 @@
+"""
+This file contains the code for registering the index route.
+"""
+
 def register_routes(app):
     """注册首页路由"""
 

@@ -43,7 +43,8 @@ def register_routes(app):
     @error_handler
     async def task_move_and_lift(device_id, docking_marker, target):
         """创建移动和升降任务"""
-        result = await yunji_api.make_task_flow_move_and_lift_down(device_id, docking_marker, target)
+        result = await (yunji_api.make_task_flow_move_and_lift_down
+                        (device_id, docking_marker, target))
         return jsonify(result)
 
     @app.route(URI_PREFIX +
@@ -61,7 +62,8 @@ def register_routes(app):
     @error_handler
     async def task_dock_and_back(device_id, target):
         """创建back任务"""
-        result = await yunji_api.make_task_flow_dock_cabin_and_move_target_with_wait_action(device_id, target, False)
+        result = await (yunji_api.make_task_flow_dock_cabin_and_move_target_with_wait_action
+                        (device_id, target, False))
         return jsonify(result)
 
     @app.route(URI_PREFIX + '/run-task/<device_id>', methods=['POST'])
@@ -73,7 +75,7 @@ def register_routes(app):
         locations = data.get('locations', [])
 
         # 调用RUN函数
-        run_result = await yunji_api.RUN(locations, device_id)
+        run_result = await yunji_api.run(locations, device_id)
 
         # 根据执行结果返回响应
         return jsonify(run_result)

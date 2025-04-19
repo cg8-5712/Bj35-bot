@@ -3,6 +3,7 @@ user_routes.py
 
 This file contains the routes for user information.
 """
+import logging
 from quart import jsonify, request
 from quart_jwt_extended import jwt_required
 
@@ -12,6 +13,8 @@ from services import UserService
 
 from settings import settings
 
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 URI_PREFIX = settings.URI_PREFIX
 
 def register_routes(app):
@@ -22,11 +25,9 @@ def register_routes(app):
     # @error_handler
     async def get_user_profile():
         username = request.args.get('username')
-        print(f"username: {username}")
+        logger.info("username: %s", username)
         info = await UserService.get_userinfo_by_username(username, 'name')
-
-        print(f'info: {info}')
-        print(type(info))
+        logger.info("info: %s", info)
         return jsonify(info), 200
 
     @app.route(URI_PREFIX + '/post_user_profile', methods=['POST'])
@@ -34,7 +35,6 @@ def register_routes(app):
     @error_handler
     async def post_user_profile():
         data = await request.json
-
         # # 验证邮箱地址，如果需要
         # if key.lower() == "email address":
         #     if not validate_email(value):
@@ -47,28 +47,23 @@ def register_routes(app):
 
         # 根据API返回的数据进行处理
         if update_response['success']:
-            print("Profile updated successfully!")
+            logger.info("Profile updated successfully!")
             return jsonify(
                 {'success': True, 'message': 'Profile updated successfully!'}), 200
-
-        else:
-            return jsonify(
-                {'success': False, 'message': update_response['message']}), 400
+        return jsonify(
+            {'success': False, 'message': update_response['message']}), 400
 
     @app.route(URI_PREFIX + '/post_user_avatar', methods=['POST'])
     @error_handler
     @jwt_required
     async def post_user_avatar():
         data = await request.json
-        print(data)
         update_response = {"success": True}
 
         # 根据API返回的数据进行处理
         if update_response['success']:
-            print("Profile updated successfully!")
+            logger.info("Avatar updated successfully!")
             return jsonify(
                 {'success': True, 'message': 'Profile updated successfully!'}), 200
-
-        else:
-            return jsonify(
-                {'success': False, 'message': update_response['message']}), 400
+        return jsonify(
+        {'success': False, 'message': update_response['message']}), 400

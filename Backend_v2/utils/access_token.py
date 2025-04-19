@@ -26,43 +26,49 @@ import base64
 import time
 import uuid
 import aiohttp
+import logging
 
 from settings import settings
 from utils.exceptions import UpdateTokenError
 
+# Set up logging
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 # Function to generate signature asynchronously
 async def generate_signature(params, access_key_secret):
+    """This function generates the signature for the request parameters."""
     # Sort request parameters in dictionary order
     sorted_params = sorted(params.items())
 
-    print(f"Sorted request parameters: {sorted_params}")
+    logger.debug("Sorted request parameters: %s", sorted_params)
 
     # Construct canonical request string
-    canonical_string = "&".join([f"{key}={value}" for key, value in sorted_params])
-    print(f"Canonical request string: {canonical_string}")
+    canonical_string = "&".join(["%s=%s" % (key, value) for key, value in sorted_params])
+    logger.debug("Canonical request string: %s", canonical_string)
 
-    # Construct HMAC signature
+    # Construct HMAC-SHA1 signature to sign
     message = canonical_string.encode('utf-8')
     key = (access_key_secret + "&").encode('utf-8')
     signature = hmac.new(key, message, hashlib.sha1).digest()
-    print(f"message: {message}")
-    print(f"HMAC signature: {base64.b64encode(signature).decode('utf-8')}")
+    logger.debug("message: %s", message)
+    logger.info("HMAC signature: %s", base64.b64encode(signature).decode('utf-8'))
 
     # Base64 encode the signature
     return base64.b64encode(signature).decode('utf-8')
 
 
-# Method to get accessToken
 async def get_access_token(access_key_id, access_key_secret):
+    """This function sends a request to obtain an accessToken from YunJi."""
     # Current timestamp
     timestamp = time.strftime('%Y-%m-%dT%H:%M:%S+08:00', time.localtime())
 
-    print(f"Current timestamp: {timestamp}")
+    logger.info("Current timestamp: %d", timestamp)
 
     # Unique signatureNonce
     signature_nonce = str(uuid.uuid4())
 
-    print(signature_nonce)
+    logger.debug("Signature nonce: %s", signature_nonce)
 
     # Request parameters
     params = {
@@ -85,7 +91,7 @@ async def get_access_token(access_key_id, access_key_secret):
         "timestamp": timestamp,
     }
 
-    print(f"Request parameters: {params}")
+    logger.debug("Request parameters: %s", params)
 
     # Send request to get accessToken
     url = "https://open-api.yunjiai.cn/v3/auth/accessToken"
@@ -95,12 +101,14 @@ async def get_access_token(access_key_id, access_key_secret):
         async with session.post(url, json=params) as response:
             response_json = await response.json()
             if response_json["code"] == 0:
-                print(response_json)
+                logger.debug("Obtained accessToken: %s", response_json)
+                logger.info("Obtained accessToken: %s", response_json["data"]["accessToken"])
+                logger.info("Token expiration time: %s", response_json["data"]["expiration"])
                 return response_json
-            else:
-                raise UpdateTokenError(f"Failed to obtain accessToken: {response_json['msg']}")
+            raise UpdateTokenError(f"Failed to obtain accessToken: {response_json['msg']}")
 
 async def update_access_token():
+    """This function updates the accessToken and expiration time."""
     access_key_id = settings.YUNJI_ACCESS_KEY_ID
     access_key_secret = settings.YUNJI_SECRET_KEY
     data = await get_access_token(access_key_id, access_key_secret)

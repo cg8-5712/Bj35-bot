@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-
+"""
+This module is used for WeCom OAuth authentication.
+"""
 import logging
 import random
 from urllib.parse import quote
@@ -19,19 +21,15 @@ class WeComOAuth:
         redirect_uri = quote(Settings.WECOM_REDIRECT_URI, safe='')
         agent_id = Settings.WECOM_AGENT_ID
 
-        print(f"redirect_uri: {redirect_uri}")
-        print(f"agent_id: {agent_id}")
-        print(f"corp_id: {corp_id}")
-
         # 生成随机字符串作为 state 参数
         state = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz0123456789', k=16))
         cls.state.append(state)
 
         # 构建授权URL
-        # 参考文档: https://developer.work.weixin.qq.com/document/path/98174
+
         oauth_url = (
             f"https://open.weixin.qq.com/connect/oauth2/authorize"
-            f"?appid=ww8e4628d565c6588f"
+            f"?appid={corp_id}"
             f"&redirect_uri={redirect_uri}"
             f"&response_type=code"
             f"&scope=snsapi_privateinfo"
@@ -71,7 +69,8 @@ class WeComOAuth:
 
             # 4. 如果有user_ticket，获取敏感信息
             if user_info.get('user_ticket'):
-                sensitive_info = await cls.get_sensitive_info(access_token, user_info.get('user_ticket'))
+                sensitive_info = await (cls.get_sensitive_info
+                                        (access_token, user_info.get('user_ticket')))
                 if sensitive_info:
                     user_detail.update(sensitive_info)
 
@@ -87,7 +86,8 @@ class WeComOAuth:
         corp_id = Settings.WECOM_CORP_ID
         corp_secret = Settings.WECOM_SECRET
 
-        url = f"https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={corp_id}&corpsecret={corp_secret}"
+        url = (f"https://qyapi.weixin.qq.com/cgi-bin/gettoken?"
+               f"corpid={corp_id}&corpsecret={corp_secret}")
 
         try:
             response = await aiohttp.ClientSession().get(url)
@@ -95,9 +95,8 @@ class WeComOAuth:
 
             if data.get('errcode') == 0:
                 return data.get('access_token')
-            else:
-                logging.error("Failed to get access token: %s", data)
-                return None
+            logging.error("Failed to get access token: %s", data)
+            return None
         except Exception as e:
             logging.error("Error getting access token: %s", e)
             return None
@@ -105,7 +104,8 @@ class WeComOAuth:
     @classmethod
     async def get_user_id(cls, access_token, code):
         """通过授权码获取用户ID"""
-        url = f"https://qyapi.weixin.qq.com/cgi-bin/auth/getuserinfo?access_token={access_token}&code={code}"
+        url = (f"https://qyapi.weixin.qq.com/cgi-bin/auth/getuserinfo?"
+               f"access_token={access_token}&code={code}")
 
         try:
             response = await aiohttp.ClientSession().get(url)
@@ -116,9 +116,8 @@ class WeComOAuth:
                     'userid': data.get('userid'),
                     'user_ticket': data.get('user_ticket')
                 }
-            else:
-                logging.error("Failed to get user ID: %s", data)
-                return None
+            logging.error("Failed to get user ID: %s", data)
+            return None
         except Exception as e:
             logging.error("Error getting user ID: %s", e)
             return None
@@ -126,7 +125,8 @@ class WeComOAuth:
     @classmethod
     async def get_user_detail(cls, access_token, userid):
         """获取用户基本信息"""
-        url = f"https://qyapi.weixin.qq.com/cgi-bin/user/get?access_token={access_token}&userid={userid}"
+        url = (f"https://qyapi.weixin.qq.com/cgi-bin/user/get?"
+               f"access_token={access_token}&userid={userid}")
 
         try:
             response = await aiohttp.ClientSession().get(url)
@@ -140,9 +140,8 @@ class WeComOAuth:
                     'position': data.get('position'),
                     'wecom': data.get('alias', '')
                 }
-            else:
-                logging.error("Failed to get user detail: %s", data)
-                return None
+            logging.error("Failed to get user detail: %s", data)
+            return None
         except Exception as e:
             logging.error("Error getting user detail: %s", e)
             return None
@@ -150,7 +149,7 @@ class WeComOAuth:
     @classmethod
     async def get_sensitive_info(cls, access_token, user_ticket):
         """获取用户敏感信息"""
-        url = "https://qyapi.weixin.qq.com/cgi-bin/user/getuserdetail?access_token={access_token}"
+        url = f"https://qyapi.weixin.qq.com/cgi-bin/user/getuserdetail?access_token={access_token}"
         data = {"user_ticket": user_ticket}
 
         try:
@@ -163,9 +162,8 @@ class WeComOAuth:
                     'email': data.get('email'),
                     'avatar': data.get('avatar')
                 }
-            else:
-                logging.error("Failed to get sensitive info: %s", data)
-                return None
+            logging.error("Failed to get sensitive info: %s", data)
+            return None
         except Exception as e:
             logging.error("Error getting sensitive info: %s", e)
             return None

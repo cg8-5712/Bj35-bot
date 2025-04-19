@@ -24,7 +24,7 @@ This file is used to store the configuration of the project.
 User can get some necessary params from this file.
 """
 
-from typing import Dict, List, Any, ClassVar
+from typing import Dict, List, ClassVar
 from pydantic import Field
 from pydantic_settings import BaseSettings
 
