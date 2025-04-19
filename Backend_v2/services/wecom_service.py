@@ -12,26 +12,34 @@ Copyright (C) 2025 AptS:1547
 import json
 import aiohttp
 
+from datetime import datetime, timedelta
+
 from settings import settings
 
 
 class WeComService:
     """企业微信服务类，处理与企业微信相关的所有业务逻辑"""
 
+    access_token : str = ""  # 存储access_token
+    token_expire_time : int = 0  # 存储access_token的过期时间
+
     @staticmethod
     async def get_access_token(corp_id, secret):
         """获取企业微信的access_token"""
-        # TODO: 这里可以添加缓存机制，避免频繁请求
+
+        if WeComService.access_token and WeComService.token_expire_time > int(datetime.now().timestamp() + 60):
+            return WeComService.access_token
+
         url = f"https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={corp_id}&corpsecret={secret}"
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
                 result = await response.json()
                 if result.get("errcode") == 0:
-                    print("获取access_token成功！")
-                    print(f"access_token: {result.get('access_token')}")
-                    return result.get("access_token")
+                    WeComService.access_token = result.get("access_token")
+                    WeComService.token_expire_time = int(datetime.now().timestamp()) + result.get("expires_in")
+                    return WeComService.access_token
 
-                raise Exception(f"获取access_token失败: {result}")
+        raise Exception(f"获取access_token失败: {result}")
 
     # 发送消息
     @staticmethod

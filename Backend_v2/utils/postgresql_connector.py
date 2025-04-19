@@ -158,7 +158,7 @@ class PostgreSQLConnector:
         """执行查询并返回单个值"""
         if not cls.pool:
             raise ValueError("数据库连接池尚未初始化")
-        
+
         async with cls.lock:
             try:
                 async with cls.pool.acquire() as conn:
