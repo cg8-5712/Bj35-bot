@@ -10,36 +10,37 @@ Copyright (C) 2025 AptS:1547
 """
 
 import json
+from datetime import datetime
+
 import aiohttp
 
-from datetime import datetime, timedelta
-
 from settings import settings
-
+from utils.exceptions import GetWeComTokenError
 
 class WeComService:
     """企业微信服务类，处理与企业微信相关的所有业务逻辑"""
 
-    access_token : str = ""  # 存储access_token
-    token_expire_time : int = 0  # 存储access_token的过期时间
+    access_token: str = ""  # 存储access_token
+    token_expire_time: int = 0  # 存储access_token的过期时间
 
-    @staticmethod
-    async def get_access_token(corp_id, secret):
+    @classmethod
+    async def get_access_token(cls, corp_id, secret):
         """获取企业微信的access_token"""
 
-        if WeComService.access_token and WeComService.token_expire_time > int(datetime.now().timestamp() + 60):
-            return WeComService.access_token
+        if cls.access_token and cls.token_expire_time > int(datetime.now().timestamp() + 60):
+            return cls.access_token
 
         url = f"https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={corp_id}&corpsecret={secret}"
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
                 result = await response.json()
                 if result.get("errcode") == 0:
-                    WeComService.access_token = result.get("access_token")
-                    WeComService.token_expire_time = int(datetime.now().timestamp()) + result.get("expires_in")
-                    return WeComService.access_token
+                    cls.access_token = result.get("access_token")
+                    cls.token_expire_time = int(
+                        datetime.now().timestamp()) + result.get("expires_in")
+                    return cls.access_token
 
-        raise Exception(f"获取access_token失败: {result}")
+        raise GetWeComTokenError(f"获取access_token失败: {result}")
 
     # 发送消息
     @staticmethod
@@ -65,8 +66,8 @@ class WeComService:
                 else:
                     print(f"消息发送失败: {result}")
 
-    @staticmethod
-    async def send(user_id, message_content):
+    @classmethod
+    async def send(cls, user_id, message_content):
         """发送消息"""
-        access_token = await WeComService.get_access_token(settings.WECOM_CORP_ID, settings.WECOM_SECRET)
-        await WeComService.send_message(access_token, user_id, message_content)
+        access_token = await cls.get_access_token(settings.WECOM_CORP_ID, settings.WECOM_SECRET)
+        await cls.send_message(access_token, user_id, message_content)
