@@ -1,3 +1,8 @@
+"""
+token_manager.py
+This module provides the TokenManager class
+which manages access tokens and their storage, encryption, checking, and updating.
+"""
 import logging
 import json
 import fcntl
@@ -154,7 +159,8 @@ class TokenManager:
 
                     logging.info("新的access token生成成功")
 
-                    expiration = int(datetime.strptime(expiration, "%Y-%m-%dT%H:%M:%S%z").timestamp())
+                    expiration = int(datetime.strptime(expiration,
+                                                       "%Y-%m-%dT%H:%M:%S%z").timestamp())
 
                     # 更新并保存新token
                     await cls.save_token_data({

@@ -1,3 +1,8 @@
+"""
+task_routes.py
+
+该模块包含任务相关的路由处理函数。
+"""
 from quart import jsonify, request
 from quart_jwt_extended import jwt_required
 
@@ -59,14 +64,6 @@ def register_routes(app):
         result = await yunji_api.make_task_flow_dock_cabin_and_move_target_with_wait_action(device_id, target, False)
         return jsonify(result)
 
-    @app.route(URI_PREFIX + '/goto-charge/<device_id>', methods=['POST'])
-    @jwt_required
-    @error_handler
-    async def goto_charge(device_id):
-        """让机器人去充电"""
-        result = await yunji_api.goto_charge(device_id)
-        return jsonify(result)
-    
     @app.route(URI_PREFIX + '/run-task/<device_id>', methods=['POST'])
     @jwt_required
     @error_handler

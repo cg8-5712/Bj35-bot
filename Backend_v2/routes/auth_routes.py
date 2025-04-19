@@ -61,7 +61,7 @@ def register_routes(app):
         """获取企业微信OAuth授权URL"""
         print("WeCom OAuth")
         oauth_url = WeComOAuth.get_oauth_url()
-        logging.info(f"Redirecting to WeCom OAuth URL: {oauth_url}")
+        logging.info('Redirecting to WeCom OAuth URL: %s', oauth_url)
         return redirect(oauth_url)
 
 

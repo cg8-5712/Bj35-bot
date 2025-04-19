@@ -110,7 +110,8 @@ async def make_task_flow_docking_cabin_and_move_target(cabin_id,chassis_id,targe
               }
             }
     async with aiohttp.ClientSession(headers=headers) as session:
-        async with session.post(f'https://open-api.yunjiai.cn/v3/rcs/task/flow/execute', json=data) as response:
+        async with session.post(
+                f'https://open-api.yunjiai.cn/v3/rcs/task/flow/execute', json=data) as response:
             return json.loads(await response.text())
 
 async def make_task_flow_dock_cabin_and_move_target_with_wait_action(cabin_id,chassis_id,target,overtime):
@@ -150,7 +151,8 @@ async def make_task_flow_move_and_lift_down(cabin_id,chassis_id, dockingMarker, 
               }
     }
     async with aiohttp.ClientSession(headers=headers) as session:
-        async with session.post(f'https://open-api.yunjiai.cn/v3/rcs/task/flow/execute', json=data) as response:
+        async with session.post(
+                f'https://open-api.yunjiai.cn/v3/rcs/task/flow/execute', json=data) as response:
             return json.loads(await response.text())
 
 async def get_device_by_id(cabin_id):
@@ -164,7 +166,8 @@ async def sleep(time):
 
 async def check(cabin_id):
     res=await get_device_status(cabin_id)
-    status=[res["data"]["deviceStatus"]["lockers"][0]["status"], res["data"]["deviceStatus"]["lockers"][1]["status"]]
+    status=[res["data"]["deviceStatus"]["lockers"][0]["status"],
+            res["data"]["deviceStatus"]["lockers"][1]["status"]]
     if "OPEN" in status:
         return "open"
     elif status==["CLOSE", "CLOSE"]:
@@ -186,13 +189,13 @@ async def RUN(locations, cabin_id):
 
     for key, value in cabins.items():
         if cabin_prefix in value:
-            logger.info(f'找到匹配的CABIN: {value}, 对应的位置: {key}')
+            logger.info('找到匹配的CABIN: %s, 对应的位置: %s', value, key)
             try:
                 chassis_id = settings.CHASSIS.get(key, None)
             except:
                 return {'code': 1, 'message': '找不到匹配的底盘ID'}
 
-    if chassis_id == "" or chassis_id == None:
+    if chassis_id == "" or chassis_id is None:
         return {'code': 1, 'message': f'找不到匹配的CABIN通过前缀: {cabin_prefix}'}
 
 
@@ -200,37 +203,38 @@ async def RUN(locations, cabin_id):
         if not locations:
             return {'code': 1, 'message': '位置列表不能为空'}
 
-        logger.info(f'开始执行任务流，设备ID: {cabin_id}, 位置列表: {locations}')
+        logger.info('开始执行任务流，设备ID: %s, 位置列表: %s', cabin_id, locations)
         # 执行每个位置的任务
         task_results = []
         for idx, location in enumerate(locations):
-            logger.info(f'执行第 {idx + 1} 个任务，目标位置: {location}')
-            print(f'执行第 {idx + 1} 个任务，目标位置: {location}')
+            logger.info('执行第 %d 个任务，目标位置: %s', idx + 1, location)
             try:
                 # 获取设备对象
                 device = await get_device_by_id(cabin_id)
                 if not device:
                     raise ValueError(f"找不到设备ID: {cabin_id}")
                 # 执行任务
-                res = await make_task_flow_dock_cabin_and_move_target_with_wait_action(cabin_id,chassis_id, location, 100)
+                res = await (make_task_flow_dock_cabin_and_move_target_with_wait_action
+                             (cabin_id,chassis_id, location, 100))
                 flag = False  # 标记是否完成一次开门关门 关门为 False 开门为 True
                 task_results.append(res)
-                logger.info(f'位置 {location} 任务执行结果: {res}')
+                logger.info('位置 %s 任务执行结果: %s', location, res)
                 while True:
                     res = await check(cabin_id)
                     print(f'flag:{flag} res:{res}')
                     if res == "open":
                         flag = True
-                    if res == "close" and flag == True:
+                    if res == "close" and flag is True:
                         break
                     await asyncio.sleep(1)
                 print(f'code: 0, message: 任务{idx + 1}执行成功 设备ID: {cabin_id}, 位置: {location}')
             except Exception as e:
-                logger.error(f'位置 {location} 任务执行失败: {str(e)}')
+                logger.error("位置 %s 任务执行失败: %s", location, str(e))
                 return {'code': 1, 'message': f'任务执行失败: {str(e)}'}
 
     except Exception as e:
-        logger.error(f'任务流执行失败: {str(e)}')
+        logger.error('任务流执行失败: %s', str(e))
         return {'code': 1, 'message': f'任务流执行失败: {str(e)}'}
 
-    await make_task_flow_dock_cabin_and_move_target_with_wait_action(cabin_id,chassis_id, "charge_point_1F_40300716", 100)
+    await (make_task_flow_dock_cabin_and_move_target_with_wait_action
+           (cabin_id,chassis_id, "charge_point_1F_40300716", 100))

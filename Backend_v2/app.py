@@ -18,10 +18,9 @@ from quart_jwt_extended import JWTManager
 
 from settings import settings
 from utils import PostgreSQLConnector
+from utils.exceptions import DatabaseConnectionError
 from utils import configure_jwt_handlers
 from services import TokenManager
-
-from utils.exceptions import DatabaseConnectionError
 
 from routes import register_all_routes
 

@@ -1,3 +1,8 @@
+"""
+user_routes.py
+
+This file contains the routes for user information.
+"""
 from quart import jsonify, request
 from quart_jwt_extended import jwt_required
 
