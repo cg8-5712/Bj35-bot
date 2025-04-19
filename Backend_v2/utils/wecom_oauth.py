@@ -78,7 +78,7 @@ class WeComOAuth:
             return user_detail
 
         except Exception as e:
-            logging.error(f"Error getting user info: {e}")
+            logging.error("Error getting user info: %s", e)
             return None
 
     @classmethod
@@ -96,10 +96,10 @@ class WeComOAuth:
             if data.get('errcode') == 0:
                 return data.get('access_token')
             else:
-                logging.error(f"Failed to get access token: {data}")
+                logging.error("Failed to get access token: %s", data)
                 return None
         except Exception as e:
-            logging.error(f"Error getting access token: {e}")
+            logging.error("Error getting access token: %s", e)
             return None
 
     @classmethod
@@ -117,10 +117,10 @@ class WeComOAuth:
                     'user_ticket': data.get('user_ticket')
                 }
             else:
-                logging.error(f"Failed to get user ID: {data}")
+                logging.error("Failed to get user ID: %s", data)
                 return None
         except Exception as e:
-            logging.error(f"Error getting user ID: {e}")
+            logging.error("Error getting user ID: %s", e)
             return None
 
     @classmethod
@@ -141,10 +141,10 @@ class WeComOAuth:
                     'wecom': data.get('alias', '')
                 }
             else:
-                logging.error(f"Failed to get user detail: {data}")
+                logging.error("Failed to get user detail: %s", data)
                 return None
         except Exception as e:
-            logging.error(f"Error getting user detail: {e}")
+            logging.error("Error getting user detail: %s", e)
             return None
 
     @classmethod
@@ -164,8 +164,8 @@ class WeComOAuth:
                     'avatar': data.get('avatar')
                 }
             else:
-                logging.error(f"Failed to get sensitive info: {data}")
+                logging.error("Failed to get sensitive info: %s", data)
                 return None
         except Exception as e:
-            logging.error(f"Error getting sensitive info: {e}")
+            logging.error("Error getting sensitive info: %s", e)
             return None
