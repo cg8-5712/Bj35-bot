@@ -1,7 +1,7 @@
 import pytest
 from quart import Quart
-from Backend.routes.task_routes import register_routes
-from Backend.utils import yunji_api
+from routes.task_routes import register_routes
+from utils import yunji_api
 
 @pytest.fixture
 def app():
