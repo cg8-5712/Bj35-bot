@@ -216,7 +216,7 @@ async def RUN(locations, cabin_id):
                 flag = False  # 标记是否完成一次开门关门 关门为 False 开门为 True
                 task_results.append(res)
                 logger.info(f'位置 {location} 任务执行结果: {res}')
-                while True:
+                for i in range(overtime):
                     res = await check(cabin_id)
                     print(f'flag:{flag} res:{res}')
                     if res == "open":
