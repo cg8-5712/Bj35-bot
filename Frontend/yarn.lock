@@ -1081,10 +1081,10 @@ uuid@^11.1.0:
   resolved "https://registry.npmmirror.com/uuid/-/uuid-11.1.0.tgz#9549028be1753bb934fc96e2bca09bb4105ae912"
   integrity sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==
 
-vite@^6.3.3:
-  version "6.3.3"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-6.3.3.tgz#497392c3f2243194e4dbf09ea83e9a3dddf49b88"
-  integrity sha512-5nXH+QsELbFKhsEfWLkHrvgRpTdGJzqOZ+utSdmPTvwHmvU6ITTm3xx+mRusihkcI8GeC7lCDyn3kDtiki9scw==
+vite@^6.3.4:
+  version "6.3.4"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-6.3.4.tgz#d441a72c7cd9a93b719bb851250a4e6c119c9cff"
+  integrity sha512-BiReIiMS2fyFqbqNT/Qqt4CVITDU9M9vE+DKcVAsB+ZV0wvTKd+3hMbkpxz1b+NmEDMegpVbisKiAZOnvO92Sw==
   dependencies:
     esbuild "^0.25.0"
     fdir "^6.4.4"
